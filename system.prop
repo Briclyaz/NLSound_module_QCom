@@ -24,6 +24,10 @@ use.companding.audio=false
 vendor.audio.hal.output.suspend.supported=false
 persist.vendor.audio.ras.enabled=false
 persist.vendor.audio.drc.enabled=false
+vendor.audio.feature.external_dsp.enable=true
+vendor.audio.feature.external_speaker.enable=true
+vendor.audio.feature.external_speaker_tfa.enable=true
+vendor.audio.feature.ext_hw_plugin=true
 #
 # DECODERS&ENCODERS SOUND BY NLSOUND TEAM
 #
