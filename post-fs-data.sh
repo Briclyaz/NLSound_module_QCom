@@ -8,3 +8,5 @@ chmod 0777 $POST
 
 busybox echo "1" > $FORCING
 
+setprop mic.volume 7
+
