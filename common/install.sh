@@ -232,6 +232,7 @@ STEP7=false
 STEP8=false
 STEP9=false
 STEP10=false
+STEP11=false
 
 deep_buffer() {
 	echo -e '\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
@@ -1437,6 +1438,14 @@ mixer() {
 		done
 }
 
+fluence() {
+	echo -e '\nro.vendor.audio.sdk.fluencetype=none' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.fluence.voicecomm=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.fluence.voicecall=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.fluence.voicerec=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.fluence.speaker=false' >> $MODPATH/system.prop
+}
+
 ui_print " "
 ui_print " - Select language -"
 sleep 1
@@ -1452,7 +1461,7 @@ if chooseport; then
 	  sleep 1
 	  ui_print " - Disable Deep Buffer -"
 	  ui_print "***************************************************"
-	  ui_print "* [1/10]                                          *"
+	  ui_print "* [1/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               This option disable               *"
 	  ui_print "*            deep buffer in your device.          *"
@@ -1471,7 +1480,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve volume levels and change media volume steps -"
 	  ui_print "***************************************************"
-	  ui_print "* [2/10]                                          *"
+	  ui_print "* [2/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               A T T E N T I O N!                *"
 	  ui_print "*   Confirming this option may harm your device!  *"
@@ -1491,7 +1500,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve microphones levels -"
 	  ui_print "***************************************************"
-	  ui_print "* [3/10]                                          *"
+	  ui_print "* [3/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*             This option improving               *"
 	  ui_print "*     microphone volume levels and quality in     *"
@@ -1509,7 +1518,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - IIR patches -"
 	  ui_print "***************************************************"
-	  ui_print "* [4/10]                                          *"
+	  ui_print "* [4/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*  IIR directly affects the final sound quality   *"
 	  ui_print "* and it is recommended to try the version with   *"
@@ -1528,7 +1537,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patching audio platform files -"
 	  ui_print "***************************************************"
-	  ui_print "* [5/10]                                          *"
+	  ui_print "* [5/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*     Confirming this option will allow the       *"
 	  ui_print "*         module to force 24-bit audio            *"
@@ -1548,7 +1557,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Disable сompanders -"
 	  ui_print "***************************************************"
-	  ui_print "* [6/10]                                          *"
+	  ui_print "* [6/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*  Companding - method for reducing the effects   *"
 	  ui_print "*    of channels with a limited dynamic range.    *"
@@ -1570,7 +1579,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Configurating interal audio codec -"
 	  ui_print "***************************************************"
-	  ui_print "* [7/10]                                          *"
+	  ui_print "* [7/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            This option configuring              *"
 	  ui_print "*       your device's internal audio codec.       *"
@@ -1587,7 +1596,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patch device_features files -"
 	  ui_print "***************************************************"
-	  ui_print "* [8/10]                                          *"
+	  ui_print "* [8/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*        This step will do the following:         *"
 	  ui_print "*        - Unlocks the sampling frequency         *"
@@ -1612,7 +1621,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Added new Dirac -"
 	  ui_print "***************************************************"
-	  ui_print "* [9/10]                                          *"
+	  ui_print "* [9/11]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*         This option added new dirac in          *"
 	  ui_print "*                    your ROM                     *"
@@ -1625,11 +1634,30 @@ if chooseport; then
 	if chooseport; then
 		STEP9=true
 	fi
+	
+	ui_print " "
+	ui_print " - Disable useless fluence -"
+	  ui_print "***************************************************"
+	  ui_print "* [10/11]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*  This option disables useless noise reduction.  *"
+	  ui_print "*      This will also affect the quality          *"
+	  ui_print "*           of the audio recording                *"
+	  ui_print "*        [Recommended for installation]           *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "    Install this step?"
+	sleep 1
+	ui_print " "
+	ui_print "    Vol Up = YES, Vol Down = NO"
+	if chooseport; then
+		STEP10=true
+	fi
 
 	ui_print " "
 	ui_print " - Install other patches in mixer_paths - "
 	  ui_print "***************************************************"
-	  ui_print "* [10/10]                                         *"
+	  ui_print "* [11/11]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*           A large set of universal              *"
 	  ui_print "*          settings for many devices.             *"
@@ -1643,7 +1671,7 @@ if chooseport; then
 	ui_print "   Vol Up = YES, Vol Down = NO"
 	ui_print " " 
 	if chooseport; then
-	  STEP10=true
+	  STEP11=true
 	ui_print " - Processing. . . . -"
 	ui_print " "
 	ui_print " - You can minimize Magisk and use the device -"
@@ -1708,6 +1736,10 @@ if chooseport; then
 	fi
 	
 	if [ $STEP10 = true ]; then
+		fluence
+	fi
+	
+	if [ $STEP11 = true ]; then
 		mixer
 	fi
     ui_print " "
@@ -1725,7 +1757,7 @@ fi
 	sleep 1
 	ui_print " - Отключение глубокого буффера -"
 	  ui_print "**************************************************"
-	  ui_print "* [1/10]                                         *"
+	  ui_print "* [1/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*             Эта опция отключит                 *"
 	  ui_print "*     глубокий буффер в вашем устройстве.        *"
@@ -1744,7 +1776,7 @@ fi
 	ui_print " "
 	ui_print " - Увеличить уровни и шаги громкости медиа -"
 	  ui_print "**************************************************"
-	  ui_print "* [2/10]                                         *"
+	  ui_print "* [2/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                О С Т О Р О Ж Н О!              *"
 	  ui_print "*          Подтверждение этой опции может        *"
@@ -1765,7 +1797,7 @@ fi
 	ui_print " "
 	ui_print " - Увеличить громкости микрофонов -"
 	  ui_print "**************************************************"
-	  ui_print "* [3/10]                                         *"
+	  ui_print "* [3/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                 Эта опция увеличит             *"
 	  ui_print "*           уровни громкостей микрофонов в       *"
@@ -1783,7 +1815,7 @@ fi
 	ui_print " "
 	ui_print " - IIR патчи -"
 	  ui_print "**************************************************"
-	  ui_print "* [4/10]                                         *"
+	  ui_print "* [4/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "* IIR напрямую влияет на итоговое качество аудио *"
 	  ui_print "*        [Рекомендуется для установки]           *"
@@ -1800,7 +1832,7 @@ fi
 	ui_print " "
 	ui_print " - Патчинг audio platform файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [5/10]                                         *"
+	  ui_print "* [5/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*      Подтверждение этой опции позволит         *"
 	  ui_print "*       модулю форсировать 24-бит аудио          *"
@@ -1820,7 +1852,7 @@ fi
 	ui_print " "
 	ui_print " - Отключение компандеров -"
 	  ui_print "**************************************************"
-	  ui_print "* [6/10]                                         *"
+	  ui_print "* [6/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*   Компандирование - метод уменьшения эффектов  *"
 	  ui_print "*  каналов с ограниченным дин-им диапазоном      *"
@@ -1842,7 +1874,7 @@ fi
 	ui_print " "
 	ui_print " - Настройка внутреннего аудио кодека -"
 	  ui_print "**************************************************"
-	  ui_print "* [7/10]                                         *"
+	  ui_print "* [7/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*               Эта опция настроит               *"
 	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
@@ -1859,7 +1891,7 @@ fi
 	ui_print " "
 	ui_print " - Патчинг device_features файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [8/10]                                         *"
+	  ui_print "* [8/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*  Этот шаг сделает следующее:                   *"
 	  ui_print "*   - Разблокирует частоты дискретизации         *"
@@ -1884,7 +1916,7 @@ fi
 	ui_print " "
 	ui_print " - Добавление нового Dirac -"
 	  ui_print "**************************************************"
-	  ui_print "* [9/10]                                         *"
+	  ui_print "* [9/11]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*           Эта опция добавит новый Dirac        *"
 	  ui_print "*                  в вашу систему.               *"
@@ -1897,11 +1929,30 @@ fi
 	if chooseport; then
 		STEP9=true
 	fi
+	
+	ui_print " "
+	ui_print " - Отключить бесполезное шумоподавление -"
+	  ui_print "***************************************************"
+	  ui_print "* [10/11]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*  Эта опция отключит бесполезное шумоподавление. *"
+	  ui_print "*       Это также повлияет на качество            *"
+	  ui_print "*            записываемого аудио                  *"
+	  ui_print "*        [Рекомендуется для установки]            *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "    Установить этот пункт?"
+	sleep 1
+	ui_print " "
+	ui_print "    Vol Up = ДА, Vol Down = НЕТ"
+	if chooseport; then
+		STEP10=true
+	fi
 
 	ui_print " "
 	ui_print " - Установить другие патчи в mixer_paths файлы - "
 	  ui_print "**************************************************"
-	  ui_print "* [10/10]                                        *"
+	  ui_print "* [11/11]                                        *"
 	  ui_print "*                                                *"
 	  ui_print "*        Содержит универсальные настройки        *"
 	  ui_print "*            для большинства устройств.          *"
@@ -1916,7 +1967,7 @@ fi
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	ui_print " " 
 	if chooseport; then
-		STEP10=true
+		STEP11=true
 	fi
 	ui_print " - Обработка. . . . -"
 	ui_print " "
@@ -1982,8 +2033,13 @@ fi
 	fi
 
 	if [ $STEP10 = true ]; then
+		fluence
+	fi
+	
+	if [ $STEP11 = true ]; then
 		mixer
 	fi
+	
     ui_print " "
     ui_print " - Всё готово! С любовью, NLSound Team. - "
     ui_print " "
