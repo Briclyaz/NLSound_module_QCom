@@ -233,6 +233,10 @@ STEP8=false
 STEP9=false
 STEP10=false
 STEP11=false
+STEP12=false
+STEP13=false
+STEP14=false
+STEP15=false
 
 deep_buffer() {
 	echo -e '\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
@@ -1392,11 +1396,9 @@ mixer() {
 		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
 		fi
-		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
 		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
@@ -1404,13 +1406,6 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
-		#ADDED 12.04.2021 by NLSound Team
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
 		#ADDED 12.04.2021 by NLSound Team
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1446,6 +1441,70 @@ fluence() {
 	echo -e '\npersist.vendor.audio.fluence.speaker=false' >> $MODPATH/system.prop
 }
 
+decoenco() {
+	echo -e '\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
+	echo -e '\nmpq.audio.decode=true' >> $MODPATH/system.prop
+	echo -e '\nlpa.decode=false' >> $MODPATH/system.prop
+	echo -e '\naudio.decoder_override_check=true' >> $MODPATH/system.prop
+	echo -e '\nuse.non-omx.mp3.decoder=false' >> $MODPATH/system.prop
+	echo -e '\nuse.non-omx.aac.decoder=false' >> $MODPATH/system.prop
+	echo -e '\nlpa.use-stagefright=false' >> $MODPATH/system.prop
+	echo -e '\nlpa.releaselock=false' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.flac.sw.decoder.24bit=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.aac.sw.decoder.24bit=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.use.sw.alac.decoder=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.flac.sw.encoder.24bit=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.aac.sw.encoder.24bit=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.use.sw.ape.decoder=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.vorbis.complexity.default=8' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.vorbis.quality=100' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.aac.complexity.default=8' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.aac.quality=100' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.hw.aac.encoder=false' >> $MODPATH/system.prop
+}
+
+hifi() {
+	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
+	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi.volume=72' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi.int_codec=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.feature.hifi_audio.enable=true' >> $MODPATH/system.prop
+	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
+	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
+}
+
+bt_parameters() {
+	echo -e '\n#BT PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
+	echo -e '\npersist.service.btui.use_aptx=1' >> $MODPATH/system.prop
+	echo -e '\npersist.bt.enableAptXHD=true' >> $MODPATH/system.prop
+	echo -e '\npersist.bt.a2dp.aptx_disable=false' >> $MODPATH/system.prop
+	echo -e '\npersist.bt.a2dp.aptx_hd_disable=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.enable.splita2dp=true ' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.enable.twsplus=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true ' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.enable.splita2dp=true ' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.twsp_state.enabled=false ' >> $MODPATH/system.prop
+	echo -e '\nro.bluetooth.emb_wp_mode=false' >> $MODPATH/system.prop
+	echo -e '\nro.bluetooth.wipower=false ' >> $MODPATH/system.prop
+	echo -e '\nro.vendor.bluetooth.wipower=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.bt.soc.scram_freqs=192' >> $MODPATH/system.prop
+	echo -e '\npersist.bt.a2dp.aac_disable=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.bt.aac_frm_ctl.enabled=true' >> $MODPATH/system.prop
+	echo -e '\naudio.effect.a2dp.enable=1' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.effect.a2dp.enable=1' >> $MODPATH/system.prop
+	echo -e '\nvendor.btstack.absolute_volume=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.absolute_volume=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.avrcp.pos_time=1000' >> $MODPATH/system.prop
+	echo -e '\npersist.bluetooth.enabledelayreports=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.bt.pts.pbap=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.bt.a2dp.aac_whitelist=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.bt.a2dp.addr_check_enabled_for_aac=true' >> $MODPATH/system.prop
+	echo -e '\nro.bluetooth.hfp.ver=1.7' >> $MODPATH/system.prop
+}
+
 ui_print " "
 ui_print " - Select language -"
 sleep 1
@@ -1461,7 +1520,7 @@ if chooseport; then
 	  sleep 1
 	  ui_print " - Disable Deep Buffer -"
 	  ui_print "***************************************************"
-	  ui_print "* [1/11]                                          *"
+	  ui_print "* [1/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               This option disable               *"
 	  ui_print "*            deep buffer in your device.          *"
@@ -1480,7 +1539,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve volume levels and change media volume steps -"
 	  ui_print "***************************************************"
-	  ui_print "* [2/11]                                          *"
+	  ui_print "* [2/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               A T T E N T I O N!                *"
 	  ui_print "*   Confirming this option may harm your device!  *"
@@ -1500,7 +1559,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve microphones levels -"
 	  ui_print "***************************************************"
-	  ui_print "* [3/11]                                          *"
+	  ui_print "* [3/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*             This option improving               *"
 	  ui_print "*     microphone volume levels and quality in     *"
@@ -1518,7 +1577,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - IIR patches -"
 	  ui_print "***************************************************"
-	  ui_print "* [4/11]                                          *"
+	  ui_print "* [4/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* IIR affects the final frequency response curve. *"
 	  ui_print "*   headphones. The default setting is with an    *"
@@ -1539,7 +1598,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patching audio platform files -"
 	  ui_print "***************************************************"
-	  ui_print "* [5/11]                                          *"
+	  ui_print "* [5/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* Confirming this option will allow the module to *"
 	  ui_print "*      use a different audio codec algorithm      *"
@@ -1559,7 +1618,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Disable сompanders -"
 	  ui_print "***************************************************"
-	  ui_print "* [6/11]                                          *"
+	  ui_print "* [6/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*    Companding-exists for audio compression.     *"
 	  ui_print "*    Because of this algorithm, you can hear      *"
@@ -1581,7 +1640,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Configurating interal audio codec -"
 	  ui_print "***************************************************"
-	  ui_print "* [7/11]                                          *"
+	  ui_print "* [7/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            This option configuring              *"
 	  ui_print "*       your device's internal audio codec.       *"
@@ -1598,7 +1657,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patch device_features files -"
 	  ui_print "***************************************************"
-	  ui_print "* [8/11]                                          *"
+	  ui_print "* [8/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*        This step will do the following:         *"
 	  ui_print "*        - Unlocks the sampling frequency         *"
@@ -1639,7 +1698,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Disable useless fluence -"
 	  ui_print "***************************************************"
-	  ui_print "* [10/11]                                         *"
+	  ui_print "* [10/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*  This option disables useless noise reduction.  *"
 	  ui_print "*      This will also affect the quality          *"
@@ -1658,7 +1717,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Install other patches in mixer_paths - "
 	  ui_print "***************************************************"
-	  ui_print "* [11/11]                                         *"
+	  ui_print "* [11/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Contains experimental settings           *"
 	  ui_print "*          If you encounter problems              *"
@@ -1672,6 +1731,60 @@ if chooseport; then
 	ui_print " " 
 	if chooseport; then
 	  STEP11=true
+	  
+	ui_print " "
+	ui_print " - Improve decoders&encoders audio - "
+	  ui_print "***************************************************"
+	  ui_print "* [12/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*  This option will improve the audio processing  *"
+	  ui_print "*    algorithms of the built-in audio decoders    *"
+	  ui_print "*                 and encoders                    *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print " " 
+	if chooseport; then
+	  STEP12=true
+	  
+	ui_print " "
+	ui_print " - Install patches for Hi-Fi audio - "
+	  ui_print "***************************************************"
+	  ui_print "* [13/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*   This option will improve the processing of    *"
+	  ui_print "*     high-pass audio, as well as eliminate       *"
+	  ui_print "*         the problem of audio clipping           *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print " " 
+	if chooseport; then
+	  STEP13=true
+	  
+	ui_print " "
+	ui_print " - Improve Bluetooth - "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*   This option will improve the audio quality    *"
+	  ui_print "*    in Bluetooth, as well as fix the problem     *"
+	  ui_print "*      of disappearing the AAC codec switch       *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print " " 
+	if chooseport; then
+	  STEP14=true
 	ui_print " - Processing. . . . -"
 	ui_print " "
 	ui_print " - You can minimize Magisk and use the device -"
@@ -1741,6 +1854,18 @@ if chooseport; then
 	
 	if [ $STEP11 = true ]; then
 		mixer
+	fi
+	
+	if [ $STEP12 = true ]; then
+		decoenco
+	fi
+	
+	if [ $STEP13 = true ]; then
+		hifi
+	fi
+	
+	if [ $STEP14 = true ]; then
+		bt_parameters
 	fi
     ui_print " "
     ui_print " - All done! With love, NLSound Team. - "
@@ -1973,6 +2098,59 @@ fi
 	if chooseport; then
 		STEP11=true
 	fi
+	
+	ui_print " "
+	ui_print " - Улучшить декодеры и инкодеры аудио - "
+	  ui_print "***************************************************"
+	  ui_print "* [12/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*  Эта опция улучшит алгоритмы аудио обработки    *"
+	  ui_print "*    встроенных аудио декодеров и инкодеров.      *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Установить?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
+	ui_print " " 
+	if chooseport; then
+	  STEP12=true
+	  
+	ui_print " "
+	ui_print " - Установка патчей для Hi-Fi аудио - "
+	  ui_print "***************************************************"
+	  ui_print "* [13/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*         Эта опция улучшит обработку             *"
+	  ui_print "*   высоких частот аудио, а также устранит        *"
+	  ui_print "*          проблему клиппинга аудио               *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Установить?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
+	ui_print " " 
+	if chooseport; then
+	  STEP13=true
+	  
+	ui_print " "
+	ui_print " - Улучшить Bluetooth - "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*      Эта опция улучшит качество аудио в         *"
+	  ui_print "*     Bluetooth, а также исправит проблему        *"
+	  ui_print "*    исчезновения переключателя AAC кодека.       *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Установить?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
+	ui_print " " 
+	if chooseport; then
+	  STEP14=true
 	ui_print " - Обработка. . . . -"
 	ui_print " "
 	ui_print " - Вы можете свернуть Magisk и пользоваться устройством -"
@@ -2042,6 +2220,18 @@ fi
 	
 	if [ $STEP11 = true ]; then
 		mixer
+	fi
+	
+	if [ $STEP12 = true ]; then
+		decoenco
+	fi
+	
+	if [ $STEP13 = true ]; then
+		hifi
+	fi
+	
+	if [ $STEP14 = true ]; then
+		bt_parameters
 	fi
 	
     ui_print " "
