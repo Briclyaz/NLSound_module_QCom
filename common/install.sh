@@ -1682,6 +1682,8 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Added new Dirac -"
 	  ui_print "***************************************************"
+	  ui_print "* [9/14]                                          *"
+	  ui_print "*                                                 *"
 	  ui_print "* This option will add a new Dirac to the system  *"
 	  ui_print "*   If you encounter wheezing from the outside    *"
 	  ui_print "*    speaker, first of all when reinstalling      *"
@@ -1731,6 +1733,7 @@ if chooseport; then
 	ui_print " " 
 	if chooseport; then
 	  STEP11=true
+	fi
 	  
 	ui_print " "
 	ui_print " - Improve decoders&encoders audio - "
@@ -1749,7 +1752,8 @@ if chooseport; then
 	ui_print " " 
 	if chooseport; then
 	  STEP12=true
-	  
+	fi
+	
 	ui_print " "
 	ui_print " - Install patches for Hi-Fi audio - "
 	  ui_print "***************************************************"
@@ -1767,7 +1771,8 @@ if chooseport; then
 	ui_print " " 
 	if chooseport; then
 	  STEP13=true
-	  
+	fi
+	
 	ui_print " "
 	ui_print " - Improve Bluetooth - "
 	  ui_print "***************************************************"
@@ -1785,6 +1790,7 @@ if chooseport; then
 	ui_print " " 
 	if chooseport; then
 	  STEP14=true
+	fi
 	ui_print " - Processing. . . . -"
 	ui_print " "
 	ui_print " - You can minimize Magisk and use the device -"
@@ -1870,7 +1876,6 @@ if chooseport; then
     ui_print " "
     ui_print " - All done! With love, NLSound Team. - "
     ui_print " "
-fi
 	
 	else
 	ui_print " "
@@ -1882,7 +1887,7 @@ fi
 	sleep 1
 	ui_print " - Отключение глубокого буффера -"
 	  ui_print "**************************************************"
-	  ui_print "* [1/11]                                         *"
+	  ui_print "* [1/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*             Эта опция отключит                 *"
 	  ui_print "*     глубокий буффер в вашем устройстве.        *"
@@ -1901,7 +1906,7 @@ fi
 	ui_print " "
 	ui_print " - Увеличить уровни и шаги громкости медиа -"
 	  ui_print "**************************************************"
-	  ui_print "* [2/11]                                         *"
+	  ui_print "* [2/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                О С Т О Р О Ж Н О!              *"
 	  ui_print "*          Подтверждение этой опции может        *"
@@ -1922,7 +1927,7 @@ fi
 	ui_print " "
 	ui_print " - Увеличить громкости микрофонов -"
 	  ui_print "**************************************************"
-	  ui_print "* [3/11]                                         *"
+	  ui_print "* [3/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                 Эта опция увеличит             *"
 	  ui_print "*           уровни громкостей микрофонов в       *"
@@ -1940,7 +1945,7 @@ fi
 	ui_print " "
 	ui_print " - IIR патчи -"
 	  ui_print "**************************************************"
-	  ui_print "* [4/11]                                         *"
+	  ui_print "* [4/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    IIR влияет на итоговую кривую АЧХ ваших     *"
 	  ui_print "* наушников. По-умолчанию используется настройка *"
@@ -1961,7 +1966,7 @@ fi
 	ui_print " "
 	ui_print " - Патчинг audio_platform файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [5/11]                                         *"
+	  ui_print "* [5/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    Подтверждение этой опции позволит модулю    *"
 	  ui_print "* использовать иной алгоритм работы аудио кодека *"
@@ -1981,7 +1986,7 @@ fi
 	ui_print " "
 	ui_print " - Отключение компандеров -"
 	  ui_print "**************************************************"
-	  ui_print "* [6/11]                                         *"
+	  ui_print "* [6/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "* Компандирование - существует для сжатия аудио. *"
 	  ui_print "*     Из-за этого алгоритма вы можете слышать    *"
@@ -2003,7 +2008,7 @@ fi
 	ui_print " "
 	ui_print " - Настройка внутреннего аудио кодека -"
 	  ui_print "**************************************************"
-	  ui_print "* [7/11]                                         *"
+	  ui_print "* [7/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*               Эта опция настроит               *"
 	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
@@ -2020,7 +2025,7 @@ fi
 	ui_print " "
 	ui_print " - Патчинг device_features файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [8/11]                                         *"
+	  ui_print "* [8/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*  Этот шаг сделает следующее:                   *"
 	  ui_print "*   - Разблокирует частоты дискретизации         *"
@@ -2045,7 +2050,7 @@ fi
 	ui_print " "
 	ui_print " - Добавление нового Dirac -"
 	  ui_print "**************************************************"
-	  ui_print "* [9/11]                                         *"
+	  ui_print "* [9/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*     Эта опция добавит новый Dirac в систему    *"
 	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
@@ -2064,7 +2069,7 @@ fi
 	ui_print " "
 	ui_print " - Отключить бесполезное шумоподавление -"
 	  ui_print "***************************************************"
-	  ui_print "* [10/11]                                         *"
+	  ui_print "* [10/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*  Эта опция отключит бесполезное шумоподавление. *"
 	  ui_print "*       Это также повлияет на качество            *"
@@ -2083,7 +2088,7 @@ fi
 	ui_print " "
 	ui_print " - Установить другие патчи в mixer_paths файлы - "
 	  ui_print "**************************************************"
-	  ui_print "* [11/11]                                        *"
+	  ui_print "* [11/14]                                        *"
 	  ui_print "*                                                *"
 	  ui_print "*       Содержит экспериментальные настройки     *"
 	  ui_print "*        Если вы столкнулись с проблемами        *"
@@ -2115,7 +2120,8 @@ fi
 	ui_print " " 
 	if chooseport; then
 	  STEP12=true
-	  
+	fi
+	
 	ui_print " "
 	ui_print " - Установка патчей для Hi-Fi аудио - "
 	  ui_print "***************************************************"
@@ -2133,7 +2139,8 @@ fi
 	ui_print " " 
 	if chooseport; then
 	  STEP13=true
-	  
+	fi
+	
 	ui_print " "
 	ui_print " - Улучшить Bluetooth - "
 	  ui_print "***************************************************"
@@ -2151,11 +2158,11 @@ fi
 	ui_print " " 
 	if chooseport; then
 	  STEP14=true
+	fi
 	ui_print " - Обработка. . . . -"
 	ui_print " "
 	ui_print " - Вы можете свернуть Magisk и пользоваться устройством -"
 	ui_print " - а затем вернуться сюда для перезагрузки и применения изменений. -"
-
     if [ $STEP1 = true ]; then
 		deep_buffer
 	fi
