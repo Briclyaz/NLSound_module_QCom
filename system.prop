@@ -13,7 +13,6 @@ ro.af.client_heap_size_kbyte=7168
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
 media.stagefright.thumbnail.prefer_hw_codecs=true
-mmp.enable.3g2=true
 mm.enable.smoothstreaming=true
 vendor.audio.safx.pbe.enabled=true
 vendor.audio.parser.ip.buffer.size=262144
@@ -55,7 +54,6 @@ ro.ril.enable.amr.wideband=1
 # OTHER PARAMETERS SOUND BY NLSOUND TEAM
 #
 persist.audio.lowlatency.rec=true
-audio.safx.pbe.enabled=false
 audio.playback.mch.downsample=false
 effect.reverb.pcm=1
 vendor.audio.playback.mch.downsample=false
@@ -68,6 +66,13 @@ qc.tunnel.audio.encode=false
 vendor.av.offload.enable=false
 av.offload.enable=false
 qc.av.offload.enable=false
-ro.audio.samplerate=48000
-ro.audio.pcm.samplerate=48000
-ro.audio.aac.samplerate=48000
+
+#TEST PARAMETERS
+persist.vendor.qcom.bluetooth.scram.enabled=false
+persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
+persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
+persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+vendor.audio.feature.ras.enable=true
+vendor.audio.hal.output.suspend.supported=true
+vendor.audio.feature.src_trkn.enable=true
+vendor.audio.feature.power_mode.enable=true 
