@@ -285,6 +285,15 @@ patch_headphones() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX7 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX8 Digital Volume"]' "92"
+		if [ "$RN9S" ] || [ "$RN9PRO" ] || [ "$POCOM2P" ] || [ "$RN9PROMAX" ]; then
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX0 Digital Volume"]' "60"
+		fi
+		if [ "$POCOX3" ] || [ "$RN10" ]; then
+		patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "40"
+		fi
+		if [ "$RN7" ]; then
+		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "60"
+		fi
 		done	
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 }
