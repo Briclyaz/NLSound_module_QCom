@@ -130,8 +130,9 @@ SD835=$(grep "ro.board.platform=msm8998" $BUILDS)
 SD845=$(grep "ro.board.platform=sdm845" $BUILDS)
 SD855=$(grep "ro.board.platform=msmnile" $BUILDS)
 SD865=$(grep "ro.board.platform=kona" $BUILDS)
+SD888=$(grep "ro.board.platform=lahaina" $BUILDS)
 
-if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ]; then
+if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
   HIFI=true
 ui_print " "
 ui_print "- Device with support Hi-Fi detected! -"
@@ -1469,7 +1470,6 @@ decoenco() {
 	echo -e '\nvendor.audio.vorbis.quality=100' >> $MODPATH/system.prop
 	echo -e '\nvendor.audio.aac.complexity.default=8' >> $MODPATH/system.prop
 	echo -e '\nvendor.audio.aac.quality=100' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.hw.aac.encoder=false' >> $MODPATH/system.prop
 }
 
 hifi() {
