@@ -21,32 +21,6 @@ vendor.audio.feature.ext_hw_plugin=true
 #
 # RADIO PARAMETERS SOUND BY NLSOUND TEAM
 #
-persist.dbg.ims_volte_enable=1
-persist.dbg.volte_avail_ovr=1
-persist.dbg.vt_avail_ovr=1
-persist.dbg.wfc_avail_ovr=1
-persist.radio.rat_on=combine
-persist.radio.data_ltd_sys_ind=1
-persist.radio.data_con_rprt=1
-persist.radio.calls.on.ims=1
-persist.data.iwlan.enable=true 
-persist.vendor.data.iwlan.enable=true
-persist.vendor.radio.add_power_save=1 
-persist.vendor.radio.apm_sim_not_pwdn=1 
-persist.vendor.radio.block_allow_data=1 
-persist.vendor.radio.custom_ecc=1 
-persist.vendor.radio.do_not_use_oprt_db=true 
-persist.vendor.radio.mt_sms_ack=19 
-persist.vendor.radio.multisim.config=dsds 
-persist.vendor.radio.procedure_bytes=SKIP 
-persist.vendor.radio.rat_on=combine 
-persist.vendor.radio.report_codec=1 
-persist.vendor.radio.sib16_support=1 
-persist.vendor.radio.unicode_op_names=true 
-persist.vendor.radio.vdp_on_ims_cap=1 
-persist.vendor.radio.wait_for_pbm=1 
-persist.vendor.sensors.direct_channel=false 
-persist.vendor.service.bdroid.ssrlvl=3 
 ro.ril.enable.amr.wideband=1
 #
 # OTHER PARAMETERS SOUND BY NLSOUND TEAM
@@ -65,36 +39,18 @@ vendor.av.offload.enable=true
 av.offload.enable=true
 qc.av.offload.enable=true
 
-#TEST PARAMETERS
-persist.vendor.qcom.bluetooth.scram.enabled=false
-persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
-persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
-persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+#OTHER PARAMETERS
 vendor.audio.feature.ras.enable=true
 vendor.audio.hal.output.suspend.supported=true
 vendor.audio.feature.src_trkn.enable=true
 vendor.audio.feature.power_mode.enable=true 
-
 vendor.audio.feature.compress_meta_data.enable=false
 vendor.audio.feature.compr_cap.enable=false
 vendor.audio.feature.compress_in.enable=false
-
 persist.vendor.audio_hal.dsp_bit_width_enforce_mode=24
-
-persist.vendor.btstack.connect.peer_earbud=true
-persist.vendor.btstack.enable.twsplussho=true
-persist.vendor.btstack.enable.swb=true
-persist.vendor.btstack.enable.swbpm=true
-persist.vendor.btsatck.absvolfeature=true
-
-persist.bt.sbc_hd_enabled=1
-persist.bluetooth.sbc_hd_higher_bitrate=1
-
 ro.vendor.audio.sos=true
 ro.vendor.audio.sfx.earadj=false
-
 vendor.audio.snd_card.open.retries=50
-
 media.stagefright.enable-player=true
 media.stagefright.enable-http=true
 media.stagefright.enable-aac=true
