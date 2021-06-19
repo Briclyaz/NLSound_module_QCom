@@ -1511,7 +1511,18 @@ bt_parameters() {
 	echo -e '\nvendor.bt.pts.pbap=true' >> $MODPATH/system.prop
 	echo -e '\npersist.vendor.bt.a2dp.aac_whitelist=false' >> $MODPATH/system.prop
 	echo -e '\npersist.vendor.bt.a2dp.addr_check_enabled_for_aac=true' >> $MODPATH/system.prop
-	echo -e '\nro.bluetooth.hfp.ver=1.7' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.scram.enabled=false' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true' >> $MODPATH/system.prop
+	echo -e '\npersist.sys.fflag.override.settings_bluetooth_hearing_aid=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.connect.peer_earbud=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.enable.twsplussho=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.enable.swb=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btstack.enable.swbpm=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btsatck.absvolfeature=true' >> $MODPATH/system.prop
+	echo -e '\npersist.bt.sbc_hd_enabled=1' >> $MODPATH/system.prop
+	echo -e '\npersist.bluetooth.sbc_hd_higher_bitrate=1' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.btsatck.absvolfeature=true' >> $MODPATH/system.prop
 }
 
 ui_print " "
