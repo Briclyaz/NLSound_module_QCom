@@ -144,6 +144,7 @@ fi
 
 RN5PRO=$(grep -E "ro.product.vendor.device=whyred.*" $BUILDS)
 RN6PRO=$(grep -E "ro.product.vendor.device=tulip.*" $BUILDS)
+R7Y3=$(grep -E "ro.product.vendor.device=onclite.*" $BUILDS)
 RN7=$(grep -E "ro.product.vendor.device=lavender.*" $BUILDS)
 RN7PRO=$(grep -E "ro.product.vendor.device=violet.*" $BUILDS)
 RN8=$(grep -E "ro.product.vendor.device=ginkgo.*" $BUILDS)
@@ -152,9 +153,15 @@ RN9S=$(grep -E "ro.product.vendor.device=curtana.*" $BUILDS)
 RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
 RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
 RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
+R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
+
+
+RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
+RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
 RK305G=$(grep -E "ro.product.vendor.device=picasso.*" $BUILDS)
 RK304G=$(grep -E "ro.product.vendor.device=phoenix.*" $BUILDS)
 RK30U=$(grep -E "ro.product.vendor.device=cezanne.*" $BUILDS)
+RK40=$(grep -E "ro.product.vendor.device=alioth.*" $BUILDS)
 
 MI9SE=$(grep -E "ro.product.vendor.device=grus.*" $BUILDS)
 MICC9E=$(grep -E "ro.product.vendor.device=laurus.*" $BUILDS)
@@ -167,6 +174,8 @@ MI10LITE=$(grep -E "ro.product.vendor.device=vangogh.*" $BUILDS)
 MI10T=$(grep -E "ro.product.vendor.device=apollo.*" $BUILDS)
 MI10PRO=$(grep -E "ro.product.vendor.device=cmi.*" $BUILDS)
 MI11=$(grep -E "ro.product.vendor.device=venus.*" $BUILDS)
+MI11Lite5G=$(grep -E "ro.product.vendor.device=renoir.*" $BUILDS)
+MI11Lite4G=$(grep -E "ro.product.vendor.device=courbet.*" $BUILDS)
 K20P=$(grep -E "ro.product.vendor.device=raphael.*|ro.product.vendor.device=raphaelin.*|ro.product.vendor.device=raphaels.*" $BUILDS)
 MI8=$(grep -E "ro.product.vendor.device=dipper.*" $BUILDS)
 MI8P=$(grep -E "ro.product.vendor.device=equuleus.*" $BUILDS)
@@ -183,11 +192,7 @@ POCOF3P=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
 POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
-
-R7Y3=$(grep -E "ro.product.vendor.device=onclite.*" $BUILDS)
-R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
-RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
-RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
+POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 
 MPATHS="$(find /system /vendor -type f -name "mixer_paths*.xml")"
 APINF="$(find /system /vendor -type f -name "audio_platform_info*.xml")"
