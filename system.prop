@@ -38,8 +38,9 @@ qc.tunnel.audio.encode=true
 vendor.av.offload.enable=true
 av.offload.enable=true
 qc.av.offload.enable=true
-
+#
 #OTHER PARAMETERS
+#
 vendor.audio.feature.ras.enable=true
 vendor.audio.hal.output.suspend.supported=true
 vendor.audio.feature.src_trkn.enable=true
@@ -60,3 +61,22 @@ media.stagefright.enable-scan=true
 mmp.enable.3g2=true
 vendor.mm.enable.qcom_parser=63963135
 persist.mm.enable.prefetch=true
+#
+#TEST PARAMETERS
+#
+persist.vendor.audio.hw.binder.size_kbyte=1024
+persist.vendor.audio.ha_proxy.enabled=true
+vendor.audio.feature.compr_voip.enable=false
+vendor.audio.feature.dynamic_ecns.enable=true
+vendor.audio.spkr_prot.tx.sampling_rate=48000
+persist.vendor.bt.aac_vbr_frm_ctl.enabled=true
+persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
+ro.vendor.audio.recording.hd=true
+ro.vendor.audio.sfx.speaker=false
+vendor.audio.enable.mirrorlink=false
+persist.vendor.qcom.bluetooth.enable.swb=true
+ro.vendor.audio.sfx.scenario=false
+ro.vendor.audio.surround.support=true
+ro.vendor.audio.scenario.support=true
+ro.vendor.audio.multiroute=true
+ro.vendor.audio.sdk.ssr=false
