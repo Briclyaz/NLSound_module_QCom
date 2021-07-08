@@ -471,7 +471,6 @@ audio_platform_info_int() {
     done
     fi
   done
-fi
 }
 
 audio_platform_info_ext() {
@@ -498,7 +497,6 @@ audio_platform_info_ext() {
     done
     fi
   done	
-fi
 }
 
 audio_platform_info() {
@@ -525,7 +523,6 @@ audio_platform_info() {
     done
     fi
   done	
-fi
 }
 
 companders() {
