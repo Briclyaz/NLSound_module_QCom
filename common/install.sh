@@ -1464,10 +1464,10 @@ mixer() {
 
 fluence() {
 	echo -e '\nro.vendor.audio.sdk.fluencetype=none' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.fluence.voicecomm=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.fluence.voicecall=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.fluence.voicerec=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.fluence.speaker=false' >> $MODPATH/system.prop
+	#echo -e '\npersist.audio.fluence.voicecomm=false' >> $MODPATH/system.prop
+	#echo -e '\npersist.vendor.audio.fluence.voicecall=false' >> $MODPATH/system.prop
+	#echo -e '\npersist.vendor.audio.fluence.voicerec=false' >> $MODPATH/system.prop
+	#echo -e '\npersist.vendor.audio.fluence.speaker=false' >> $MODPATH/system.prop
 }
 
 decoenco() {
