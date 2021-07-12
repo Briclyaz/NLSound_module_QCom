@@ -293,15 +293,6 @@ patch_headphones() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX7 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX8 Digital Volume"]' "92"
-		if [ "$RN9S" ] || [ "$RN9PRO" ] || [ "$POCOM2P" ] || [ "$RN9PROMAX" ]; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX0 Digital Volume"]' "60"
-		fi
-		if [ "$POCOX3" ] || [ "$RN10" ]; then
-		patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "40"
-		fi
-		if [ "$RN7" ]; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "60"
-		fi
 		done	
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 }
@@ -345,19 +336,7 @@ patch_microphone() {
 		patch_xml -u $MIX '/mixer/dmic-endfire/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/dmic-endfire-liquid/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/dmic-broadside/speaker-dmic-broadside/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-	  done	
-	  
-	  #for OSTPI in ${STPI}; do 
-		#STPI="$MODPATH$(echo $OSTPI | sed "s|^/vendor|/system/vendor|g")"
-		#cp_ch $ORIGDIR$OSTPI $STPI
-		#sed -i 's/\t/  /g' $STPI
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="execution_type"]' "ADSP"
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="fluence_type"]' "NONE"
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="execution_mode"]' "ADSP"
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="adm_cfg_profile"]' "FFECNS"
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="capture_keyword"]' "PCM_raw, FTRT, 500"
-		#patch_xml -u $STPI '/sound_trigger_platform_info/sound_model_config/param[@name="client_capture_read_delay"]' "2000"
-	#done
+	  done
 }
 
 iir_patches() {
@@ -1462,14 +1441,6 @@ mixer() {
 		done
 }
 
-fluence() {
-	echo -e '\nro.vendor.audio.sdk.fluencetype=none' >> $MODPATH/system.prop
-	#echo -e '\npersist.audio.fluence.voicecomm=false' >> $MODPATH/system.prop
-	#echo -e '\npersist.vendor.audio.fluence.voicecall=false' >> $MODPATH/system.prop
-	#echo -e '\npersist.vendor.audio.fluence.voicerec=false' >> $MODPATH/system.prop
-	#echo -e '\npersist.vendor.audio.fluence.speaker=false' >> $MODPATH/system.prop
-}
-
 decoenco() {
 	echo -e '\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
 	echo -e '\nmpq.audio.decode=true' >> $MODPATH/system.prop
@@ -1559,7 +1530,7 @@ if chooseport; then
 	  sleep 1
 	  ui_print " - Disable Deep Buffer -"
 	  ui_print "***************************************************"
-	  ui_print "* [1/14]                                          *"
+	  ui_print "* [1/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               This option disable               *"
 	  ui_print "*            deep buffer in your device.          *"
@@ -1578,7 +1549,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve volume levels and change media volume steps -"
 	  ui_print "***************************************************"
-	  ui_print "* [2/14]                                          *"
+	  ui_print "* [2/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               A T T E N T I O N!                *"
 	  ui_print "*   Confirming this option may harm your device!  *"
@@ -1598,7 +1569,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve microphones levels -"
 	  ui_print "***************************************************"
-	  ui_print "* [3/14]                                          *"
+	  ui_print "* [3/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*             This option improving               *"
 	  ui_print "*     microphone volume levels and quality in     *"
@@ -1616,7 +1587,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - IIR patches -"
 	  ui_print "***************************************************"
-	  ui_print "* [4/14]                                          *"
+	  ui_print "* [4/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* IIR affects the final frequency response curve. *"
 	  ui_print "*   headphones. The default setting is with an    *"
@@ -1637,7 +1608,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patching audio platform files -"
 	  ui_print "***************************************************"
-	  ui_print "* [5/14]                                          *"
+	  ui_print "* [5/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* Confirming this option will allow the module to *"
 	  ui_print "*      use a different audio codec algorithm      *"
@@ -1657,7 +1628,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Disable сompanders -"
 	  ui_print "***************************************************"
-	  ui_print "* [6/14]                                          *"
+	  ui_print "* [6/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*    Companding-exists for audio compression.     *"
 	  ui_print "*    Because of this algorithm, you can hear      *"
@@ -1679,7 +1650,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Configurating interal audio codec -"
 	  ui_print "***************************************************"
-	  ui_print "* [7/14]                                          *"
+	  ui_print "* [7/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            This option configuring              *"
 	  ui_print "*       your device's internal audio codec.       *"
@@ -1696,7 +1667,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Patch device_features files -"
 	  ui_print "***************************************************"
-	  ui_print "* [8/14]                                          *"
+	  ui_print "* [8/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*        This step will do the following:         *"
 	  ui_print "*        - Unlocks the sampling frequency         *"
@@ -1721,7 +1692,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Added new Dirac -"
 	  ui_print "***************************************************"
-	  ui_print "* [9/14]                                          *"
+	  ui_print "* [9/13]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* This option will add a new Dirac to the system  *"
 	  ui_print "*   If you encounter wheezing from the outside    *"
@@ -1735,30 +1706,11 @@ if chooseport; then
 	if chooseport; then
 		STEP9=true
 	fi
-	
-	ui_print " "
-	ui_print " - Disable useless fluence -"
-	  ui_print "***************************************************"
-	  ui_print "* [10/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "*  This option disables useless noise reduction.  *"
-	  ui_print "*      This will also affect the quality          *"
-	  ui_print "*           of the audio recording                *"
-	  ui_print "*        [Recommended for installation]           *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "    Install this step?"
-	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = YES, Vol Down = NO"
-	if chooseport; then
-		STEP10=true
-	fi
 
 	ui_print " "
 	ui_print " - Install other patches in mixer_paths - "
 	  ui_print "***************************************************"
-	  ui_print "* [11/14]                                         *"
+	  ui_print "* [10/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Contains experimental settings           *"
 	  ui_print "*          If you encounter problems              *"
@@ -1777,7 +1729,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve decoders&encoders audio - "
 	  ui_print "***************************************************"
-	  ui_print "* [12/14]                                         *"
+	  ui_print "* [11/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*  This option will improve the audio processing  *"
 	  ui_print "*    algorithms of the built-in audio decoders    *"
@@ -1796,7 +1748,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Install patches for Hi-Fi audio - "
 	  ui_print "***************************************************"
-	  ui_print "* [13/14]                                         *"
+	  ui_print "* [12/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*   This option will improve the processing of    *"
 	  ui_print "*     high-pass audio, as well as eliminate       *"
@@ -1815,7 +1767,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Improve Bluetooth - "
 	  ui_print "***************************************************"
-	  ui_print "* [14/14]                                         *"
+	  ui_print "* [13/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*   This option will improve the audio quality    *"
 	  ui_print "*    in Bluetooth, as well as fix the problem     *"
