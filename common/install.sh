@@ -200,7 +200,6 @@ ACONFS="$(find /system /vendor -type f -name "audio_configs*.xml")"
 CFGS="$(find /system /vendor -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
 VNDK=$(find /system/lib /vendor/lib -type d -iname "*vndk*")
 VNDK64=$(find /system/lib64 /vendor/lib64 -type d -iname "*vndk*")
-#STPI="$(find /system /vendor -type f -name "sound_trigger_platform_info*.xml")"
 
 DEVFEA=/system/etc/device_features/*.xml
 DEVFEAA=/vendor/etc/device_features/*.xml
@@ -254,88 +253,174 @@ deep_buffer() {
 		done
 }
 	
-patch_headphones() {
+patch_volumes() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX2 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX3 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX4 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX5 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX6 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX7 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX8 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX0 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX2 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX3 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX4 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX5 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX6 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX7 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX8 Mix Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX0 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX1 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX2 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX3 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX4 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX5 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX6 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX7 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX8 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX0 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX1 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX2 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX3 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX4 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX5 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX7 Digital Volume"]' "92"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_RX8 Digital Volume"]' "92"
+		if ! $NOHIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX2 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX3 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX4 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX5 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX6 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX7 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX8 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX0 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX1 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX2 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX3 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX4 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX5 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX6 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX7 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX8 Mix Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX0 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX1 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX2 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX3 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX4 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX5 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX6 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX7 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX8 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX0 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX1 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX2 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX3 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX4 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX5 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX7 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX8 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "92"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
+		elif $HIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX2 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX3 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX4 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX5 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX6 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX7 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX8 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX0 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX1 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX2 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX3 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX4 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX5 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX6 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX7 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX8 Mix Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX0 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX1 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX2 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX3 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX4 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX5 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX6 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX7 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="WSA_RX8 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX0 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX1 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX2 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX3 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX4 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX5 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX7 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX8 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "88"
+		fi
 		done	
-		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
+	echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 }
 
 patch_microphone() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="ADC3 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="ADC4 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC0 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC1 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC2 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC3 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC4 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC5 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC6 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC7 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="DEC8 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC0 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC1 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC2 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC3 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC4 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC5 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC6 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC7 Volume"]' "94"
-		patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "94"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S16_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference SampleRate"]' "48000"
-		patch_xml -u $MIX '/mixer/ctl[@name="adc1"]/ctl[@name="ADC1 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="adc2"]/ctl[@name="ADC2 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="adc3"]/ctl[@name="ADC3 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC1 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC3 Volume"]' "12"
-		patch_xml -u $MIX '/mixer/speaker-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/handset-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/secondary-mic/adc3/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/headset-mic/adc2/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/dmic-endfire/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/dmic-endfire-liquid/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
-		patch_xml -u $MIX '/mixer/dmic-broadside/speaker-dmic-broadside/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+		if ! $NOHIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC4 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC0 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC1 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC2 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC3 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC4 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC5 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC6 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC7 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC8 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC0 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC1 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC2 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC3 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC4 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC5 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC6 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC7 Volume"]' "94"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "94"
+			patch_xml -s $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S16_LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="EC Reference SampleRate"]' "48000"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc1"]/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc2"]/ctl[@name="ADC2 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc3"]/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/speaker-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/handset-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/secondary-mic/adc3/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/headset-mic/adc2/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-endfire/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-endfire-liquid/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-broadside/speaker-dmic-broadside/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+		elif $HIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="ADC4 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC0 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC1 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC2 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC3 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC4 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC5 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC6 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC7 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="DEC8 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC0 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC1 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC2 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC3 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC4 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC5 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC6 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC7 Volume"]' "90"
+			patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "90"
+			patch_xml -s $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S16_LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="EC Reference SampleRate"]' "48000"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc1"]/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc2"]/ctl[@name="ADC2 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="adc3"]/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="asr-mic"]/ctl[@name="ADC3 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/speaker-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/handset-mic/adc1/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/secondary-mic/adc3/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/headset-mic/adc2/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-endfire/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-endfire-liquid/handset-dmic-endfire/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+			patch_xml -u $MIX '/mixer/dmic-broadside/speaker-dmic-broadside/ctl[@name="IIR1 INP1 MUX"]' "ZERO"
+		fi
 	  done
 }
 
@@ -1378,8 +1463,7 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		elif $HIFI; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
@@ -1390,18 +1474,18 @@ mixer() {
 		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
@@ -1413,7 +1497,7 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
-		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
 		#ADDED 12.04.2021 by NLSound Team
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1799,7 +1883,7 @@ if chooseport; then
 	fi
 	
 	if [ $STEP2 = true ]; then
-		patch_headphones
+		patch_volumes
 	fi
 
     ui_print " "
@@ -1852,9 +1936,9 @@ if chooseport; then
 		dirac
 	fi
 	
-	if [ $STEP10 = true ]; then
-		fluence
-	fi
+	#if [ $STEP10 = true ]; then
+	#	fluence
+	#fi
 	
 	if [ $STEP11 = true ]; then
 		mixer
@@ -2151,7 +2235,7 @@ if chooseport; then
 	fi
 
 	if [ $STEP2 = true ]; then
-		patch_headphones
+		patch_volumes
 	fi
 
     ui_print " "
@@ -2204,9 +2288,9 @@ if chooseport; then
 		dirac
 	fi
 
-	if [ $STEP10 = true ]; then
-		fluence
-	fi
+	#if [ $STEP10 = true ]; then
+	#	fluence
+	#fi
 	
 	if [ $STEP11 = true ]; then
 		mixer
