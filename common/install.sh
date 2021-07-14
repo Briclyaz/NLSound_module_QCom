@@ -1431,13 +1431,20 @@ mixer() {
 		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
 		fi
-		if [ -f /$sys_tem/vendor/etc/media_codecs_google_audio.xml ]; then
+		if [ -f /$sys_tem/vendor/etc/media_codecs_google_c2_audio.xml ]; then
 		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_c2_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
 		GOOGLE_C2_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		fi		
+		fi	
+		if [ -f /$sys_tem/vendor/etc/media_codecs_vendor_audio.xml ]; then
+		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_vendor_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
+		VENDOR_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
+		fi	
 		done
 }
 
@@ -1864,6 +1871,10 @@ if chooseport; then
 	if [ $STEP14 = true ]; then
 		bt_parameters
 	fi
+	
+	ui_print " "
+    ui_print "   ######################################## 100% done!"
+	
     ui_print " "
     ui_print " - All done! With love, NLSound Team. - "
     ui_print " "
@@ -1878,7 +1889,7 @@ if chooseport; then
 	sleep 1
 	ui_print " - Отключение глубокого буффера -"
 	  ui_print "**************************************************"
-	  ui_print "* [1/14]                                         *"
+	  ui_print "* [1/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*             Эта опция отключит                 *"
 	  ui_print "*     глубокий буффер в вашем устройстве.        *"
@@ -1897,7 +1908,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Увеличить уровни и шаги громкости медиа -"
 	  ui_print "**************************************************"
-	  ui_print "* [2/14]                                         *"
+	  ui_print "* [2/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                О С Т О Р О Ж Н О!              *"
 	  ui_print "*          Подтверждение этой опции может        *"
@@ -1918,7 +1929,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Увеличить громкости микрофонов -"
 	  ui_print "**************************************************"
-	  ui_print "* [3/14]                                         *"
+	  ui_print "* [3/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                 Эта опция увеличит             *"
 	  ui_print "*           уровни громкостей микрофонов в       *"
@@ -1936,7 +1947,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - IIR патчи -"
 	  ui_print "**************************************************"
-	  ui_print "* [4/14]                                         *"
+	  ui_print "* [4/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    IIR влияет на итоговую кривую АЧХ ваших     *"
 	  ui_print "* наушников. По-умолчанию используется настройка *"
@@ -1957,7 +1968,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Патчинг audio_platform файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [5/14]                                         *"
+	  ui_print "* [5/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    Подтверждение этой опции позволит модулю    *"
 	  ui_print "* использовать иной алгоритм работы аудио кодека *"
@@ -1977,7 +1988,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Отключение компандеров -"
 	  ui_print "**************************************************"
-	  ui_print "* [6/14]                                         *"
+	  ui_print "* [6/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "* Компандирование - существует для сжатия аудио. *"
 	  ui_print "*     Из-за этого алгоритма вы можете слышать    *"
@@ -1999,7 +2010,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Настройка внутреннего аудио кодека -"
 	  ui_print "**************************************************"
-	  ui_print "* [7/14]                                         *"
+	  ui_print "* [7/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*               Эта опция настроит               *"
 	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
@@ -2016,7 +2027,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Патчинг device_features файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [8/14]                                         *"
+	  ui_print "* [8/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*  Этот шаг сделает следующее:                   *"
 	  ui_print "*   - Разблокирует частоты дискретизации         *"
@@ -2041,7 +2052,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Добавление нового Dirac -"
 	  ui_print "**************************************************"
-	  ui_print "* [9/14]                                         *"
+	  ui_print "* [9/13]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*     Эта опция добавит новый Dirac в систему    *"
 	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
@@ -2056,30 +2067,11 @@ if chooseport; then
 	if chooseport; then
 		STEP9=true
 	fi
-	
-	ui_print " "
-	ui_print " - Отключить бесполезное шумоподавление -"
-	  ui_print "***************************************************"
-	  ui_print "* [10/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "*  Эта опция отключит бесполезное шумоподавление. *"
-	  ui_print "*       Это также повлияет на качество            *"
-	  ui_print "*            записываемого аудио                  *"
-	  ui_print "*        [Рекомендуется для установки]            *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "    Установить этот пункт?"
-	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP10=true
-	fi
 
 	ui_print " "
 	ui_print " - Установить другие патчи в mixer_paths файлы - "
 	  ui_print "**************************************************"
-	  ui_print "* [11/14]                                        *"
+	  ui_print "* [10/13]                                        *"
 	  ui_print "*                                                *"
 	  ui_print "*       Содержит экспериментальные настройки     *"
 	  ui_print "*        Если вы столкнулись с проблемами        *"
@@ -2098,7 +2090,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Улучшить декодеры и инкодеры аудио - "
 	  ui_print "***************************************************"
-	  ui_print "* [12/14]                                         *"
+	  ui_print "* [11/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*  Эта опция улучшит алгоритмы аудио обработки    *"
 	  ui_print "*    встроенных аудио декодеров и инкодеров.      *"
@@ -2116,7 +2108,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Установка патчей для Hi-Fi аудио - "
 	  ui_print "***************************************************"
-	  ui_print "* [13/14]                                         *"
+	  ui_print "* [12/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*         Эта опция улучшит обработку             *"
 	  ui_print "*   высоких частот аудио, а также устранит        *"
@@ -2135,7 +2127,7 @@ if chooseport; then
 	ui_print " "
 	ui_print " - Улучшить Bluetooth - "
 	  ui_print "***************************************************"
-	  ui_print "* [14/14]                                         *"
+	  ui_print "* [13/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*      Эта опция улучшит качество аудио в         *"
 	  ui_print "*     Bluetooth, а также исправит проблему        *"
@@ -2231,6 +2223,9 @@ if chooseport; then
 	if [ $STEP14 = true ]; then
 		bt_parameters
 	fi
+	
+	ui_print " "
+    ui_print "   ######################################## 100% готово!"
 	
     ui_print " "
     ui_print " - Всё готово! С любовью, NLSound Team. - "
