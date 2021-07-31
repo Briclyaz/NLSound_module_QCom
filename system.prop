@@ -18,13 +18,7 @@ vendor.audio.feature.external_dsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
 vendor.audio.feature.external_speaker_tfa.enable=true
 vendor.audio.feature.ext_hw_plugin=true
-#
-# RADIO PARAMETERS SOUND BY NLSOUND TEAM
-#
 ro.ril.enable.amr.wideband=1
-#
-# OTHER PARAMETERS SOUND BY NLSOUND TEAM
-#
 persist.audio.lowlatency.rec=true
 audio.playback.mch.downsample=false
 effect.reverb.pcm=1
@@ -38,9 +32,6 @@ qc.tunnel.audio.encode=true
 vendor.av.offload.enable=true
 av.offload.enable=true
 qc.av.offload.enable=true
-#
-#OTHER PARAMETERS
-#
 vendor.audio.feature.ras.enable=true
 vendor.audio.hal.output.suspend.supported=true
 vendor.audio.feature.src_trkn.enable=true
@@ -61,9 +52,6 @@ media.stagefright.enable-scan=true
 mmp.enable.3g2=true
 vendor.mm.enable.qcom_parser=63963135
 persist.mm.enable.prefetch=true
-#
-#TEST PARAMETERS
-#
 persist.vendor.audio.hw.binder.size_kbyte=1024
 persist.vendor.audio.ha_proxy.enabled=true
 vendor.audio.feature.dynamic_ecns.enable=true
@@ -79,3 +67,24 @@ ro.vendor.audio.surround.support=true
 ro.vendor.audio.scenario.support=true
 ro.vendor.audio.multiroute=true
 ro.vendor.audio.sdk.ssr=false
+media.aac_51_output_enabled=true
+ro.vendor.audio.spk.clean=true
+vendor.audio.spkcal.copy.inhal=true
+vendor.audio.feature.devicestate_listener.enable=false
+vendor.audio.feature.thermal_listener.enable=false
+vendor.audio.capture.enforce_legacy_copp_sr=true
+vendor.audio.mic_break=true
+vendor.power.pasr.enabled=true
+ext.spkr.enabled=true
+vendor.audio.feature.concurrent_capture.enable=true
+persist.bt.a2dp.aac_disable=false
+persist.vendor.audio.format.24bit=true
+vendor.audio.tfa9874.dsp.enabled=true
+persist.vendor.audio.bcl.enabled=false
+persist.vendor.audio.spv4.enable=true
+persist.vendor.audio.avs.afe_api_version=9
+lpa30.decode=false
+persist.vendor.audio.bcl.enabled=false
+vendor.audio.playback.dsp.pathdelay=0
+audio.nat.codec.enabled=1
+af.thread.throttle=0
