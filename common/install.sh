@@ -1493,6 +1493,73 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
+		#ADDED 01.08.2021 by NLSound TEAM
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
+		patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HPH Idle Detect"]' "ON"
+		patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "24"
+		patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Channels"]' "Two"
+		patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_LE"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft BOOST Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight BOOST Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft VISENSE Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight VISENSE Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft SWR DAC_Port Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight SWR DAC_Port Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC Function"]' "ON"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC0 FB MUX"]' "ANC_IN_LO1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC1 FB MUX"]' "ANC_IN_LO2"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC OUT EAR Enable Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC OUT EAR SPKR Enable Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC SPKR PA Enable Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC OUT HPHL Enable Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="ANC OUT HPHR Enable Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHL_RDAC Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHR_RDAC Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HPHL_RDAC Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HPHR_RDAC Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="AUX_RDAC Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SmartPA Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="SmartPA Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="Custom Filter"]' "ON"
+		patch_xml -s $MIX '/mixer/ctl[@name="Custom Filter"]' "ON"
+		patch_xml -u $MIX '/mixer/ctl[@name="Filter Shape"]' "Slow Rolloff"
+		patch_xml -s $MIX '/mixer/ctl[@name="Filter Shape"]' "Slow Rolloff"
+		patch_xml -u $MIX '/mixer/ctl[@name="Virtual Bass Boost"]' "On"
+		patch_xml -s $MIX '/mixer/ctl[@name="Virtual Bass Boost"]' "On"
+		patch_xml -u $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
+		patch_xml -s $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_RX0 EC_HQ Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_RX1 EC_HQ Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_RX3 EC_HQ Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_RX4 EC_HQ Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 SEC MIX HPHL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 SEC MIX HPHR Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX INT3 SEC MIX LO1 Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX INT4 SEC MIX LO2 Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT0 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT3 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT4 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="USB_DL_HL Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Channels"]' "Two"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Channels"]' "Two"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HFP_SLIM7_UL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HFP_PRI_AUX_UL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM7_RX ADM Channels"]' "Two"
+	
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
 			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
@@ -1802,6 +1869,7 @@ esac
 ENG_Manual() {
 	  ui_print " "
 	  ui_print " - You selected Manual mode - "
+	  ui_print " "
 	  ui_print " - Configurate me, pls >.< - "
 	  ui_print " "
 	  
@@ -1999,7 +2067,6 @@ ENG_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
-	ui_print " " 
 	if chooseport; then
 	  STEP11=true
 	fi
@@ -2018,7 +2085,6 @@ ENG_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
-	ui_print " " 
 	if chooseport; then
 	  STEP12=true
 	fi
@@ -2037,7 +2103,6 @@ ENG_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
-	ui_print " " 
 	if chooseport; then
 	  STEP13=true
 	fi
@@ -2056,10 +2121,10 @@ ENG_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
-	ui_print " " 
 	if chooseport; then
 	  STEP14=true
 	fi
+	ui_print " "
 	ui_print " - Processing. . . . -"
 	ui_print " "
 	ui_print " - You can minimize Magisk and use the device -"
@@ -2350,7 +2415,6 @@ RU_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	ui_print " " 
 	if chooseport; then
 		STEP11=true
 	fi
@@ -2368,7 +2432,6 @@ RU_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	ui_print " " 
 	if chooseport; then
 	  STEP12=true
 	fi
@@ -2387,7 +2450,6 @@ RU_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	ui_print " " 
 	if chooseport; then
 	  STEP13=true
 	fi
@@ -2406,10 +2468,11 @@ RU_Manual() {
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	ui_print " " 
 	if chooseport; then
 	  STEP14=true
 	fi
+	
+	ui_print " "
 	ui_print " - Обработка. . . . -"
 	ui_print " "
 	ui_print " - Вы можете свернуть Magisk и пользоваться устройством -"
