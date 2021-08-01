@@ -132,16 +132,6 @@ SD855=$(grep "ro.board.platform=msmnile" $BUILDS)
 SD865=$(grep "ro.board.platform=kona" $BUILDS)
 SD888=$(grep "ro.board.platform=lahaina" $BUILDS)
 
-if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
-  HIFI=true
-ui_print " "
-ui_print "- Device with support Hi-Fi detected! -"
-else
-  NOHIFI=false
-ui_print " "
-ui_print " - Device without support Hi-Fi detected! -"
-fi
-
 RN5PRO=$(grep -E "ro.product.vendor.device=whyred.*" $BUILDS)
 RN6PRO=$(grep -E "ro.product.vendor.device=tulip.*" $BUILDS)
 R7Y3=$(grep -E "ro.product.vendor.device=onclite.*" $BUILDS)
@@ -154,7 +144,6 @@ RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
 RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
 RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
 R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
-
 
 RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
 RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
@@ -1409,7 +1398,6 @@ device_features_vendor() {
 		done
 }
 
-
 dirac() {
 	for OFILE in ${CFGS}; do
 	  FILE="$MODPATH$(echo $OFILE | sed "s|^/vendor|/system/vendor|g")"
@@ -1606,17 +1594,216 @@ bt_parameters() {
 	echo -e '\npersist.vendor.btsatck.absvolfeature=true' >> $MODPATH/system.prop
 }
 
-ui_print " "
-ui_print " - Select language -"
-sleep 1
-ui_print " "
-ui_print "   Vol Up = English, Vol Down = Русский"
-if chooseport; then
-		ui_print " "
-		ui_print " - You selected English language! -"
-		ui_print " "
-		ui_print " - Configurate me, pls >.< -"
-		ui_print " "
+AUTO_EN() {
+	ui_print " "
+    ui_print " - You selected AUTO installation mode - "
+    AUTO_In=true
+	
+	ui_print " "
+	ui_print " - The installation has started! - "
+	
+	ui_print " "
+	ui_print "     Please wait until it is completed. "
+	ui_print "     The installation time can vary from "
+	ui_print "     one minute to ten minutes depending "
+	ui_print "     on your device and the ROM used "
+   
+    if [ $AUTO_In = true ]; then
+		iir_patches
+	fi
+ 
+    ui_print " "
+    ui_print "   ################======================== 20% done!"
+	
+	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
+     if [ -f $APII ]; then
+		audio_platform_info_int
+	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
+        audio_platform__info_ext
+     elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+        audio_platform_info
+     fi
+	fi
+	
+	if [ $AUTO_In = true ]; then
+		companders
+	fi
+	
+	if [ $AUTO_In = true ]; then
+		audio_codec
+	fi
+	
+	ui_print " "
+    ui_print "   ########################================ 60% done!"
+	
+	if [ $AUTO_In = true ]; then
+		audio_codec
+	fi
+	
+	if [ $AUTO_In = true ]; then
+      if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+		device_features_system
+      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml.xml ]; then
+        device_features_vendor
+      fi
+	fi
+	
+	ui_print " "
+	ui_print " - All done! "
+}
+
+AUTO_RU() {
+	ui_print " "
+	ui_print " - Вы выбрали режим установки АВТО - "
+    AUTO_In=true
+	
+	ui_print " "
+	ui_print " - Установка началась! - "
+	
+	ui_print " "
+	ui_print "     Пожалуйста дождитесь завершения. "
+	ui_print "     Время установки может варьироваться "
+	ui_print "     от одной до пяти минут в зависимости от "
+	ui_print "     вашего устройства и используемой прошивки. "
+   
+    if [ $AUTO_In = true ]; then
+		iir_patches
+	fi
+ 
+    ui_print " "
+    ui_print "   ################======================== 20% готово!"
+	
+	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
+     if [ -f $APII ]; then
+		audio_platform_info_int
+	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
+        audio_platform__info_ext
+     elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+        audio_platform_info
+     fi
+	fi
+	
+	if [ $AUTO_In = true ]; then
+		companders
+	fi
+	
+	if [ $AUTO_In = true ]; then
+		audio_codec
+	fi
+	
+	ui_print " "
+    ui_print "   ########################================ 60% готово!"
+	
+	if [ $AUTO_In = true ]; then
+      if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+		device_features_system
+      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml.xml ]; then
+        device_features_vendor
+      fi
+	fi
+	
+	ui_print " "
+	ui_print " - Всё готово! "
+}
+
+English() {
+	  if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
+		HIFI=true
+	  ui_print " "
+	  ui_print " - Device with support Hi-Fi detected! -"
+	  else
+		NOHIFI=false
+	  ui_print " "
+	  ui_print " - Device without support Hi-Fi detected! -"
+	  fi
+	  
+	  ENG_CHK=1
+	  ui_print " "
+	  ui_print " - You selected English language! -"
+	  ui_print " "
+	  ui_print " - Select installation mode: "
+	  ui_print " "
+	  ui_print " - NOTE: [VOL+] - select, [VOL-] - confirm "
+	  ui_print " "
+	  ui_print " 1. Auto (Only the most necessary things"
+	  ui_print "    for your device will be installed)"
+	  ui_print " "
+	  ui_print " 2. Manual (You configure the module yourself)"
+	  ui_print " "
+	  ui_print "        Selected: "
+	  ui_print " "
+	  
+	  while true; do
+	  ui_print "------>    $ENG_CHK    step"
+	  ui_print " "
+	  if $VKSEL; then
+		ENG_CHK=$((ENG_CHK + 1))
+	  else
+		break
+	  fi
+		
+	  if [ $ENG_CHK -gt 2 ]; then
+		ENG_CHK=1
+	  fi
+done
+
+case $ENG_CHK in
+	1) AUTO_EN;;
+	2) ENG_Manual;;
+esac
+}
+
+Russian() {
+	  if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
+		HIFI=true
+	  ui_print " "
+	  ui_print " - Обнаружено устройство с поддержкой Hi-Fi! -"
+	  else
+		NOHIFI=false
+	  ui_print " "
+	  ui_print " - Обнаружено устройство без поддержки Hi-Fi! -"
+	  fi
+	  
+	  RU_CHK=1
+	  ui_print " "
+	  ui_print " - Вы выбрали Русский язык! -"
+	  ui_print " "
+	  ui_print " - Выберите режим установки: "
+	  ui_print " "
+	  ui_print " - Заметка: [VOL+] - выбор, [VOL-] - подтверждение "
+	  ui_print " "
+	  ui_print " 1. Авто (Только самое необходимое для"
+	  ui_print "    вашего устройства будет установлено)"
+	  ui_print " "
+	  ui_print " 2. Ручной (Вы самостоятельно настраиваете модуль)"
+	  ui_print " "
+	  ui_print "        Выбран: "
+	  ui_print " "
+	  while true; do
+	  ui_print "------>    $RU_CHK    пункт"
+	  ui_print " "
+	  if $VKSEL; then
+		RU_CHK=$((RU_CHK + 1))
+	  else
+		break
+	  fi
+		
+	  if [ $RU_CHK -gt 2 ]; then
+		RU_CHK=1
+	  fi
+done
+
+case $RU_CHK in
+	1) AUTO_RU;;
+	2) RU_Manual;;
+esac
+}
+	
+ENG_Manual() {
+	  ui_print " "
+	  ui_print " - You selected Manual mode - "
+	  ui_print " - Configurate me, pls >.< - "
+	  ui_print " "
 	  
 	  sleep 1
 	  ui_print " - Disable Deep Buffer -"
@@ -1936,10 +2123,6 @@ if chooseport; then
 		dirac
 	fi
 	
-	#if [ $STEP10 = true ]; then
-	#	fluence
-	#fi
-	
 	if [ $STEP11 = true ]; then
 		mixer
 	fi
@@ -1962,10 +2145,11 @@ if chooseport; then
     ui_print " "
     ui_print " - All done! With love, NLSound Team. - "
     ui_print " "
-	
-	else
+}
+
+RU_Manual() {
 	ui_print " "
-	ui_print " - Вы выбрали Русский язык! -"
+	ui_print " - Вы выбрали РУЧНОЙ режим установки - "
 	ui_print " "
 	ui_print " - Настрой меня, пожалуйста >.< -"
 	ui_print " "
@@ -2287,10 +2471,6 @@ if chooseport; then
 	if [ $STEP9 = true ]; then
 		dirac
 	fi
-
-	#if [ $STEP10 = true ]; then
-	#	fluence
-	#fi
 	
 	if [ $STEP11 = true ]; then
 		mixer
@@ -2314,4 +2494,34 @@ if chooseport; then
     ui_print " "
     ui_print " - Всё готово! С любовью, NLSound Team. - "
     ui_print " "
-fi
+}
+
+ui_print " "
+ui_print " - Select language -"
+ui_print " "
+ui_print " - NOTE: [VOL+] - select, [VOL-] - confirm "
+sleep 1
+LANG=1
+ui_print " "
+ui_print "   1. English "
+ui_print "   2. Русский "
+ui_print " "
+ui_print "      Selected: "
+while true; do
+	ui_print "      $LANG"
+	if $VKSEL; then
+		LANG=$((LANG + 1))
+	else
+		break
+	fi
+		
+	if [ $LANG -gt 2 ]; then
+		LANG=1
+	fi
+done
+
+case $LANG in
+	1) English;;
+	2) Russian;;
+esac
+
