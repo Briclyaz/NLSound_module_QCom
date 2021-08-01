@@ -1482,8 +1482,6 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
 		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
 		#ADDED 12.04.2021 by NLSound Team
@@ -1494,7 +1492,8 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
 		#ADDED 01.08.2021 by NLSound TEAM
-		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
+		patch_xml -u $MIX '/mixer/ctl[@name="Voice Sidetone Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="Set Custom Stereo OnOff"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HPH Idle Detect"]' "ON"
 		patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "24"
@@ -1519,14 +1518,6 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="HPHL_RDAC Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HPHR_RDAC Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="AUX_RDAC Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="SmartPA Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="SmartPA Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="Custom Filter"]' "ON"
-		patch_xml -s $MIX '/mixer/ctl[@name="Custom Filter"]' "ON"
-		patch_xml -u $MIX '/mixer/ctl[@name="Filter Shape"]' "Slow Rolloff"
-		patch_xml -s $MIX '/mixer/ctl[@name="Filter Shape"]' "Slow Rolloff"
-		patch_xml -u $MIX '/mixer/ctl[@name="Virtual Bass Boost"]' "On"
-		patch_xml -s $MIX '/mixer/ctl[@name="Virtual Bass Boost"]' "On"
 		patch_xml -u $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
 		patch_xml -s $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
 		patch_xml -s $MIX '/mixer/ctl[@name="WSA_RX0 EC_HQ Switch"]' "1"
@@ -1544,8 +1535,9 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT3 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT4 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
 		patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="USB_DL_HL Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
@@ -1676,6 +1668,10 @@ AUTO_EN() {
 	ui_print "     on your device and the ROM used "
    
     if [ $AUTO_In = true ]; then
+		deep_buffer
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		iir_patches
 	fi
  
@@ -1733,6 +1729,10 @@ AUTO_RU() {
 	ui_print "     от одной до пяти минут в зависимости от "
 	ui_print "     вашего устройства и используемой прошивки. "
    
+	if [ $AUTO_In = true ]; then
+		deep_buffer
+	fi
+	
     if [ $AUTO_In = true ]; then
 		iir_patches
 	fi
