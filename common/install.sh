@@ -1601,6 +1601,7 @@ decoenco() {
 }
 
 hifi() {
+	if ! $NOHIFI; then
 	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
 	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
 	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
@@ -1611,6 +1612,18 @@ hifi() {
 	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
 	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
 	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
+	elif $HIFI; then
+	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
+	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi.volume=52' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.audio.hifi.int_codec=true' >> $MODPATH/system.prop
+	echo -e '\nvendor.audio.feature.hifi_audio.enable=true' >> $MODPATH/system.prop
+	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
+	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
+	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
+	fi
 }
 
 bt_parameters() {
@@ -1676,21 +1689,22 @@ AUTO_EN() {
 	fi
  
     ui_print " "
-    ui_print "   ################======================== 20% done!"
+    ui_print "   ########================================= 20% done!"
 	
 	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
-     if [ -f $APII ]; then
-		audio_platform_info_int
+		audio_platform_info
 	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
         audio_platform__info_ext
-     elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
-        audio_platform_info
+      elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+         audio_platform_info_int
      fi
-	fi
 	
 	if [ $AUTO_In = true ]; then
 		companders
 	fi
+	
+	ui_print " "
+    ui_print "   ##################====================== 45% done!"
 	
 	if [ $AUTO_In = true ]; then
 		audio_codec
@@ -1700,15 +1714,16 @@ AUTO_EN() {
     ui_print "   ########################================ 60% done!"
 	
 	if [ $AUTO_In = true ]; then
-		audio_codec
-	fi
-	
-	if [ $AUTO_In = true ]; then
       if [ -f /$sys_tem/etc/device_features/*.xml ]; then
 		device_features_system
-      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml.xml ]; then
+      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml ]; then
         device_features_vendor
       fi
+	fi
+	
+	ui_print " "
+    ui_print "   ######################################## 100% done!"
+	
 	fi
 	
 	ui_print " "
@@ -1733,26 +1748,27 @@ AUTO_RU() {
 		deep_buffer
 	fi
 	
-    if [ $AUTO_In = true ]; then
+	if [ $AUTO_In = true ]; then
 		iir_patches
 	fi
  
     ui_print " "
-    ui_print "   ################======================== 20% готово!"
+    ui_print "   ########================================= 20% готово!"
 	
 	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
-     if [ -f $APII ]; then
-		audio_platform_info_int
+		audio_platform_info
 	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
         audio_platform__info_ext
-     elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
-        audio_platform_info
+      elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+         audio_platform_info_int
      fi
-	fi
 	
 	if [ $AUTO_In = true ]; then
 		companders
 	fi
+	
+	ui_print " "
+    ui_print "   ##################====================== 45% готово!"
 	
 	if [ $AUTO_In = true ]; then
 		audio_codec
@@ -1764,9 +1780,14 @@ AUTO_RU() {
 	if [ $AUTO_In = true ]; then
       if [ -f /$sys_tem/etc/device_features/*.xml ]; then
 		device_features_system
-      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml.xml ]; then
+      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml ]; then
         device_features_vendor
       fi
+	fi
+	
+	ui_print " "
+    ui_print "   ######################################## 100% готово!"
+	
 	fi
 	
 	ui_print " "
