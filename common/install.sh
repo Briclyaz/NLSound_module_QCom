@@ -327,6 +327,9 @@ patch_volumes() {
 			patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "88"
 			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "88"
 			patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "88"
+			patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="LINEOUT1 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="LINEOUT2 Volume"]' "12"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_RX6 Digital Volume"]' "88"
 		fi
 		done	
 	echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
@@ -1481,7 +1484,6 @@ mixer() {
 		fi
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
-		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
 		#ADDED 12.04.2021 by NLSound Team
@@ -1528,8 +1530,8 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 SEC MIX HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX INT3 SEC MIX LO1 Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX INT4 SEC MIX LO2 Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT0 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 DEM MUX"]' "CLSH_DSM_OUT"
@@ -1724,8 +1726,6 @@ AUTO_EN() {
 	ui_print " "
     ui_print "   ######################################## 100% done!"
 	
-	fi
-	
 	ui_print " "
 	ui_print " - All done! "
 }
@@ -1787,8 +1787,6 @@ AUTO_RU() {
 	
 	ui_print " "
     ui_print "   ######################################## 100% готово!"
-	
-	fi
 	
 	ui_print " "
 	ui_print " - Всё готово! "
