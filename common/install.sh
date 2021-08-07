@@ -210,14 +210,6 @@ SVSETC=/system/vendor/SETC
 mkdir -p $MODPATH/tools
 cp -f $MODPATH/common/addon/External-Tools/tools/$ARCH32/* $MODPATH/tools/
 
-
-
-for OMIX in ${MPATHS}; do
-    MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-    cp_ch $ORIGDIR$OMIX $MIX
-    sed -i 's/\t/  /g' $MIX
-    done
-
 STEP1=false
 STEP2=false
 STEP3=false
@@ -1210,36 +1202,6 @@ companders() {
 		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX1 Switch"]' "0"
 		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX2 Switch"]' "0"
 		
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP2 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP3 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP4 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP5 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP6 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP7 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="COMP8 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="SpkrRight COMP Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="WSA_COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="WSA_COMP2 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="RX_COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco"]/ctl[@name="RX_COMP2 Switch"]' "0"
-		
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP2 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP3 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP4 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP5 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP6 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP7 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="COMP8 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="SpkrRight COMP Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="WSA_COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="WSA_COMP2 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="RX_COMP1 Switch"]' "0"
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback bt-sco-wb"]/ctl[@name="RX_COMP2 Switch"]' "0"
-		
 		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP1 Switch"]' "0"
 		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP2 Switch"]' "0"
 		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP3 Switch"]' "0"
@@ -1454,7 +1416,7 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		elif $HIFI; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
@@ -1465,27 +1427,39 @@ mixer() {
 		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
 		fi
+		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
+		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
-		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
+		#ADDED 12.04.2021 by NLSound Team
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
 		#ADDED 12.04.2021 by NLSound Team
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1493,7 +1467,7 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
-		#ADDED 01.08.2021 by NLSound TEAM
+		
 		patch_xml -u $MIX '/mixer/ctl[@name="Voice Sidetone Enable"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="Set Custom Stereo OnOff"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "1"
@@ -1530,8 +1504,6 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 SEC MIX HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX INT3 SEC MIX LO1 Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX INT4 SEC MIX LO2 Switch"]' "1"
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT0 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 DEM MUX"]' "CLSH_DSM_OUT"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 DEM MUX"]' "CLSH_DSM_OUT"
@@ -1553,10 +1525,10 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM7_RX ADM Channels"]' "Two"
-	
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
 			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
+		
 		if [ -f /$sys_tem/vendor/etc/media_codecs_google_audio.xml ]; then
 		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
 		GOOGLE_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
@@ -1564,21 +1536,115 @@ mixer() {
 		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
 		fi
+		
 		if [ -f /$sys_tem/vendor/etc/media_codecs_google_c2_audio.xml ]; then
 		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_c2_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
 		GOOGLE_C2_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		fi	
+		fi
+		
 		if [ -f /$sys_tem/vendor/etc/media_codecs_vendor_audio.xml ]; then
 		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_vendor_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
 		VENDOR_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
+		fi	
+		
+	done
+}
+
+mixer_lite() {
+	for OMIX in ${MPATHS}; do
+		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		if ! $NOHIFI; then
+		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
+		elif $HIFI; then
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		fi
+		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
+		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
+		fi
+		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
+		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
+		#ADDED 12.04.2021 by NLSound Team
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
+		#ADDED 12.04.2021 by NLSound Team
+		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "MIN_3DB_4Hz"
+		patch_xml -s $MIX '/mixer/ctl[@name="TX1 HPF cut off"]' "MIN_3DB_4Hz"
+		patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "MIN_3DB_4Hz"
+		patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
+		
+		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
+			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
+		fi
+		
+		if [ -f /$sys_tem/vendor/etc/media_codecs_google_audio.xml ]; then
+		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
+		GOOGLE_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
+		fi
+		
+		if [ -f /$sys_tem/vendor/etc/media_codecs_google_c2_audio.xml ]; then
+		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_c2_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
+		GOOGLE_C2_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
 		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
+		fi
+		
+		if [ -f /$sys_tem/vendor/etc/media_codecs_vendor_audio.xml ]; then
+		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_vendor_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
+		VENDOR_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
+		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
 		fi	
-		done
+		
+	done
 }
 
 decoenco() {
@@ -1603,7 +1669,6 @@ decoenco() {
 }
 
 hifi() {
-	if ! $NOHIFI; then
 	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
 	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
 	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
@@ -1614,18 +1679,6 @@ hifi() {
 	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
 	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
 	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
-	elif $HIFI; then
-	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
-	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi.volume=52' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi.int_codec=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.feature.hifi_audio.enable=true' >> $MODPATH/system.prop
-	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
-	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
-	fi
 }
 
 bt_parameters() {
@@ -1723,6 +1776,10 @@ AUTO_EN() {
       fi
 	fi
 	
+	if [ $AUTO_In = true ]; then
+		mixer_lite
+	fi
+	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
 	
@@ -1783,6 +1840,10 @@ AUTO_RU() {
       elif [ -f /$sys_tem/vendor/etc/device_features/*.xml ]; then
         device_features_vendor
       fi
+	fi
+	
+	if [ $AUTO_In = true ]; then
+		mixer_lite
 	fi
 	
 	ui_print " "
