@@ -1,39 +1,3 @@
-set_perm() {
-	chown $1:$2 $4
-	chmod $3 $4
-	case $4 in
-		*/vendor/etc/*)
-			chcon 'u:object_r:vendor_configs_file:s0' $4
-		;;
-		*/vendor/*)
-			chcon 'u:object_r:vendor_file:s0' $4
-		;;
-		*/data/adb/*.d/*)
-			chcon 'u:object_r:adb_data_file:s0' $4
-		;;
-		*)
-			chcon 'u:object_r:system_file:s0' $4
-		;;
-	esac
-}
-
-cp_perm() {
-  if [ -f "$4" ]; then
-    rm -f $5
-    cat $4 > $5
-    set_perm $1 $2 $3 $5
-  fi
-}
-
-set_perm_recursive() {
-	find $5 -type d | while read dir; do
-		set_perm $1 $2 $3 $dir
-	done
-	find $5 -type f -o -type l | while read file; do
-		set_perm $1 $2 $4 $file
-	done
-}
-
 nlsound() {
   case $1 in
     *.conf) SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
@@ -225,6 +189,8 @@ STEP12=false
 STEP13=false
 STEP14=false
 STEP15=false
+
+ALL=false
 
 deep_buffer() {
 	echo -e '\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
@@ -1395,24 +1361,25 @@ dirac() {
 		cp_ch -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp/libdirac-capiv2.so
 		cp_ch -f $NEWDIRAC/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx/libdiraceffect.so
 		
-		echo -e '\npersist.dirac.acs.controller=gef' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.oppo.syss=true' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.config=64' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.exs.did=29,49' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ext.did=10,20,29,49' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ins.did=19,134,150' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.int.did=15,19,134,150' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.exs.appt=0x00011130,0x00011131' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ins.appt=0x00011130,0x00011131' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.exs.mid=268512739' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ext.mid=268512737' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.ins.mid=268512738' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.gef.int.mid=268512736' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.path=/vendor/etc/dirac' >> $MODPATH/system.prop
-		echo -e '\nro.dirac.acs.storeSettings=1' >> $MODPATH/system.prop
-		echo -e '\npersist.dirac.acs.ignore_error=1' >> $MODPATH/system.prop
+		echo -e "\n# Dirac Parameters
+			persist.dirac.acs.controller=gef
+			persist.dirac.gef.oppo.syss=true
+			persist.dirac.config=64
+			persist.dirac.gef.exs.did=29,49
+			persist.dirac.gef.ext.did=10,20,29,49
+			persist.dirac.gef.ins.did=19,134,150
+			persist.dirac.gef.int.did=15,19,134,150
+			persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
+			persist.dirac.gef.exs.appt=0x00011130,0x00011131
+			persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
+			persist.dirac.gef.ins.appt=0x00011130,0x00011131
+			persist.dirac.gef.exs.mid=268512739
+			persist.dirac.gef.ext.mid=268512737
+			persist.dirac.gef.ins.mid=268512738
+			persist.dirac.gef.int.mid=268512736
+			persist.dirac.path=/vendor/etc/dirac
+			ro.dirac.acs.storeSettings=1
+			persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
 		done
 }
 
@@ -1421,35 +1388,6 @@ mixer() {
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		cp_ch $ORIGDIR$OMIX $MIX
         sed -i 's/\t/  /g' $MIX
-		if ! $NOHIFI; then
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
-		elif $HIFI; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
-		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
 		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
@@ -1458,7 +1396,6 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
-		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
@@ -1539,30 +1476,23 @@ mixer() {
 			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
 		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_google_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
-		GOOGLE_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		fi
+	done
 		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_google_c2_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_c2_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
-		GOOGLE_C2_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		fi
-		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_vendor_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_vendor_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
-		VENDOR_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		fi	
-		
+		for OMEDCDCS in $MEDCDCS; do
+		MEDCDCS="$MODPATH/$MODID$(echo $OMEDCDCS | sed "s|^/vendor|g")"
+		mkdir -p `dirname $MEDCDCS`
+		cp -f $MAGISKMIRROR$OMEDCDCS $MEDCDCS
+		case $MEDCDCS in
+		*media_codecs_google_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		*media_codecs_google_c2_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		*media_codecs_vendor_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		esac
 	done
 }
 
@@ -1571,11 +1501,7 @@ mixer_lite() {
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		cp_ch $ORIGDIR$OMIX $MIX
         sed -i 's/\t/  /g' $MIX
-		if ! $NOHIFI; then
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
-		elif $HIFI; then
+		if $HIFI; then
 		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
@@ -1599,28 +1525,18 @@ mixer_lite() {
 		patch_xml -s $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
 		patch_xml -s $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIFI"
+		else
+		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
 		fi
-		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
-		patch_xml -s $MIX '/mixer/ctl[@name="PCM_RX_DL_HL Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
 		patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
-		#ADDED 12.04.2021 by NLSound Team
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
-		#ADDED 12.04.2021 by NLSound Team
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1632,105 +1548,98 @@ mixer_lite() {
 			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
 		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_google_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
-		GOOGLE_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_MEDIA_CODECS	
-		fi
-		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_google_c2_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_google_c2_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
-		GOOGLE_C2_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_google_c2_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $GOOGLE_C2_MEDIA_CODECS	
-		fi
-		
-		if [ -f /$sys_tem/vendor/etc/media_codecs_vendor_audio.xml ]; then
-		cp_perm 0 0 0644 $sys_tem/vendor/etc/media_codecs_vendor_audio.xml /data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
-		VENDOR_MEDIA_CODECS=/data/adb/modules_update/NLSound/system/vendor/etc/media_codecs_vendor_audio.xml
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $VENDOR_MEDIA_CODECS	
-		fi	
-		
+	done
+	
+		for OMEDCDCS in $MEDCDCS; do
+		MEDCDCS="$MODPATH/$MODID$(echo $OMEDCDCS | sed "s|^/vendor|g")"
+		mkdir -p `dirname $MEDCDCS`
+		cp -f $MAGISKMIRROR$OMEDCDCS $MEDCDCS
+		case $MEDCDCS in
+		*media_codecs_google_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		*media_codecs_google_c2_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		*media_codecs_vendor_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MEDCDCS;;
+		esac
 	done
 }
 
 decoenco() {
-	echo -e '\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
-	echo -e '\nmpq.audio.decode=true' >> $MODPATH/system.prop
-	echo -e '\nlpa.decode=false' >> $MODPATH/system.prop
-	echo -e '\naudio.decoder_override_check=true' >> $MODPATH/system.prop
-	echo -e '\nuse.non-omx.mp3.decoder=false' >> $MODPATH/system.prop
-	echo -e '\nuse.non-omx.aac.decoder=false' >> $MODPATH/system.prop
-	echo -e '\nlpa.use-stagefright=false' >> $MODPATH/system.prop
-	echo -e '\nlpa.releaselock=false' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.flac.sw.decoder.24bit=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.aac.sw.decoder.24bit=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.use.sw.alac.decoder=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.flac.sw.encoder.24bit=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.aac.sw.encoder.24bit=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.use.sw.ape.decoder=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.vorbis.complexity.default=8' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.vorbis.quality=100' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.aac.complexity.default=8' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.aac.quality=100' >> $MODPATH/system.prop
+	echo -e "\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM
+	mpq.audio.decode=true
+	lpa.decode=false
+	audio.decoder_override_check=true
+	use.non-omx.mp3.decoder=false
+	use.non-omx.aac.decoder=false
+	lpa.use-stagefright=false
+	lpa.releaselock=false
+	vendor.audio.flac.sw.decoder.24bit=true
+	vendor.audio.aac.sw.decoder.24bit=true
+	vendor.audio.use.sw.alac.decoder=true
+	vendor.audio.flac.sw.encoder.24bit=true
+	vendor.audio.aac.sw.encoder.24bit=true
+	vendor.audio.use.sw.ape.decoder=true
+	vendor.audio.vorbis.complexity.default=8
+	vendor.audio.vorbis.quality=100
+	vendor.audio.aac.complexity.default=8
+	vendor.audio.aac.quality=100" >> $MODPATH/system.prop
 }
 
 hifi() {
-	echo -e '\n#HiFi PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
-	echo -e '\nro.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi.volume=72' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.audio.hifi.int_codec=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.feature.hifi_audio.enable=true' >> $MODPATH/system.prop
-	echo -e '\nro.vendor.audio.hifi=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.audio.hifi.int_codec=true' >> $MODPATH/system.prop
-	echo -e '\nro.hardware.hifi.support=true' >> $MODPATH/system.prop
+	echo -e "\n#HiFi PARAMETERS BY NLSOUND TEAM
+	ro.audio.hifi=true
+	persist.audio.hifi=true
+	persist.audio.hifi.volume=72
+	persist.vendor.audio.hifi=true
+	persist.audio.hifi.int_codec=true
+	vendor.audio.feature.hifi_audio.enable=true
+	ro.vendor.audio.hifi=true
+	persist.vendor.audio.hifi.int_codec=true
+	ro.hardware.hifi.support=true" >> $MODPATH/system.prop
 }
 
 bt_parameters() {
-	echo -e '\n#BT PARAMETERS BY NLSOUND TEAM' >> $MODPATH/system.prop
-	echo -e '\npersist.service.btui.use_aptx=1' >> $MODPATH/system.prop
-	echo -e '\npersist.bt.enableAptXHD=true' >> $MODPATH/system.prop
-	echo -e '\npersist.bt.a2dp.aptx_disable=false' >> $MODPATH/system.prop
-	echo -e '\npersist.bt.a2dp.aptx_hd_disable=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.enable.splita2dp=true ' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.enable.twsplus=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true ' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.enable.splita2dp=true ' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.twsp_state.enabled=false ' >> $MODPATH/system.prop
-	echo -e '\nro.bluetooth.emb_wp_mode=false' >> $MODPATH/system.prop
-	echo -e '\nro.bluetooth.wipower=false ' >> $MODPATH/system.prop
-	echo -e '\nro.vendor.bluetooth.wipower=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.bt.soc.scram_freqs=192' >> $MODPATH/system.prop
-	echo -e '\npersist.bt.a2dp.aac_disable=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.bt.aac_frm_ctl.enabled=true' >> $MODPATH/system.prop
-	echo -e '\naudio.effect.a2dp.enable=1' >> $MODPATH/system.prop
-	echo -e '\nvendor.audio.effect.a2dp.enable=1' >> $MODPATH/system.prop
-	echo -e '\nvendor.btstack.absolute_volume=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.absolute_volume=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.avrcp.pos_time=1000' >> $MODPATH/system.prop
-	echo -e '\npersist.bluetooth.enabledelayreports=true' >> $MODPATH/system.prop
-	echo -e '\nvendor.bt.pts.pbap=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.bt.a2dp.aac_whitelist=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.bt.a2dp.addr_check_enabled_for_aac=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.scram.enabled=false' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true' >> $MODPATH/system.prop
-	echo -e '\npersist.sys.fflag.override.settings_bluetooth_hearing_aid=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.connect.peer_earbud=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.enable.twsplussho=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.enable.swb=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btstack.enable.swbpm=true' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btsatck.absvolfeature=true' >> $MODPATH/system.prop
-	echo -e '\npersist.bt.sbc_hd_enabled=1' >> $MODPATH/system.prop
-	echo -e '\npersist.bluetooth.sbc_hd_higher_bitrate=1' >> $MODPATH/system.prop
-	echo -e '\npersist.vendor.btsatck.absvolfeature=true' >> $MODPATH/system.prop
+	echo -e "\n#BT PARAMETERS BY NLSOUND TEAM
+	persist.service.btui.use_aptx=1
+	persist.bt.enableAptXHD=true
+	persist.bt.a2dp.aptx_disable=false
+	persist.bt.a2dp.aptx_hd_disable=false
+	persist.vendor.btstack.enable.splita2dp=true
+	persist.vendor.btstack.enable.twsplus=true
+	persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
+	persist.vendor.qcom.bluetooth.enable.splita2dp=true
+	persist.vendor.qcom.bluetooth.twsp_state.enabled=false
+	ro.bluetooth.emb_wp_mode=false
+	ro.bluetooth.wipower=false
+	ro.vendor.bluetooth.wipower=false
+	persist.vendor.bt.soc.scram_freqs=192
+	persist.bt.a2dp.aac_disable=false
+	persist.vendor.bt.aac_frm_ctl.enabled=true
+	audio.effect.a2dp.enable=1
+	vendor.audio.effect.a2dp.enable=1
+	vendor.btstack.absolute_volume=true
+	persist.vendor.btstack.absolute_volume=true
+	persist.vendor.btstack.avrcp.pos_time=1000
+	persist.bluetooth.enabledelayreports=true
+	vendor.bt.pts.pbap=true
+	persist.vendor.bt.a2dp.aac_whitelist=false
+	persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
+	persist.vendor.qcom.bluetooth.scram.enabled=false
+	persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
+	persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
+	persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+	persist.vendor.btstack.connect.peer_earbud=true
+	persist.vendor.btstack.enable.twsplussho=true
+	persist.vendor.btstack.enable.swb=true
+	persist.vendor.btstack.enable.swbpm=true
+	persist.vendor.btsatck.absvolfeature=true
+	persist.bt.sbc_hd_enabled=1
+	persist.bluetooth.sbc_hd_higher_bitrate=1
+	persist.vendor.btsatck.absvolfeature=true" >> $MODPATH/system.prop
 }
 
 AUTO_EN() {
@@ -1889,6 +1798,9 @@ English() {
 	  ui_print " "
 	  ui_print " 2. Manual (You configure the module yourself)"
 	  ui_print " "
+	  ui_print " "
+	  ui_print " 3. Install all (For experienced users, may cause problems)"
+	  ui_print " "
 	  ui_print "        Selected: "
 	  ui_print " "
 	  
@@ -1897,11 +1809,12 @@ English() {
 	  ui_print " "
 	  if $VKSEL; then
 		ENG_CHK=$((ENG_CHK + 1))
+		ALL=true
 	  else
 		break
 	  fi
 		
-	  if [ $ENG_CHK -gt 2 ]; then
+	  if [ $ENG_CHK -gt 3 ]; then
 		ENG_CHK=1
 	  fi
 done
@@ -1909,6 +1822,7 @@ done
 case $ENG_CHK in
 	1) AUTO_EN;;
 	2) ENG_Manual;;
+	3) All_En;;
 esac
 }
 
@@ -1936,6 +1850,9 @@ Russian() {
 	  ui_print " "
 	  ui_print " 2. Ручной (Вы самостоятельно настраиваете модуль)"
 	  ui_print " "
+	  ui_print " "
+	  ui_print " 3. Установить всё (Для опытных пользователей, может вызвать проблемы)"
+	  ui_print " "
 	  ui_print "        Выбран: "
 	  ui_print " "
 	  while true; do
@@ -1943,11 +1860,12 @@ Russian() {
 	  ui_print " "
 	  if $VKSEL; then
 		RU_CHK=$((RU_CHK + 1))
+		ALL=true
 	  else
 		break
 	  fi
 		
-	  if [ $RU_CHK -gt 2 ]; then
+	  if [ $RU_CHK -gt 3 ]; then
 		RU_CHK=1
 	  fi
 done
@@ -1955,6 +1873,7 @@ done
 case $RU_CHK in
 	1) AUTO_RU;;
 	2) RU_Manual;;
+	3) All_Ru;;
 esac
 }
 	
@@ -2649,6 +2568,84 @@ RU_Manual() {
     ui_print " "
     ui_print " - Всё готово! С любовью, NLSound Team. - "
     ui_print " "
+}
+
+All_En() {
+	ui_print " "
+	ui_print " - You selected INSTALL ALL "
+	ui_print " "
+	ui_print " - Installation started! Please, wait..."
+	
+	if [ $ALL = true ]; then
+		deep_buffer
+		patch_microphone
+		patch_volumes
+		iir_patches
+		
+		if [ -f $APII ]; then
+			audio_platform_int
+		elif [ -f $APIE ]; then
+			audio_platform_ext
+		elif [ -f $API ]; then
+			audio_platform_info
+		fi
+		
+		companders
+		audio_codec
+		
+		if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+			device_features_system
+		else
+			device_features_vendor
+		fi
+		
+		dirac
+		mixer
+		decoenco
+		hifi
+		bt_parameters
+	fi
+	ui_print " "
+	ui_print " All done!"
+}
+
+All_Ru() {
+	ui_print " "
+	ui_print " - Вы выбрали УСТАНОВИТЬ ВСЁ "
+	ui_print " "
+	ui_print " - Установка начата! Пожалуйста, подождите..."
+	
+	if [ $ALL = true ]; then
+		deep_buffer
+		patch_microphone
+		patch_volumes
+		iir_patches
+		
+		if [ -f $APII ]; then
+			audio_platform_int
+		elif [ -f $APIE ]; then
+			audio_platform_ext
+		elif [ -f $API ]; then
+			audio_platform_info
+		fi
+		
+		companders
+		audio_codec
+		
+		if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+			device_features_system
+		else
+			device_features_vendor
+		fi
+		
+		dirac
+		mixer
+		decoenco
+		hifi
+		bt_parameters
+	fi
+	ui_print " "
+	ui_print " Всё готово!"
 }
 
 ui_print " "
