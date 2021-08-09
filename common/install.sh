@@ -237,6 +237,8 @@ deep_buffer() {
 patch_volumes() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		if ! $NOHIFI; then
 			patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "92"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "92"
@@ -330,6 +332,8 @@ patch_volumes() {
 patch_microphone() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		if ! $NOHIFI; then
 			patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
 			patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
@@ -411,6 +415,8 @@ patch_microphone() {
 iir_patches() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		patch_xml -u $MIX '/mixer//ctl[@name="IIR1 Band1"][@id="0"]' "238395206"
 		patch_xml -u $MIX '/mixer//ctl[@name="IIR1 Band1"][@id="1"]' "689443228"
 		patch_xml -u $MIX '/mixer//ctl[@name="IIR1 Band1"][@id="2"]' "205354587"
@@ -576,6 +582,8 @@ audio_platform_info() {
 companders() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		patch_xml -u $MIX '/mixer/ctl[@name="COMP1 Switch"]' "0"
 		patch_xml -u $MIX '/mixer/ctl[@name="COMP2 Switch"]' "0"
 		patch_xml -u $MIX '/mixer/ctl[@name="COMP3 Switch"]' "0"
@@ -1411,6 +1419,8 @@ dirac() {
 mixer() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		if ! $NOHIFI; then
 		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
@@ -1559,6 +1569,8 @@ mixer() {
 mixer_lite() {
 	for OMIX in ${MPATHS}; do
 		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+		cp_ch $ORIGDIR$OMIX $MIX
+        sed -i 's/\t/  /g' $MIX
 		if ! $NOHIFI; then
 		patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
