@@ -1603,11 +1603,11 @@ AUTO_EN() {
     ui_print " "
     ui_print "   ########================================= 20% done!"
 	
-	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
+	if [ -f $sys_tem/vendor/etc/audio_platform_info.xml ]; then
 		audio_platform_info
-	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
+	 elif [ -f $sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
         audio_platform__info_ext
-      elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
          audio_platform_info_int
      fi
 	
@@ -1626,9 +1626,9 @@ AUTO_EN() {
     ui_print "   ########################================ 60% done!"
 	
 	if [ $AUTO_In = true ]; then
-      if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+      if [ -f $sys_tem/etc/device_features/*.xml ]; then
 		device_features_system
-      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/device_features/*.xml ]; then
         device_features_vendor
       fi
 	fi
@@ -1669,11 +1669,11 @@ AUTO_RU() {
     ui_print " "
     ui_print "   ########================================= 20% готово!"
 	
-	if [ -f /$sys_tem/vendor/etc/audio_platform_info.xml ]; then
+	if [ -f $sys_tem/vendor/etc/audio_platform_info.xml ]; then
 		audio_platform_info
-	 elif [ -f /$sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
+	 elif [ -f $sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
         audio_platform__info_ext
-      elif [ -f /$sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
          audio_platform_info_int
      fi
 	
@@ -1692,9 +1692,9 @@ AUTO_RU() {
     ui_print "   ########################================ 60% готово!"
 	
 	if [ $AUTO_In = true ]; then
-      if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+      if [ -f $sys_tem/etc/device_features/*.xml ]; then
 		device_features_system
-      elif [ -f /$sys_tem/vendor/etc/device_features/*.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/device_features/*.xml ]; then
         device_features_vendor
       fi
 	fi
@@ -2529,7 +2529,7 @@ All_En() {
 		companders
 		audio_codec
 		
-		if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+		if [ -f $sys_tem/etc/device_features/*.xml ]; then
 			device_features_system
 		else
 			device_features_vendor
@@ -2568,7 +2568,7 @@ All_Ru() {
 		companders
 		audio_codec
 		
-		if [ -f /$sys_tem/etc/device_features/*.xml ]; then
+		if [ -f $sys_tem/etc/device_features/*.xml ]; then
 			device_features_system
 		else
 			device_features_vendor
