@@ -45,7 +45,23 @@ PERSISTDIR=/sbin/.magisk/mirror/persist
 is_legacy_script() {
   unzip -l "$ZIPFILE" install.sh | grep -q install.sh
   return $?
-} 
+}
+
+print_modname() {
+  local authlen len namelen pounds
+  namelen=`echo -n $MODNAME | wc -c`
+  authlen=$((`echo -n $MODAUTH | wc -c` + 3))
+  [ $namelen -gt $authlen ] && len=$namelen || len=$authlen
+  len=$((len + 2))
+  pounds=$(printf "%${len}s" | tr ' ' '*')
+  ui_print "$pounds"
+  ui_print " $MODNAME "
+  ui_print " by $MODAUTH "
+  ui_print "$pounds"
+  ui_print "*******************"
+  ui_print " Powered by Magisk "
+  ui_print "*******************"
+}
 
 # Override abort as old scripts have some issues
 abort() {
