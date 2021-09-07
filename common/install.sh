@@ -1361,7 +1361,7 @@ mixer() {
 		fi
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
-			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
+			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "speaker"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
@@ -1490,7 +1490,7 @@ mixer_lite() {
 		fi
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
-			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
+			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "speaker"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
