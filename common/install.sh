@@ -454,10 +454,10 @@ audio_platform_info_ext() {
     patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'bit_width=24'
     patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'max_rate=192000'
     if [ ! "$(grep '<app_types>' $APLI)" ]; then
-    sed -i "s/<\/audio_platform_info_extcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/" $APLI		  
+		sed -i "s/<\/audio_platform_info_extcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/" $APLI		  
     else
     for i in 69936 69940; do
-    [ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
+		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
     done
     fi	
  done
@@ -1416,10 +1416,6 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 	done
-	
-	media_codecs_google_audio
-	media_codecs_vendor_audio
-	media_codecs_google_c2_audio
 }
 
 mixer_lite() {
@@ -1473,10 +1469,6 @@ mixer_lite() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 	done
-	
-	media_codecs_google_audio
-	media_codecs_vendor_audio
-	media_codecs_google_c2_audio
 }
 
 decoenco() {
