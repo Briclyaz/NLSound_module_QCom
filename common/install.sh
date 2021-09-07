@@ -1370,6 +1370,7 @@ mixer() {
 			patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
+			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "speaker"
@@ -1435,9 +1436,6 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_PRI_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
-		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
-		fi
 	done
 	
 	media_codecs_google_audio
@@ -1494,6 +1492,7 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 ClassD Edge"]' "7"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
+			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 		fi
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "speaker"
@@ -1520,9 +1519,6 @@ mixer_lite() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_PRI_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
-		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-			echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
-		fi
 	done
 	
 	media_codecs_google_audio
