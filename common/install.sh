@@ -1330,6 +1330,12 @@ mixer() {
 	for OMIX in ${MPATHS}; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		if $HIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_3LE"
@@ -1415,6 +1421,7 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_PRI_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
+			patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
 	done
 }
 
@@ -1422,6 +1429,12 @@ mixer_lite() {
 	for OMIX in ${MPATHS}; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		if $HIFI; then
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-hifi-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-highquality-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-lowpower-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+			patch_xml -u $MIX '/mixer/path[@name="hph-class-ab-mode"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_3LE"
@@ -2509,7 +2522,8 @@ All_En() {
 		bt_parameters
 	fi
 	ui_print " "
-	ui_print " All done!"
+	ui_print " - All done!"
+	ui_print " "
 }
 
 All_Ru() {
@@ -2548,7 +2562,8 @@ All_Ru() {
 		bt_parameters
 	fi
 	ui_print " "
-	ui_print " Всё готово!"
+	ui_print " - Всё готово!"
+	ui_print " "
 }
 
 ui_print " "
