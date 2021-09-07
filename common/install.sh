@@ -1351,6 +1351,7 @@ mixer() {
 		else
 			patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
@@ -1423,6 +1424,8 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT4 DEM MUX"]' "CLSH_DSM_OUT"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
+			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
+			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
 			patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="USB_DL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
@@ -1477,6 +1480,7 @@ mixer_lite() {
 		else
 			patch_xml -s $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "HIRES"
 		fi
 		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
@@ -1505,22 +1509,8 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/ctl[@name="TX1 HPF cut off"]' "MIN_3DB_4Hz"
 			patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "MIN_3DB_4Hz"
 			patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
-			
-			patch_xml -u $MIX '/mixer/ctl[@name="Voice Sidetone Enable"]' "1"
-			patch_xml -s $MIX '/mixer/ctl[@name="Set Custom Stereo OnOff"]' "1"
-			patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "1"
-			patch_xml -s $MIX '/mixer/ctl[@name="HPH Idle Detect"]' "ON"
-			patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "24"
-			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Channels"]' "Two"
-			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft BOOST Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight BOOST Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft VISENSE Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight VISENSE Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft SWR DAC_Port Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight SWR DAC_Port Switch"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
-			patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
+			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
+			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
 			patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="USB_DL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
