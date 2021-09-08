@@ -1,16 +1,24 @@
 nlsound() {
-  case $1 in
-    *.conf) SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
-            EFFECTS=$(sed -n "/^output_session_processing {/,/^}/ {/^$SPACES\music {/,/^$SPACES}/p}" $1 | grep -E "^$SPACES +[A-Za-z]+" | sed -r "s/( *.*) .*/\1/g")
-            for EFFECT in ${EFFECTS}; do
-              SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
-              [ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/ s/^/#/g}" $1
-            done;;
-     *.xml) EFFECTS=$(sed -n "/^ *<postprocess>$/,/^ *<\/postprocess>$/ {/^ *<stream type=\"music\">$/,/^ *<\/stream>$/ {/<stream type=\"music\">/d; /<\/stream>/d; s/<apply effect=\"//g; s/\"\/>//g; p}}" $1)
-            for EFFECT in ${EFFECTS}; do
-              [ "$EFFECT" != "atmos" ] && sed -ri "s/^( *)<apply effect=\"$EFFECT\"\/>/\1<\!--<apply effect=\"$EFFECT\"\/>-->/" $1
-            done;;
-  esac
+case $1 in
+	-pre) CONF=pre_processing; XML=preprocess;;
+	-post) CONF=output_session_processing; XML=postprocess;;
+esac
+case $2 in
+	*.conf) if [ ! "$(sed -n "/^$CONF {/,/^}/p" $2)" ]; then
+		echo -e "\n$CONF {\n    $3 {\n        $4 {\n        }\n    }\n}" >> $2
+	elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^    }/p}" $2)" ]; then
+		sed -i "/^$CONF {/,/^}/ s/$CONF {/$CONF {\n    $3 {\n        $4 {\n        }\n    }/" $2
+	elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^    }/ {/$4 {/,/}/p}}" $2)" ]; then
+		sed -i "/^$CONF {/,/^}/ {/$3 {/,/^    }/ s/$3 {/$3 {\n        $4 {\n        }/}" $2
+	fi;;
+	*.xml) if [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/p" $2)" ]; then     
+		sed -i "/<\/audio_effects_conf>/i\    <$XML>\n       <stream type=\"$3\">\n            <apply effect=\"$4\"\/>\n        <\/stream>\n    <\/$XML>" $2
+	elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/p}" $2)" ]; then     
+		sed -i "/^ *<$XML>/,/^ *<\/$XML>/ s/    <$XML>/    <$XML>\n        <stream type=\"$3\">\n            <apply effect=\"$4\"\/>\n        <\/stream>/" $2
+	elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ {/^ *<apply effect=\"$4\"\/>/p}}" $2)" ]; then
+		sed -i "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ s/<stream type=\"$3\">/<stream type=\"$3\">\n            <apply effect=\"$4\"\/>/}" $2
+	fi;;
+esac
 }
 
 patch_xml() {
@@ -77,6 +85,57 @@ patch_xml() {
       fi
       ;;
   esac
+}
+
+#author - Lord_Of_The_Lost@Telegram
+meme_effects() {
+case $1 in
+	*.conf) local SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
+		local EFFECTS=$(sed -n "/^output_session_processing {/,/^}/ {/^$SPACES\music {/,/^$SPACES}/p}" $1 | grep -E "^$SPACES +[A-Za-z]+" | sed -r "s/( *.*) .*/\1/g")
+		for EFFECT in $EFFECTS; do
+		local SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
+		[ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/ s/^/#/g}" $1
+	done;;
+	*.xml) local EFFECTS=$(sed -n "/^ *<postprocess>$/,/^ *<\/postprocess>$/ {/^ *<stream type=\"music\">$/,/^ *<\/stream>$/ {/<stream type=\"music\">/d; /<\/stream>/d; s/<apply effect=\"//g; s/\"\/>//g; p}}" $1)
+		for EFFECT in $EFFECTS; do
+		[ "$EFFECT" != "atmos" ] && sed -ri "s/^( *)<apply effect=\"$EFFECT\"\/>/\1<\!--<apply effect=\"$EFFECT\"\/>-->/" $1
+	done;;
+esac
+}
+
+#author - Lord_Of_The_Lost@Telegram
+memes_confxml() {
+case $FILE in
+	*.conf) sed -i "/$1 {/,/}/d" $FILE
+		sed -i "/$2 {/,/}/d" $FILE
+		sed -i "s/^effects {/effects {\n  $1 {\n    library $2\n    uuid $5\n  }/g" $FILE
+		sed -i "s/^libraries {/libraries {\n  $2 {\n    path $3\/$4\n  }/g" $FILE;;
+	*.xml) sed -i "/$1/d" $FILE
+		sed -i "/$2/d" $FILE
+		sed -i "/<libraries>/ a\        <library name=\"$2\" path=\"$4\"\/>" $FILE
+	sed -i "/<effects>/ a\        <effect name=\"$1\" library=\"$2\" uuid=\"$5\"\/>" $FILE;;
+esac
+}
+
+#author - Lord_Of_The_Lost@Telegram
+SET_PERM_RM() {
+	SET_PERM_R $MODPATH/$MODID 0 0 0755 0644; [ -d $MODPATH$MIPSB ] && chmod -R 777 $MODPATH$MIPSB; [ -d $MODPATH$MIPSXB ] && chmod -R 777 $MODPATH$MIPSXB; case $1 in -msgdi) UIP "$MSGDI";; esac
+}
+
+#author - Lord_Of_The_Lost@Telegram
+MOVERPATH() {
+if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system_root/system ]; then
+		mkdir -p $MODPATH/$MODID/system; cp -rf $MODPATH/$MODID/system_root/system/* $MODPATH/$MODID/system; rm -rf $MODPATH/$MODID/system_root
+	fi
+if [ -d $MODPATH/$MODID/vendor ]; then
+		mkdir -p $MODPATH$MIPSV; cp -rf $MODPATH/$MODID/vendor/* $MODPATH$MIPSV; rm -rf $MODPATH/$MODID/vendor
+	fi
+if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system/system ]; then
+		mkdir -p $MODPATH/$MODID/system; cp -rf $MODPATH/$MODID/system/system/* $MODPATH/$MODID/system; rm -rf $MODPATH/$MODID/system/system
+	fi
+if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system_root/system/system_ext ]; then
+		mkdir -p $MODPATH/$MODID/system/system_ext; cp -rf $MODPATH/$MODID/system_root/system/system_ext/* $MODPATH/$MODID/system/system_ext; rm -rf $MODPATH/$MODID/system_root
+	fi
 }
 
 [ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
@@ -152,66 +211,21 @@ POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 
-MPATHS="$(find /system /vendor -type f -name "mixer_paths*.xml")"
-APINF="$(find /system /vendor -type f -name "audio_platform_info*.xml")"
 ACONFS="$(find /system /vendor -type f -name "audio_configs*.xml")"
+APINF="$(find /system /vendor -type f -name "audio_platform_info*.xml")"
 CFGS="$(find /system /vendor -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
-VNDK=$(find /system/lib /vendor/lib -type d -iname "*vndk*")
-VNDK64=$(find /system/lib64 /vendor/lib64 -type d -iname "*vndk*")
+MPATHS="$(find /system /vendor -type f -name "mixer_paths*.xml")"
+MCGAX="$(find /system /vendor -type f -name "*media_codecs_google_c2_audio*.xml" -o -name "*media_codecs_google_audio*.xml" -o -name "*media_codecs_vendor_audio*.xml")"
+APIXML="/vendor/etc/audio_platform_info.xml"
+APIIXML="/vendor/etc/audio_platform_info_intcodec.xml"
+APIEXML="/vendor/etc/audio_platform_info_extcodec.xml"
+DEVFEA="/vendor/etc/device_features/*.xml"; DEVFEAA="/system/etc/device_features/*.xml"
 
-DEVFEA=/system/etc/device_features/*.xml
-DEVFEAA=/vendor/etc/device_features/*.xml
-
-API=/vendor/etc/audio_platform_info.xml
-APII=/vendor/etc/audio_platform_info_intcodec.xml
-APIE=/vendor/etc/audio_platform_info_extcodec.xml
-
-MEDCD_GOOGLE="$(find /system /vendor /etc -type f -name "media_codecs_google_audio*")"
-MEDCD_VENDOR="$(find /system /vendor /etc -type f -name "media_codecs_vendor_audio*")"
-MEDCD_C2="$(find /system /vendor /etc -type f -name "media_codecs_c2_google_audio*")"
-
-NLS=$MODPATH/common/NLSound
 FIRMRN7PRO=$MODPATH/common/NLSound/firmrn7pro
 FEATURES=$MODPATH/common/NLSound/features
 WHYDED=$MODPATH/common/NLSound/whyded
 FIRMWARE=$MODPATH/common/NLSound/firmware
 NEWDIRAC=$MODPATH/common/NLSound/newdirac
-
-SETC=/system/SETC
-SVSETC=/system/vendor/SETC
-
-mkdir -p $MODPATH/tools
-cp -f $MODPATH/common/addon/External-Tools/tools/$ARCH32/* $MODPATH/tools/
-
-for OMIX in ${MPATHS}; do
-		MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		cp_ch $ORIGDIR$OMIX $MIX
-        sed -i 's/\t/  /g' $MIX
-done
-
-for OAPLI in ${APINF}; do
-    APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-    cp_ch $ORIGDIR$OAPLI $APLI
-    sed -i 's/\t/  /g' $APLI
-done
-
-for OACONF in ${ACONFS}; do
-		ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
-		cp_ch $ORIGDIR$OACONF $ACONF
-		sed -i 's/\t/  /g' $ACONF
-done
-
-for ODEVFEA in ${DEVFEA}; do 
-		DEVFEA="$MODPATH$(echo $ODEVFEA | sed "s|^/vendor|/system/vendor|g")"
-		cp_ch $ORIGDIR$ODEVFEA $DEVFEA
-		sed -i 's/\t/  /g' $DEVFEA
-done
-
-for ODEVFEAA in ${DEVFEAA}; do 
-		DEVFEAA="$MODPATH$(echo $ODEVFEAA | sed "s|^/vendor|/system/vendor|g")"
-		cp_ch $ORIGDIR$ODEVFEAA $DEVFEAA
-		sed -i 's/\t/  /g' $DEVFEAA
-done
 
 STEP1=false
 STEP2=false
@@ -231,16 +245,30 @@ STEP15=false
 
 ALL=false
 
+for OMIX in $MPATHS; do
+	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $MIX`
+	cp -f $MAGISKMIRROR$OMIX $MIX
+	sed -i 's/\t/  /g' $MIX
+done
+
+for OACONF in $ACONFS; do
+	ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $ACONF`
+	cp -f $MAGISKMIRROR$OACONF $ACONF
+	sed -i 's/\t/  /g' $ACONF
+done
+
 deep_buffer() {
 	echo -e '\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
-		for OACONF in ${ACONFS}; do
+		for OACONF in $ACONFS; do
 		ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
 			patch_xml -u $ACONF '/configs/property[@name="audio.deep_buffer.media"]' "false"
 		done
 }
 	
 patch_volumes() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "92"
@@ -287,7 +315,7 @@ patch_volumes() {
 }
 
 patch_microphone() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
 		patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
@@ -329,7 +357,7 @@ patch_microphone() {
 }
 
 iir_patches() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="0"]' "238395206"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="1"]' "689443228"
@@ -416,79 +444,88 @@ iir_patches() {
 }
 
 audio_platform_info_int() {
- for OAPLI in ${APINF}; do
-    APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' 'src'
-    patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' 'true'
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
-    patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' 'bit_width=24'
-    patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' 'max_rate=192000'
-    if [ ! "$(grep '<app_types>' $APLI)" ]; then
+	for OAPLI in $APINF; do
+	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $APLI`
+	cp -f $MAGISKMIRROR$OAPLI $APLI
+	sed -i 's/\t/  /g' $APLI
+		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' 'src'
+		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' 'true'
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
+		patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' 'bit_width=24'
+		patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' 'max_rate=192000'
+	if [ ! "$(grep '<app_types>' $APLI)" ]; then
 		sed -i "s/<\/audio_platform_info_intcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_intcodec>/" $APLI		  
-    else
-    for i in 69936 69940; do
-		[ "$(xmlstarlet sel -t -m "/audio_platform_info_intcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_intcodec>/,/<\/audio_platform_info_intcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
+	else
+	for i in 69936 69940; do
+		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
     done
-    fi
- done
+	fi
+done
 }
 
 audio_platform_info_ext() {
- for OAPLI in ${APINF}; do
-    APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="native_audio_mode"]' 'src'
-    patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="hifi_filter"]' 'true'
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
-    patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'bit_width=24'
-    patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'max_rate=192000'
-    if [ ! "$(grep '<app_types>' $APLI)" ]; then
+	for OAPLI in $APINF; do
+	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $APLI`
+	cp -f $MAGISKMIRROR$OAPLI $APLI
+	sed -i 's/\t/  /g' $APLI
+		patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="native_audio_mode"]' 'src'
+		patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="hifi_filter"]' 'true'
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
+		patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'bit_width=24'
+		patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' 'max_rate=192000'
+	if [ ! "$(grep '<app_types>' $APLI)" ]; then
 		sed -i "s/<\/audio_platform_info_extcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/" $APLI		  
-    else
-    for i in 69936 69940; do
+	else
+	for i in 69936 69940; do
 		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
     done
-    fi	
- done
+	fi
+done
 }
 
 audio_platform_info() {
- for OAPLI in ${APINF}; do
-    APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-    patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' 'src'
-    patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' 'true'
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
-    patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
-    patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' 'bit_width=24'
-    patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' 'max_rate=192000'
-    if [ ! "$(grep '<app_types>' $APLI)" ]; then
+	for OAPLI in $APINF; do
+	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $APLI`
+	cp -f $MAGISKMIRROR$OAPLI $APLI
+	sed -i 's/\t/  /g' $APLI
+		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' 'src'
+		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' 'true'
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "24"
+		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "24"	 
+		patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' 'bit_width=24'
+		patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' 'max_rate=192000'
+	if [ ! "$(grep '<app_types>' $APLI)" ]; then
 		sed -i "s/<\/audio_platform_info>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/" $APLI		  
-    else
-    for i in 69936 69940; do
-		[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
+	else
+	for i in 69936 69940; do
+		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
     done
-    fi	
- done
+	fi
+done
 }
 
 companders() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		patch_xml -u $MIX '/mixer/ctl[@name="COMP1 Switch"]' 0
 		patch_xml -u $MIX '/mixer/ctl[@name="COMP2 Switch"]' 0
@@ -1189,8 +1226,9 @@ companders() {
 }
 
 audio_codec() {
-	for OACONF in ${ACONFS}; do
-    ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
+if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
+	for OACONF in $ACONFS; do
+	ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
 		patch_xml -u $ACONF '/configs/property[@name="audio.offload.disable"]' "false"
 		patch_xml -u $ACONF '/configs/property[@name="audio.offload.min.duration.secs"]' "30"
 		patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.sva.conc.enabled"]' "false"
@@ -1226,32 +1264,26 @@ audio_codec() {
 		patch_xml -u $ACONF '/configs/property[@name="pcm_offload_enabled_24"]' "false "
 		patch_xml -u $ACONF '/configs/property[@name="qti_flac_decoder"]' "true"
 		patch_xml -u $ACONF '/configs/property[@name="vorbis_offload_enabled"]' "true"
-		patch_xml -u $ACONF '/configs/property[@name="wma_offload_enabled"]' "true"	
-		
-		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-			cp_ch -f $FIRMWARE/PNX_TAS2557.bin $MODPATH/system/vendor/firmware/PNX_TAS2557.bin
-			cp_ch -f $FIRMWARE/tas2557_uCDSP.bin $MODPATH/system/vendor/firmware/tas2557_uCDSP.bin
-			cp_ch -f $FIRMWARE/tas2557_uCDSP_aac.bin $MODPATH/system/vendor/firmware/tas2557_uCDSP_aac.bin
-			cp_ch -f $FIRMWARE/tas2557_uCDSP_goer.bin $MODPATH/system/vendor/firmware/tas2557_uCDSP_goer.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono_B2N.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono_B2N.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono_B2N_dvt.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono_B2N_dvt.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono_B2N_dvt_ICTspk.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono_B2N_dvt_ICTspk.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono_CTL.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono_CTL.bin
-			cp_ch -f $FIRMWARE/TAS2557MSSMono_DRG.bin $MODPATH/system/vendor/firmware/TAS2557MSSMono_DRG.bin
-		fi
-		if [ "$POCOF1" ]; then
-			cp_ch -f $FIRMPOCOF1/tas2559_uCDSP.bin $MODPATH/system/vendor/firmware/tas2559_uCDSP.bin
-		fi
-		if [ "$MIA2" ]; then
-			cp_ch -f $FIRMRN7PRO/tas2563_uCDSP.bin $MODPATH/system/vendor/firmware/tas2563_uCDSP.bin
-		fi
+		patch_xml -u $ACONF '/configs/property[@name="wma_offload_enabled"]' "true"
 	done
+fi
+	if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
+		cp -f $FIRMWARE/* $MODPATH/system/vendor
+	fi
+	if [ "$POCOF1" ]; then
+		cp -f $FIRMPOCOF1/* $MODPATH/system/vendor
+	fi
+	if [ "$MIA2" ]; then
+		cp -f $FIRMRN7PRO/* $MODPATH/system/vendor
+	fi
 }
 
 device_features_system() {
-	for ODEVFEA in ${DEVFEA}; do 
+	for ODEVFEA in $DEVFEA; do 
 	DEVFEA="$MODPATH$(echo $ODEVFEA | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $DEVFEA`
+	cp -f $MAGISKMIRROR$ODEVFEA $DEVFEA
+	sed -i 's/\t/  /g' $DEVFEA
 		patch_xml -s $DEVFEA '/features/bool[@name="support_a2dp_latency"]' "true"
 		patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_48000"]' "true"
 		patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_96000"]' "true"
@@ -1264,8 +1296,11 @@ device_features_system() {
 }
 
 device_features_vendor() {
-	for ODEVFEAA in ${DEVFEAA}; do 
+	for ODEVFEAA in $DEVFEAA; do 
 	DEVFEAA="$MODPATH$(echo $ODEVFEAA | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $DEVFEAA`
+	cp -f $MAGISKMIRROR$ODEVFEAA $DEVFEAA
+	sed -i 's/\t/  /g' $DEVFEAA
 		patch_xml -s $DEVFEAA '/features/bool[@name="support_a2dp_latency"]' "true"
 		patch_xml -s $DEVFEAA '/features/bool[@name="support_samplerate_48000"]' "true"
 		patch_xml -s $DEVFEAA '/features/bool[@name="support_samplerate_96000"]' "true"
@@ -1281,53 +1316,44 @@ device_features_vendor() {
 }
 
 dirac() {
-	for OFILE in ${CFGS}; do
-	  FILE="$MODPATH$(echo $OFILE | sed "s|^/vendor|/system/vendor|g")"
-	  cp_ch -n $ORIGDIR$OFILE $FILE
-	  nlsound $FILE
-	  case $FILE in
-		*.conf) sed -i "/dirac_gef {/,/}/d" $FILE
-				sed -i "s/^libraries {/libraries {\n  dirac_gef { #$MODID\n    path $LIBPATCH\/lib\/soundfx\/libdiraceffect.so\n  } #$MODID/g" $FILE
-				sed -i "s/^effects {/effects {\n  dirac_gef { #$MODID\n    library dirac_gef\n    uuid 3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D\n  } #$MODID/g" $FILE
-				processing_patch "post" "$FILE" "music" "dirac_gef";;
-		*.xml) sed -i "/dirac_gef/d" $FILE
-			  sed -i "/<libraries>/ a\        <library name=\"dirac_gef\" path=\"libdiraceffect.so\"\/><!--$MODID-->" $FILE
-			  sed -i "/<effects>/ a\        <effect name=\"dirac_gef\" library=\"dirac_gef\" uuid=\"3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D\"\/><!--$MODID-->" $FILE
-			  processing_patch "post" "$FILE" "music" "dirac_gef";;
-			  
-	  esac
-	  
-		cp_ch -f $NEWDIRAC/diracvdd.bin $MODPATH/system/vendor/etc/diracvdd.bin
-		cp_ch -f $NEWDIRAC/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp/dirac_resource.dar
-		cp_ch -f $NEWDIRAC/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp/dirac.so
-		cp_ch -f $NEWDIRAC/interfacedb $MODPATH/system/vendor/etc/dirac/interfacedb
-		cp_ch -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp/libdirac-capiv2.so
-		cp_ch -f $NEWDIRAC/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx/libdiraceffect.so
-		
-		echo -e "\n# Dirac Parameters
-			persist.dirac.acs.controller=gef
-			persist.dirac.gef.oppo.syss=true
-			persist.dirac.config=64
-			persist.dirac.gef.exs.did=29,49
-			persist.dirac.gef.ext.did=10,20,29,49
-			persist.dirac.gef.ins.did=19,134,150
-			persist.dirac.gef.int.did=15,19,134,150
-			persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
-			persist.dirac.gef.exs.appt=0x00011130,0x00011131
-			persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
-			persist.dirac.gef.ins.appt=0x00011130,0x00011131
-			persist.dirac.gef.exs.mid=268512739
-			persist.dirac.gef.ext.mid=268512737
-			persist.dirac.gef.ins.mid=268512738
-			persist.dirac.gef.int.mid=268512736
-			persist.dirac.path=/vendor/etc/dirac
-			ro.dirac.acs.storeSettings=1
-			persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
-		done
+	for OFILE in $CFGS; do
+	FILE="$MODPATH$(echo $OFILE | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $FILE`
+	cp -f $MAGISKMIRROR$OFILE $FILE
+		meme_effects $FILE
+		memes_confxml "dirac_gef" "$MODID" "\/system\/lib\/soundfx" "libdiraceffect.so" "3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D"
+		nlsound -post "$FILE" "music" "dirac_gef"
+	done
+	mkdir -p $MODPATH/$MODID/system/vendor/etc/dirac $MODPATH/$MODID/system/vendor/lib/rfsa/adsp $MODPATH/$MODID/system/vendor/lib/soundfx
+	cp -f $NEWDIRAC/diracvdd.bin $MODPATH$MIPSVE
+	cp -f $NEWDIRAC/interfacedb $MODPATH$MIPSVE/dirac
+	cp -f $NEWDIRAC/dirac_resource.dar $MODPATH/$MODID/system/vendor/lib/rfsa/adsp
+	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/$MODID/system/vendor/lib/rfsa/adsp/dirac.so
+	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/$MODID/system/vendor/lib/rfsa/adsp
+	cp -f $NEWDIRAC/libdiraceffect.so $MODPATH/$MODID/system/vendor/lib/soundfx
+echo -e "\n# Patch Dirac
+		persist.dirac.acs.controller=gef
+		persist.dirac.gef.oppo.syss=true
+		persist.dirac.config=64
+		persist.dirac.gef.exs.did=29,49
+		persist.dirac.gef.ext.did=10,20,29,49
+		persist.dirac.gef.ins.did=19,134,150
+		persist.dirac.gef.int.did=15,19,134,150
+		persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
+		persist.dirac.gef.exs.appt=0x00011130,0x00011131
+		persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
+		persist.dirac.gef.ins.appt=0x00011130,0x00011131
+		persist.dirac.gef.exs.mid=268512739
+		persist.dirac.gef.ext.mid=268512737
+		persist.dirac.gef.ins.mid=268512738
+		persist.dirac.gef.int.mid=268512736
+		persist.dirac.path=/vendor/etc/dirac
+		ro.dirac.acs.storeSettings=1
+		persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
 }
 
 mixer() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		if $HIFI; then
 			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
@@ -1404,10 +1430,27 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
 	done
+	
+	for MCP in $MC; do
+	MC="$MODPATH$(echo $MCP | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $MC`
+	cp -f $MAGISKMIRROR$MCP $MC
+	case $MC in
+		*media_codecs_google_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+		*media_codecs_google_c2_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+		*media_codecs_vendor_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+	esac
+done
 }
 
 mixer_lite() {
-	for OMIX in ${MPATHS}; do
+	for OMIX in $MPATHS; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 		if $HIFI; then
 			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
@@ -1464,6 +1507,23 @@ mixer_lite() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 	done
+
+	for MCP in $MC; do
+	MC="$MODPATH$(echo $MCP | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $MC`
+	cp -f $MAGISKMIRROR$MCP $MC
+	case $MC in
+		*media_codecs_google_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+		*media_codecs_google_c2_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+		*media_codecs_vendor_audio*.xml) sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/vorbis.decoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.decoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC
+			sed -i 's/\" >/\">/g;/aac.encoder/,/c>/s/\">/\">\n            <Limit name=\"complexity\" range=\"0-8\"  default=\"8\"\/>/g;/aac.encoder/,/c>/s/\">/\">\n            <Feature name=\"bitrate-modes\" value=\"CQ\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/default.*/default=\"8\"\/>/g;/flac.encoder/,/<\/MediaCodec>/s/value.*/value=\"CQ\"\/>/g' $MC;;
+	esac
+done
 }
 
 decoenco() {
@@ -1588,9 +1648,9 @@ AUTO_EN() {
     ui_print "   ########################================ 60% done!"
 	
 	if [ $AUTO_In = true ]; then
-      if [ -f $sys_tem/etc/device_features/*.xml ]; then
+      if [ -f $sys_tem/etc/device_features/$DEVICE.xml ]; then
 		device_features_system
-      elif [ -f $sys_tem/vendor/etc/device_features/*.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/device_features/$DEVICE.xml ]; then
         device_features_vendor
       fi
 	fi
@@ -1598,6 +1658,9 @@ AUTO_EN() {
 	if [ $AUTO_In = true ]; then
 		mixer_lite
 	fi
+	
+	SET_PERM_RM
+	MOVERPATH
 	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
@@ -1654,9 +1717,9 @@ AUTO_RU() {
     ui_print "   ########################================ 60% готово!"
 	
 	if [ $AUTO_In = true ]; then
-      if [ -f $sys_tem/etc/device_features/*.xml ]; then
+      if [ -f $sys_tem/etc/device_features/$DEVICE.xml ]; then
 		device_features_system
-      elif [ -f $sys_tem/vendor/etc/device_features/*.xml ]; then
+      elif [ -f $sys_tem/vendor/etc/device_features/$DEVICE.xml ]; then
         device_features_vendor
       fi
 	fi
@@ -1664,6 +1727,9 @@ AUTO_RU() {
 	if [ $AUTO_In = true ]; then
 		mixer_lite
 	fi
+	
+	SET_PERM_RM
+	MOVERPATH
 	
 	ui_print " "
     ui_print "   ######################################## 100% готово!"
@@ -2386,60 +2452,61 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Вы можете свернуть Magisk и пользоваться устройством -"
 	ui_print " - а затем вернуться сюда для перезагрузки и применения изменений. -"
-    if [ $STEP1 = true ]; then
+    
+	if [ $STEP1 = true ]; then
 		deep_buffer
 	fi
-
+	
 	if [ $STEP2 = true ]; then
 		patch_volumes
 	fi
 
     ui_print " "
-    ui_print "   ########================================ 20% готово!"
-
+    ui_print "   ########================================ 20% done!"
+	
 	if [ $STEP3 = true ]; then
 		patch_microphone
 	fi
-
+	
 	if [ $STEP4 = true ]; then
 		iir_patches
 	fi
-
+ 
     ui_print " "
-    ui_print "   ################======================== 40% готово!"
-
+    ui_print "   ################======================== 40% done!"
+	
 	if [ $STEP5 = true ]; then
      if [ -f $APII ]; then
-		audio_platform_int
+		audio_platform_info_int
 	 elif [ -f $APIE ]; then
-        audio_platform_ext
+        audio_platform__info_ext
      elif [ -f $API ]; then
         audio_platform_info
      fi
 	fi
-
+	
 	if [ $STEP6 = true ]; then
 		companders
 	fi
-
+  
     ui_print " "
-    ui_print "   ########################================ 60% готово!"
-
+    ui_print "   ########################================ 60% done!"
+	
 	if [ $STEP7 = true ]; then
 		audio_codec
 	fi
-
+	
 	if [ $STEP8 = true ]; then
       if [ -f $DEVFEA ]; then
 		device_features_system
-	  elif [ -f $DEVFEAA ]; then
+      elif [ -f $DEVFEAA ]; then
         device_features_vendor
       fi
 	fi
 
     ui_print " "
-    ui_print "   ################################======== 80% готово!"
-
+    ui_print "   ################################======== 80% done!"
+	
 	if [ $STEP9 = true ]; then
 		dirac
 	fi
@@ -2459,6 +2526,9 @@ RU_Manual() {
 	if [ $STEP14 = true ]; then
 		bt_parameters
 	fi
+
+	SET_PERM_RM
+	MOVERPATH
 	
 	ui_print " "
     ui_print "   ######################################## 100% готово!"
@@ -2481,28 +2551,27 @@ All_En() {
 		iir_patches
 		
 		if [ -f $APII ]; then
-			audio_platform_int
+			audio_platform_info_int
 		elif [ -f $APIE ]; then
-			audio_platform_ext
+			audio_platform_info_ext
 		elif [ -f $API ]; then
 			audio_platform_info
 		fi
 		
 		companders
 		audio_codec
-		
-		if [ -f $sys_tem/etc/device_features/*.xml ]; then
-			device_features_system
-		else
-			device_features_vendor
-		fi
-		
+		device_features_system
+		device_features_vendor
 		dirac
 		mixer
 		decoenco
 		hifi
 		bt_parameters
 	fi
+	
+	SET_PERM_RM
+	MOVERPATH
+	
 	ui_print " "
 	ui_print " - All done!"
 	ui_print " "
@@ -2521,28 +2590,27 @@ All_Ru() {
 		iir_patches
 		
 		if [ -f $APII ]; then
-			audio_platform_int
+			audio_platform_info_int
 		elif [ -f $APIE ]; then
-			audio_platform_ext
+			audio_platform_info_ext
 		elif [ -f $API ]; then
 			audio_platform_info
 		fi
 		
 		companders
 		audio_codec
-		
-		if [ -f $sys_tem/etc/device_features/*.xml ]; then
-			device_features_system
-		else
-			device_features_vendor
-		fi
-		
+		device_features_system
+		device_features_vendor
 		dirac
 		mixer
 		decoenco
 		hifi
 		bt_parameters
 	fi
+	
+	SET_PERM_RM
+	MOVERPATH
+	
 	ui_print " "
 	ui_print " - Всё готово!"
 	ui_print " "
