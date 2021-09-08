@@ -359,81 +359,44 @@ patch_microphone() {
 iir_patches() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="0"]' "238395206"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="1"]' "689443228"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="2"]' "205354587"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="3"]' "537398060"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band1"][@id="4"]' "689443228"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band2"][@id="0"]' "262009200"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band2"][@id="1"]' "568438374"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band2"][@id="2"]' "243939794"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band2"][@id="3"]' "569025299"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band2"][@id="4"]' "238100463"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band3"][@id="0"]' "253440447"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band3"][@id="1"]' "842391711"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band3"][@id="2"]' "209259777"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band3"][@id="3"]' "842391711"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band3"][@id="4"]' "194264768"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band4"][@id="0"]' "268435456"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band4"][@id="1"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band4"][@id="2"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band4"][@id="3"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band4"][@id="4"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band5"][@id="0"]' "268435456"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band5"][@id="1"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band5"][@id="2"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band5"][@id="3"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Band5"][@id="4"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band0"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band1"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band2"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band3"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band4"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 Enable Band5"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP0 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP1 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP2 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP3 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP4 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP5 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band1"][@id="0"]' "238395206"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band1"][@id="1"]' "689443228"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band1"][@id="2"]' "205354587"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band1"][@id="3"]' "689443228"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band1"][@id="4"]' "175314338"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band2"][@id="0"]' "262009200"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band2"][@id="1"]' "568438374"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band2"][@id="2"]' "243939794"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band2"][@id="3"]' "569025299"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band2"][@id="4"]' "238100463"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band3"][@id="0"]' "253440447"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band3"][@id="1"]' "842391711"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band3"][@id="2"]' "209259777"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band3"][@id="3"]' "842391711"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band3"][@id="4"]' "194264768"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band4"][@id="0"]' "268435456"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band4"][@id="1"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band4"][@id="2"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band4"][@id="3"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band4"][@id="4"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band5"][@id="0"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band5"][@id="1"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band5"][@id="2"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band5"][@id="3"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Band5"][@id="4"]' "0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band0"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band1"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band2"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band3"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band4"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 Enable Band5"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP0 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP1 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP2 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP3 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP4 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR2 INP5 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR1 INP1 MUX"]' "headphones"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="0"]' "238395206"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="1"]' "689443228"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="2"]' "205354587"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="3"]' "689443228"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="4"]' "175314338"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band2"][@id="0"]' "262009200"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band2"][@id="1"]' "568438374"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band2"][@id="2"]' "243939794"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band2"][@id="3"]' "569025299"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band2"][@id="4"]' "238100463"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band3"][@id="0"]' "253440447"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band3"][@id="1"]' "842391711"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band3"][@id="2"]' "209259777"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band3"][@id="3"]' "842391711"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band3"][@id="4"]' "194264768"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band4"][@id="0"]' "268435456"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band4"][@id="1"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band4"][@id="2"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band4"][@id="3"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band4"][@id="4"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band5"][@id="0"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band5"][@id="1"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band5"][@id="2"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band5"][@id="3"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band5"][@id="4"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band0"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band1"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band2"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band3"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band4"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band5"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "headphones"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX1 HPF Switch"]' "On"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX2 HPF Switch"]' "On"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX3 HPF Switch"]' "On"
@@ -1321,35 +1284,35 @@ dirac() {
 	mkdir -p `dirname $FILE`
 	cp -f $MAGISKMIRROR$OFILE $FILE
 		meme_effects $FILE
-		memes_confxml "dirac_gef" "$MODID" "\/system\/lib\/soundfx" "libdiraceffect.so" "3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D"
+		memes_confxml "dirac_gef" "$MODID" "\/system\/lib\/soundfx" "libdiraceffect.so" "3799d6d1-22c5-43c3-b3ec-d664cf8d2f0d"
 		nlsound -post "$FILE" "music" "dirac_gef"
 	done
-	mkdir -p $MODPATH/$MODID/system/vendor/etc/dirac $MODPATH/$MODID/system/vendor/lib/rfsa/adsp $MODPATH/$MODID/system/vendor/lib/soundfx
-	cp -f $NEWDIRAC/diracvdd.bin $MODPATH$MIPSVE
-	cp -f $NEWDIRAC/interfacedb $MODPATH$MIPSVE/dirac
-	cp -f $NEWDIRAC/dirac_resource.dar $MODPATH/$MODID/system/vendor/lib/rfsa/adsp
-	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/$MODID/system/vendor/lib/rfsa/adsp/dirac.so
-	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/$MODID/system/vendor/lib/rfsa/adsp
-	cp -f $NEWDIRAC/libdiraceffect.so $MODPATH/$MODID/system/vendor/lib/soundfx
+	mkdir -p $MODPATH/system/vendor/etc/dirac $MODPATH/system/vendor/lib/rfsa/adsp $MODPATH/system/vendor/lib/soundfx
+	cp -f $NEWDIRAC/diracvdd.bin $MODPATH/system/vendor/etc/
+	cp -f $NEWDIRAC/interfacedb $MODPATH/system/vendor/etc/dirac
+	cp -f $NEWDIRAC/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWDIRAC/dirac.so $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWDIRAC/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx
 echo -e "\n# Patch Dirac
-		persist.dirac.acs.controller=gef
-		persist.dirac.gef.oppo.syss=true
-		persist.dirac.config=64
-		persist.dirac.gef.exs.did=29,49
-		persist.dirac.gef.ext.did=10,20,29,49
-		persist.dirac.gef.ins.did=19,134,150
-		persist.dirac.gef.int.did=15,19,134,150
-		persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
-		persist.dirac.gef.exs.appt=0x00011130,0x00011131
-		persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
-		persist.dirac.gef.ins.appt=0x00011130,0x00011131
-		persist.dirac.gef.exs.mid=268512739
-		persist.dirac.gef.ext.mid=268512737
-		persist.dirac.gef.ins.mid=268512738
-		persist.dirac.gef.int.mid=268512736
-		persist.dirac.path=/vendor/etc/dirac
-		ro.dirac.acs.storeSettings=1
-		persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
+persist.dirac.acs.controller=gef
+persist.dirac.gef.oppo.syss=true
+persist.dirac.config=64
+persist.dirac.gef.exs.did=29,49
+persist.dirac.gef.ext.did=10,20,29,49
+persist.dirac.gef.ins.did=19,134,150
+persist.dirac.gef.int.did=15,19,134,150
+persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
+persist.dirac.gef.exs.appt=0x00011130,0x00011131
+persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
+persist.dirac.gef.ins.appt=0x00011130,0x00011131
+persist.dirac.gef.exs.mid=268512739
+persist.dirac.gef.ext.mid=268512737
+persist.dirac.gef.ins.mid=268512738
+persist.dirac.gef.int.mid=268512736
+persist.dirac.path=/vendor/etc/dirac
+ro.dirac.acs.storeSettings=1
+persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
 }
 
 mixer() {
@@ -1527,77 +1490,77 @@ done
 }
 
 decoenco() {
-	echo -e "\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM
-	mpq.audio.decode=true
-	lpa.decode=false
-	audio.decoder_override_check=true
-	use.non-omx.mp3.decoder=false
-	use.non-omx.aac.decoder=false
-	lpa.use-stagefright=false
-	lpa.releaselock=false
-	vendor.audio.flac.sw.decoder.24bit=true
-	vendor.audio.aac.sw.decoder.24bit=true
-	vendor.audio.use.sw.alac.decoder=true
-	vendor.audio.flac.sw.encoder.24bit=true
-	vendor.audio.aac.sw.encoder.24bit=true
-	vendor.audio.use.sw.ape.decoder=true
-	vendor.audio.vorbis.complexity.default=8
-	vendor.audio.vorbis.quality=100
-	vendor.audio.aac.complexity.default=8
-	vendor.audio.aac.quality=100" >> $MODPATH/system.prop
+echo -e "\n#DECODERS&ENCODERS PARAMETERS BY NLSOUND TEAM
+mpq.audio.decode=true
+lpa.decode=false
+audio.decoder_override_check=true
+use.non-omx.mp3.decoder=false
+use.non-omx.aac.decoder=false
+lpa.use-stagefright=false
+lpa.releaselock=false
+vendor.audio.flac.sw.decoder.24bit=true
+vendor.audio.aac.sw.decoder.24bit=true
+vendor.audio.use.sw.alac.decoder=true
+vendor.audio.flac.sw.encoder.24bit=true
+vendor.audio.aac.sw.encoder.24bit=true
+vendor.audio.use.sw.ape.decoder=true
+vendor.audio.vorbis.complexity.default=8
+vendor.audio.vorbis.quality=100
+vendor.audio.aac.complexity.default=8
+vendor.audio.aac.quality=100" >> $MODPATH/system.prop
 }
 
 hifi() {
-	echo -e "\n#HiFi PARAMETERS BY NLSOUND TEAM
-	ro.audio.hifi=true
-	persist.audio.hifi=true
-	persist.audio.hifi.volume=72
-	persist.vendor.audio.hifi=true
-	persist.audio.hifi.int_codec=true
-	vendor.audio.feature.hifi_audio.enable=true
-	ro.vendor.audio.hifi=true
-	persist.vendor.audio.hifi.int_codec=true
-	ro.hardware.hifi.support=true" >> $MODPATH/system.prop
+echo -e "\n#HiFi PARAMETERS BY NLSOUND TEAM
+ro.audio.hifi=true
+persist.audio.hifi=true
+persist.audio.hifi.volume=72
+persist.vendor.audio.hifi=true
+persist.audio.hifi.int_codec=true
+vendor.audio.feature.hifi_audio.enable=true
+ro.vendor.audio.hifi=true
+persist.vendor.audio.hifi.int_codec=true
+ro.hardware.hifi.support=true" >> $MODPATH/system.prop
 }
 
 bt_parameters() {
-	echo -e "\n#BT PARAMETERS BY NLSOUND TEAM
-	persist.service.btui.use_aptx=1
-	persist.bt.enableAptXHD=true
-	persist.bt.a2dp.aptx_disable=false
-	persist.bt.a2dp.aptx_hd_disable=false
-	persist.vendor.btstack.enable.splita2dp=true
-	persist.vendor.btstack.enable.twsplus=true
-	persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
-	persist.vendor.qcom.bluetooth.enable.splita2dp=true
-	persist.vendor.qcom.bluetooth.twsp_state.enabled=false
-	ro.bluetooth.emb_wp_mode=false
-	ro.bluetooth.wipower=false
-	ro.vendor.bluetooth.wipower=false
-	persist.vendor.bt.soc.scram_freqs=192
-	persist.bt.a2dp.aac_disable=false
-	persist.vendor.bt.aac_frm_ctl.enabled=true
-	audio.effect.a2dp.enable=1
-	vendor.audio.effect.a2dp.enable=1
-	vendor.btstack.absolute_volume=true
-	persist.vendor.btstack.absolute_volume=true
-	persist.vendor.btstack.avrcp.pos_time=1000
-	persist.bluetooth.enabledelayreports=true
-	vendor.bt.pts.pbap=true
-	persist.vendor.bt.a2dp.aac_whitelist=false
-	persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
-	persist.vendor.qcom.bluetooth.scram.enabled=false
-	persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
-	persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
-	persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
-	persist.vendor.btstack.connect.peer_earbud=true
-	persist.vendor.btstack.enable.twsplussho=true
-	persist.vendor.btstack.enable.swb=true
-	persist.vendor.btstack.enable.swbpm=true
-	persist.vendor.btsatck.absvolfeature=true
-	persist.bt.sbc_hd_enabled=1
-	persist.bluetooth.sbc_hd_higher_bitrate=1
-	persist.vendor.btsatck.absvolfeature=true" >> $MODPATH/system.prop
+echo -e "\n#BT PARAMETERS BY NLSOUND TEAM
+persist.service.btui.use_aptx=1
+persist.bt.enableAptXHD=true
+persist.bt.a2dp.aptx_disable=false
+persist.bt.a2dp.aptx_hd_disable=false
+persist.vendor.btstack.enable.splita2dp=true
+persist.vendor.btstack.enable.twsplus=true
+persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
+persist.vendor.qcom.bluetooth.enable.splita2dp=true
+persist.vendor.qcom.bluetooth.twsp_state.enabled=false
+ro.bluetooth.emb_wp_mode=false
+ro.bluetooth.wipower=false
+ro.vendor.bluetooth.wipower=false
+persist.vendor.bt.soc.scram_freqs=192
+persist.bt.a2dp.aac_disable=false
+persist.vendor.bt.aac_frm_ctl.enabled=true
+audio.effect.a2dp.enable=1
+vendor.audio.effect.a2dp.enable=1
+vendor.btstack.absolute_volume=true
+persist.vendor.btstack.absolute_volume=true
+persist.vendor.btstack.avrcp.pos_time=1000
+persist.bluetooth.enabledelayreports=true
+vendor.bt.pts.pbap=true
+persist.vendor.bt.a2dp.aac_whitelist=false
+persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
+persist.vendor.qcom.bluetooth.scram.enabled=false
+persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
+persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
+persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+persist.vendor.btstack.connect.peer_earbud=true
+persist.vendor.btstack.enable.twsplussho=true
+persist.vendor.btstack.enable.swb=true
+persist.vendor.btstack.enable.swbpm=true
+persist.vendor.btsatck.absvolfeature=true
+persist.bt.sbc_hd_enabled=1
+persist.bluetooth.sbc_hd_higher_bitrate=1
+persist.vendor.btsatck.absvolfeature=true" >> $MODPATH/system.prop
 }
 
 AUTO_EN() {
