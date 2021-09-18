@@ -211,15 +211,19 @@ POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 
+DEVICE=$(getprop ro.product.system.model)
+
 ACONFS="$(find /system /vendor -type f -name "audio_configs*.xml")"
 APINF="$(find /system /vendor -type f -name "audio_platform_info*.xml")"
 CFGS="$(find /system /vendor -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
 MPATHS="$(find /system /vendor -type f -name "mixer_paths*.xml")"
-MCGAX="$(find /system /vendor -type f -name "*media_codecs_google_c2_audio*.xml" -o -name "*media_codecs_google_audio*.xml" -o -name "*media_codecs_vendor_audio*.xml")"
+#MCGAX="$(find /system /vendor -type f -name "*media_codecs_google_c2_audio*.xml" -o -name "*media_codecs_google_audio*.xml" -o -name "*media_codecs_vendor_audio*.xml")"
 APIXML="/vendor/etc/audio_platform_info.xml"
 APIIXML="/vendor/etc/audio_platform_info_intcodec.xml"
 APIEXML="/vendor/etc/audio_platform_info_extcodec.xml"
 DEVFEA="/vendor/etc/device_features/*.xml"; DEVFEAA="/system/etc/device_features/*.xml"
+IOPOLICY="$(find /system /vendor -type f -name "audio_io_policy.conf")"
+AUDIOPOLICY="$(find /system /vendor -type f -name "audio_policy_configuration.xml")"
 
 FIRMRN7PRO=$MODPATH/common/NLSound/firmrn7pro
 FEATURES=$MODPATH/common/NLSound/features
@@ -1312,7 +1316,7 @@ persist.dirac.gef.ins.mid=268512738
 persist.dirac.gef.int.mid=268512736
 persist.dirac.path=/vendor/etc/dirac
 ro.dirac.acs.storeSettings=1
-persist.dirac.acs.ignore_error=1" >> $MODPATH/$MODID/system.prop
+persist.dirac.acs.ignore_error=1" >> $MODPATH/system.prop
 }
 
 mixer() {
@@ -1392,6 +1396,22 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
+	done
+	
+	for OIOPOLICY in $IOPOLICYS; do
+	IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $IOPOLICY`
+	cp -f $MAGISKMIRROR$OIOPOLICY $IOPOLICY
+	#sed -i 's/\t/  /g' $IOPOLICY
+	sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
+	done
+
+	for OAUDIOPOLICY in $AUDIOPOLICYS; do
+	AUDIOPOLICY="$MODPATH$(echo $OAUDIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $AUDIOPOLICY`
+	cp -f $MAGISKMIRROR$OAUDIOPOLICY $AUDIOPOLICY
+	#sed -i 's/\t/  /g' $AUDIOPOLICY
+	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/g' $AUDIOPOLICY
 	done
 	
 	#for MCP in $MC; do
@@ -1489,22 +1509,32 @@ mixer_lite() {
 #done
 }
 
+io_policy(){
+	for OIOPOLICY in $IOPOLICY; do
+	IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $IOPOLICY`
+	cp -f $MAGISKMIRROR$OIOPOLICY $IOPOLICY
+	#sed -i 's/\t/  /g' $IOPOLICY
+	sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
+	done
+	}
+
+audio_policy() {
+	for OAUDIOPOLICY in $AUDIOPOLICY; do
+	AUDIOPOLICY="$MODPATH$(echo $OAUDIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $AUDIOPOLICY`
+	cp -f $MAGISKMIRROR$OAUDIOPOLICY $AUDIOPOLICY
+	#sed -i 's/\t/  /g' $AUDIOPOLICY
+	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/g' $AUDIOPOLICY
+	done
+}
+
 prop() {
-echo -e "\n#"
-echo -e "\n#PROP TWEAKS BY NLSOUND TEAM"
 echo -e "\n#
 # Spv_avs
 
 persist.vendor.audio.spv4.enable=true
 persist.vendor.audio.avs.afe_api_version=9
-
-# Deep_buffer
-
-audio.deep_buffer.media=false
-vendor.audio.deep_buffer.media=false
-qc.audio.deep_buffer.media=false
-ro.qc.audio.deep_buffer.media=false
-persist.vendor.audio.deep_buffer.media=false
 
 # Media_codecs
 
@@ -1627,8 +1657,6 @@ persist.audio.lowlatency.rec=true
 ro.vendor.audio.recording.hd=true
 
 # Other_shit
-
-ro.config.media_vol_steps=30
 vendor.audio.matrix.limiter.enable=0
 vendor.audio.enable.mirrorlink=false
 vendor.audio.feature.afe_proxy.enable=true
@@ -1937,7 +1965,7 @@ ENG_Manual() {
 	  sleep 1
 	  ui_print " - Disable Deep Buffer -"
 	  ui_print "***************************************************"
-	  ui_print "* [1/13]                                          *"
+	  ui_print "* [1/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               This option disable               *"
 	  ui_print "*            deep buffer in your device.          *"
@@ -1956,7 +1984,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Improve volume levels and change media volume steps -"
 	  ui_print "***************************************************"
-	  ui_print "* [2/13]                                          *"
+	  ui_print "* [2/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*               A T T E N T I O N!                *"
 	  ui_print "*   Confirming this option may harm your device!  *"
@@ -1976,7 +2004,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Improve microphones levels -"
 	  ui_print "***************************************************"
-	  ui_print "* [3/13]                                          *"
+	  ui_print "* [3/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*             This option improving               *"
 	  ui_print "*     microphone volume levels and quality in     *"
@@ -1994,7 +2022,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - IIR patches -"
 	  ui_print "***************************************************"
-	  ui_print "* [4/13]                                          *"
+	  ui_print "* [4/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* IIR affects the final frequency response curve. *"
 	  ui_print "*   headphones. The default setting is with an    *"
@@ -2015,7 +2043,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Patching audio platform files -"
 	  ui_print "***************************************************"
-	  ui_print "* [5/13]                                          *"
+	  ui_print "* [5/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* Confirming this option will allow the module to *"
 	  ui_print "*      use a different audio codec algorithm      *"
@@ -2035,7 +2063,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Disable сompanders -"
 	  ui_print "***************************************************"
-	  ui_print "* [6/13]                                          *"
+	  ui_print "* [6/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*    Companding-exists for audio compression.     *"
 	  ui_print "*    Because of this algorithm, you can hear      *"
@@ -2057,7 +2085,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Configurating interal audio codec -"
 	  ui_print "***************************************************"
-	  ui_print "* [7/13]                                          *"
+	  ui_print "* [7/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            This option configuring              *"
 	  ui_print "*       your device's internal audio codec.       *"
@@ -2074,7 +2102,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Patch device_features files -"
 	  ui_print "***************************************************"
-	  ui_print "* [8/13]                                          *"
+	  ui_print "* [8/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "*        This step will do the following:         *"
 	  ui_print "*        - Unlocks the sampling frequency         *"
@@ -2099,7 +2127,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Added new Dirac -"
 	  ui_print "***************************************************"
-	  ui_print "* [9/13]                                          *"
+	  ui_print "* [9/14]                                          *"
 	  ui_print "*                                                 *"
 	  ui_print "* This option will add a new Dirac to the system  *"
 	  ui_print "*   If you encounter wheezing from the outside    *"
@@ -2117,7 +2145,7 @@ ENG_Manual() {
 	ui_print " "
 	ui_print " - Install other patches in mixer_paths - "
 	  ui_print "***************************************************"
-	  ui_print "* [10/13]                                         *"
+	  ui_print "* [10/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Contains experimental settings           *"
 	  ui_print "*          If you encounter problems              *"
@@ -2129,13 +2157,13 @@ ENG_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
 	if chooseport; then
-	  STEP11=true
+	  STEP10=true
 	fi
 	  
 	ui_print " "
 	ui_print " - Install tweaks in prop file - "
 	  ui_print "***************************************************"
-	  ui_print "* [11/13]                                         *"
+	  ui_print "* [11/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*    This option will change the sound quality    *"
 	  ui_print "*                  the most.                      *"
@@ -2147,13 +2175,13 @@ ENG_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
 	if chooseport; then
-	  STEP12=true
+	  STEP11=true
 	fi
 	
 	ui_print " "
 	ui_print " - Improve Bluetooth - "
 	  ui_print "***************************************************"
-	  ui_print "* [13/13]                                         *"
+	  ui_print "* [12/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*   This option will improve the audio quality    *"
 	  ui_print "*    in Bluetooth, as well as fix the problem     *"
@@ -2165,7 +2193,43 @@ ENG_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
 	if chooseport; then
+	  STEP12=true
+	fi
+	
+	ui_print " "
+	ui_print " - Switch audio output from DIRECT to DIRECT_PCM - "
+	  ui_print "***************************************************"
+	  ui_print "* [13/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*  This option will switch DIRECT to DIRECT_PCM,  *"
+	  ui_print "*      which will improve the sound detail.       *"
+	  ui_print "*         [Recommended for installation]          *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	if chooseport; then
 	  STEP13=true
+	fi
+	
+	ui_print " "
+	ui_print " - Turn off useless DRC - "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*    Limit the dynamic range of the soundtrack    *"
+	  ui_print "*       (the difference between the loudest       *"
+	  ui_print "*             and the quietest sounds)            *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	if chooseport; then
+	  STEP14=true
 	fi
 	
 	ui_print " "
@@ -2232,17 +2296,28 @@ ENG_Manual() {
 		dirac
 	fi
 	
-	if [ $STEP11 = true ]; then
+	if [ $STEP10 = true ]; then
 		mixer
 	fi
 	
-	if [ $STEP12 = true ]; then
+	if [ $STEP11 = true ]; then
 		prop
 	fi
 	
-	if [ $STEP13 = true ]; then
+	if [ $STEP12 = true ]; then
 		improve_bluetooth
 	fi
+	
+	if [ $STEP13 = true ]; then
+		io_policy
+	fi
+	
+	if [ $STEP14 = true ]; then
+		audio_policy
+	fi
+	
+	SET_PERM_RM
+	MOVERPATH
 	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
@@ -2456,7 +2531,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-		STEP11=true
+		STEP10=true
 	fi
 	
 	ui_print " "
@@ -2473,13 +2548,13 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-	  STEP12=true
+	  STEP11=true
 	fi
 	
 	ui_print " "
 	ui_print " - Улучшить Bluetooth - "
 	  ui_print "***************************************************"
-	  ui_print "* [13/13]                                         *"
+	  ui_print "* [12/13]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Эта опция улучшит качество аудио         *"
 	  ui_print "*     в Bluetooth, а также исправит проблему с    *"
@@ -2492,7 +2567,43 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
+	  STEP12=true
+	fi
+	
+	ui_print " "
+	ui_print " - Переключает роут звука с DIRECT на DIRECT_PCM - "
+	  ui_print "***************************************************"
+	  ui_print "* [13/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "*    Эта опция переключит DIRECT на DIRECT_PCM,   *"
+	  ui_print "*       и улучшит качество итогового звука.       *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Установить?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
+	if chooseport; then
 	  STEP13=true
+	fi
+	
+	ui_print " "
+	ui_print " - Отключить бесполезную DRC функцию - "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*                                                 *"
+	  ui_print "* Ограничивает динамический диапазон аудио треков *"
+	  ui_print "*      если разница между низкими и высокими      *"
+	  ui_print "*           частотами слишком большая.            *"
+	  ui_print "*          [Рекомендуется к установке]            *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "   Install?"
+	sleep 1
+	ui_print " "
+	ui_print "   Vol Up = YES, Vol Down = NO"
+	if chooseport; then
+	  STEP14=true
 	fi
 	
 	ui_print " "
@@ -2559,16 +2670,24 @@ RU_Manual() {
 		dirac
 	fi
 	
-	if [ $STEP11 = true ]; then
+	if [ $STEP10 = true ]; then
 		mixer
 	fi
 	
-	if [ $STEP12 = true ]; then
+	if [ $STEP11 = true ]; then
 		prop
 	fi
 	
-	if [ $STEP13 = true ]; then
+	if [ $STEP12 = true ]; then
 		improve_bluetooth
+	fi
+	
+	if [ $STEP13 = true ]; then
+		io_policy
+	fi
+	
+	if [ $STEP14 = true ]; then
+		audio_policy
 	fi
 
 	SET_PERM_RM
@@ -2609,6 +2728,9 @@ All_En() {
 		dirac
 		mixer
 		prop
+		improve_bluetooth
+		io_policy
+		audio_policy
 	fi
 	
 	SET_PERM_RM
@@ -2646,6 +2768,9 @@ All_Ru() {
 		dirac
 		mixer
 		prop
+		improve_bluetooth
+		io_policy
+		audio_policy
 	fi
 	
 	SET_PERM_RM
