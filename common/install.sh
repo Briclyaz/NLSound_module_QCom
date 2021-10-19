@@ -229,7 +229,7 @@ FIRMRN7PRO=$MODPATH/common/NLSound/firmrn7pro
 FEATURES=$MODPATH/common/NLSound/features
 WHYDED=$MODPATH/common/NLSound/whyded
 FIRMWARE=$MODPATH/common/NLSound/firmware
-NEWDIRAC=$MODPATH/common/NLSound/newdirac
+NEWdirac=$MODPATH/common/NLSound/newdirac
 
 STEP1=false
 STEP2=false
@@ -314,6 +314,11 @@ patch_volumes() {
 		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
+		#Mi10* gains by NLSound Team
+		patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
+		patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
+		patch_xml -s $MIX '/mixer/ctl[@name="Class-H Head Room"]' "17"
+		patch_xml -s $MIX '/mixer/ctl[@name="RCV Class-H Head Room"]' "17"
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 	done
 }
@@ -394,12 +399,12 @@ iir_patches() {
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band3"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band4"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band5"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "72"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "72"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "82"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "82"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "82"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "82"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "82"
+		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "82"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "headphones"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX1 HPF Switch"]' "On"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX2 HPF Switch"]' "On"
@@ -1292,20 +1297,20 @@ dirac() {
 		nlsound -post "$FILE" "music" "dirac_gef"
 	done
 	mkdir -p $MODPATH/system/vendor/etc/dirac $MODPATH/system/vendor/lib/rfsa/adsp $MODPATH/system/vendor/lib/soundfx
-	cp -f $NEWDIRAC/diracvdd.bin $MODPATH/system/vendor/etc/
-	cp -f $NEWDIRAC/interfacedb $MODPATH/system/vendor/etc/dirac
-	cp -f $NEWDIRAC/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp
-	cp -f $NEWDIRAC/dirac.so $MODPATH/system/vendor/lib/rfsa/adsp
-	cp -f $NEWDIRAC/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp
-	cp -f $NEWDIRAC/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx
-echo -e "\n# Patch Dirac
+	cp -f $NEWdirac/diracvdd.bin $MODPATH/system/vendor/etc/
+	cp -f $NEWdirac/interfacedb $MODPATH/system/vendor/etc/dirac
+	cp -f $NEWdirac/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWdirac/dirac.so $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWdirac/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp
+	cp -f $NEWdirac/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx
+echo -e "\n# Patch dirac
 persist.dirac.acs.controller=gef
 persist.dirac.gef.oppo.syss=true
 persist.dirac.config=64
-persist.dirac.gef.exs.did=29,49
-persist.dirac.gef.ext.did=10,20,29,49
-persist.dirac.gef.ins.did=19,134,150
-persist.dirac.gef.int.did=15,19,134,150
+persist.dirac.gef.exs.did=50,50
+persist.dirac.gef.ext.did=450,450,450,450
+persist.dirac.gef.ins.did=0,0,0
+persist.dirac.gef.int.did=0,0,0,0
 persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
 persist.dirac.gef.exs.appt=0x00011130,0x00011131
 persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
@@ -1317,7 +1322,7 @@ persist.dirac.gef.int.mid=268512736
 persist.dirac.path=/vendor/etc/dirac
 ro.dirac.acs.storeSettings=1
 persist.dirac.acs.ignore_error=1" >> $MODPATH/system.prop
-}
+} 
 
 mixer() {
 	for OMIX in $MPATHS; do
@@ -1336,6 +1341,7 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_3LE"
 		else
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_Mode"]' "HD2"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
@@ -1387,7 +1393,8 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
 			patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
 			patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
-			patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "On" 
+			patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "1" 
+			patch_xml -s $MIX '/mixer/ctl[@name="BDE AMP Enable"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="Amp Volume Location"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
@@ -1396,22 +1403,9 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
-	done
-	
-	for OIOPOLICY in $IOPOLICYS; do
-	IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $IOPOLICY`
-	cp -f $MAGISKMIRROR$OIOPOLICY $IOPOLICY
-	#sed -i 's/\t/  /g' $IOPOLICY
-	sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
-	done
-
-	for OAUDIOPOLICY in $AUDIOPOLICYS; do
-	AUDIOPOLICY="$MODPATH$(echo $OAUDIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $AUDIOPOLICY`
-	cp -f $MAGISKMIRROR$OAUDIOPOLICY $AUDIOPOLICY
-	#sed -i 's/\t/  /g' $AUDIOPOLICY
-	sed -i 's/speaker_drc_enabled="true"/speaker_drc_enabled="false"/g' $AUDIOPOLICY
+			patch_xml -u $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
+			patch_xml -u $MIX '/mixer/ctl[@name="Boost Option"]' "BOOST_ON_FOREVER"
+			patch_xml -u $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
 	done
 	
 	#for MCP in $MC; do
@@ -1449,6 +1443,7 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_3LE"
 		else
+			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_Mode"]' "HD2"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
@@ -1480,8 +1475,9 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "MIN_3DB_4Hz"
 			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
 			patch_xml -u $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
-			patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "On" 
+			patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "1" 
 			patch_xml -s $MIX '/mixer/ctl[@name="Amp Volume Location"]' "1"
+			patch_xml -s $MIX '/mixer/ctl[@name="BDE AMP Enable"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Channels"]' "Two"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
@@ -1514,8 +1510,8 @@ io_policy(){
 	IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g")"
 	mkdir -p `dirname $IOPOLICY`
 	cp -f $MAGISKMIRROR$OIOPOLICY $IOPOLICY
-	#sed -i 's/\t/  /g' $IOPOLICY
 	sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
+	sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
 	done
 	}
 
@@ -1529,14 +1525,111 @@ audio_policy() {
 	done
 }
 
+clear_screen() {
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+	ui_print " "
+}
+
 prop() {
 echo -e "\n#
-# Spv_avs
+ro.config.media_vol_steps=30
 
 persist.vendor.audio.spv4.enable=true
 persist.vendor.audio.avs.afe_api_version=9
-
-# Media_codecs
 
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
@@ -1550,6 +1643,16 @@ vendor.audio.vorbis.complexity.default=8
 vendor.audio.vorbis.quality=100
 vendor.audio.aac.complexity.default=8
 vendor.audio.aac.quality=100
+vendor.audio.tunnel.encode=true
+tunnel.audio.encode=true
+qc.tunnel.audio.encode=true
+audio.decoder_override_check=true
+use.non-omx.mp3.decoder=false
+use.non-omx.aac.decoder=false
+vendor.media.omx=0
+mpq.audio.decode=true
+audio.nat.codec.enabled=1
+
 media.stagefright.enable-player=true
 media.stagefright.enable-http=true
 media.stagefright.enable-aac=true
@@ -1557,161 +1660,147 @@ media.stagefright.enable-qcp=true
 media.stagefright.enable-fma2dp=true
 media.stagefright.enable-scan=true
 media.stagefright.audio.sink=128
-vendor.audio.tunnel.encode=true
-tunnel.audio.encode=true
-qc.tunnel.audio.encode=true
-audio.decoder_override_check=true
-use.non-omx.mp3.decoder=false
-use.non-omx.aac.decoder=false
-mpq.audio.decode=true
-audio.nat.codec.enabled=1
+media.stagefright.thumbnail.prefer_hw_codecs=true
+mmp.enable.3g2=true
 media.aac_51_output_enabled=true
+mm.enable.smoothstreaming=true
+vendor.audio.parser.ip.buffer.size=262144
+vendor.mm.enable.qcom_parser=63963135
+persist.mm.enable.prefetch=true
 
-# LPA
-
-lpa.decode=false
-lpa.use-stagefright=false
-lpa.releaselock=false
-lpa30.decode=false
-
-# Offload
-
-vendor.av.offload.enable=true
 av.offload.enable=true
+vendor.av.offload.enable=true
 qc.av.offload.enable=true
 audio.offload.buffer.size.kb=32
+vendor.audio.offload.buffer.size.kb=32
 
-# AF
+lpa.decode=false
+lpa30.decode=false
+lpa.use-stagefright=false
+lpa.releaselock=false
 
 af.thread.throttle=0
 af.fast.track.multiplier=2
 ro.af.client_heap_size_kbyte=7168
 
-# Features
+vendor.audio_hal.in_period_size=144
+vendor.audio_hal.period_multiplier=3 
+vendor.audio.hal.output.suspend.supported=true
+
+audio.playback.mch.downsample=false
+ro.vendor.audio.playbackScene=true
+vendor.audio.playback.dsp.pathdelay=0
+vendor.audio.playback.mch.downsample=false
+persist.vendor.audio.playback.mch.downsample=false
 
 vendor.audio.feature.external_dsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
 vendor.audio.feature.external_speaker_tfa.enable=true
 vendor.audio.feature.ext_hw_plugin=true
 vendor.audio.feature.ras.enable=true
+vendor.audio.feature.afe_proxy.enable=true
 vendor.audio.feature.src_trkn.enable=true
+vendor.audio.feature.spkr_prot.enable=true
 vendor.audio.feature.kpi_optimize.enable=true
 vendor.audio.feature.power_mode.enable=true 
 vendor.audio.feature.compress_meta_data.enable=false
 vendor.audio.feature.compr_cap.enable=false
-vendor.audio.feature.compress_in.enable=false
+vendor.audio.feature.compr_voip.enable=false
+vendor.audio.feature.ssrec.enable=true
 vendor.audio.feature.dynamic_ecns.enable=true
 vendor.audio.feature.concurrent_capture.enable=true
 vendor.audio.feature.devicestate_listener.enable=false
 vendor.audio.feature.thermal_listener.enable=false
+vendor.audio.feature.hifi_audio.enable=true
 
-# Effects
-
-persist.vendor.audio.ambisonic.auto.profile=true
-effect.reverb.pcm=1
-vendor.audio.safx.pbe.enabled=true
-ro.vendor.audio.sfx.speaker=false
-ro.vendor.audio.sfx.earadj=false
-ro.vendor.audio.sfx.scenario=false
-ro.vendor.audio.surround.support=true
-ro.vendor.audio.scenario.support=true
-
-# Hi-Fi
-
+ro.hardware.hifi.support=true
 ro.audio.hifi=true
+ro.vendor.audio.hifi=true
 persist.audio.hifi=true
 persist.audio.hifi.volume=72
-persist.vendor.audio.hifi=true
 persist.audio.hifi.int_codec=true
-vendor.audio.feature.hifi_audio.enable=true
-ro.vendor.audio.hifi=true
+persist.vendor.audio.hifi=true
 persist.vendor.audio.hifi.int_codec=true
-ro.hardware.hifi.support=true
 
-# Audio_hal
+effect.reverb.pcm=1
+vendor.audio.safx.pbe.enabled=true
+vendor.audio.soundfx.usb=false
+ro.vendor.audio.3d.audio.support=true
+ro.vendor.audio.soundfx.type=dirac
+ro.vendor.audio.sfx.speaker=false
+ro.vendor.audio.sfx.earadj=false
+ro.vendor.audio.surround.support=true
+ro.vendor.audio.scenario.support=true
+ro.vendor.audio.vocal.support=true
+ro.vendor.audio.voice.change.support=true
+ro.vendor.audio.voice.change.youme.support=true
+ro.vendor.audio.xiaoaitongxue.aec=true
+persist.vendor.audio.ambisonic.capture=true
+persist.vendor.audio.ambisonic.auto.profile=true
+persist.vendor.audio.misound.disable=true
 
-vendor.audio_hal.in_period_size=144
-vendor.audio_hal.period_multiplier=3 
-vendor.audio.hal.output.suspend.supported=true
-
-# Playback
-
-vendor.audio.playback.dsp.pathdelay=0
-audio.playback.mch.downsample=false
-vendor.audio.playback.mch.downsample=false
-persist.vendor.audio.playback.mch.downsample=false
-
-# MM
-
-persist.mm.enable.prefetch=true
-mm.enable.smoothstreaming=true
-vendor.audio.parser.ip.buffer.size=262144
-vendor.mm.enable.qcom_parser=63963135
-persist.mm.enable.prefetch=true
-
-# Recording
-
+ro.vendor.audio.afe.record=true
 ro.vendor.audio.sdk.ssr=false
+ro.vendor.audio.recording.hd=true
 ro.ril.enable.amr.wideband=1
 persist.audio.lowlatency.rec=true
-ro.vendor.audio.recording.hd=true
 
-# Other_shit
+ro.vendor.audio.game.mode=true
+ro.audio.soundtrigger.lowpower=false
+vendor.power.pasr.enabled=true
 vendor.audio.matrix.limiter.enable=0
 vendor.audio.enable.mirrorlink=false
-vendor.audio.feature.afe_proxy.enable=true
-persist.vendor.audio.ha_proxy.enabled=true
+vendor.audio.capture.enforce_legacy_copp_sr=true
+vendor.audio.spkr_prot.tx.sampling_rate=48000
+vendor.audio.snd_card.open.retries=50
 vendor.audio.volume.headset.gain.depcal=true
 vendor.audio.tfa9874.dsp.enabled=true
-persist.vendor.audio_hal.dsp_bit_width_enforce_mode=24
-persist.vendor.audio.format.24bit=true
-vendor.audio.snd_card.open.retries=50
-persist.vendor.audio.hw.binder.size_kbyte=1024
-persist.vendor.audio.bcl.enabled=false
-vendor.audio.capture.enforce_legacy_copp_sr=true
-vendor.power.pasr.enabled=true
 ro.vendor.audio.multiroute=true
-vendor.audio.spkr_prot.tx.sampling_rate=48000
-ext.spkr.enabled=true" >> $MODPATH/system.prop
+ro.vendor.audio.enhance.support=true
+ro.vendor.audio.gain.support=true
+persist.vendor.audio.ha_proxy.enabled=true
+persist.vendor.audio.ll_playback_bargein=true
+persist.vendor.audio.bcl.enabled=false
+persist.vendor.audio.hw.binder.size_kbyte=1024
+persist.vendor.audio.format.24bit=true
+persist.vendor.audio.delta.refresh=true" >> $MODPATH/system.prop
 }
 
 improve_bluetooth() {
 echo -e "\n# Bluetooth
 
-persist.service.btui.use_aptx=1
-persist.bt.enableAptXHD=true
-persist.bt.a2dp.aptx_disable=false
-persist.bt.a2dp.aptx_hd_disable=false
-persist.vendor.btstack.enable.splita2dp=true 
-persist.vendor.btstack.enable.twsplus=true
-persist.vendor.btstack.connect.peer_earbud=true
-persist.vendor.btstack.enable.twsplussho=true
-persist.vendor.btstack.enable.swb=true
-persist.vendor.btstack.enable.swbpm=true
-persist.vendor.btstack.avrcp.pos_time=1000
-persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true 
-persist.vendor.qcom.bluetooth.enable.splita2dp=true 
-persist.vendor.qcom.bluetooth.twsp_state.enabled=false
-persist.vendor.qcom.bluetooth.scram.enabled=false
-persist.vendor.qcom.bluetooth.aac_vbr_ctl.enabled=true
-persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
-persist.vendor.qcom.bluetooth.enable.swb=true
-persist.bt.a2dp.aac_disable=false
 audio.effect.a2dp.enable=1
 vendor.audio.effect.a2dp.enable=1
-persist.vendor.bt.a2dp.aac_whitelist=false
-persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
-persist.vendor.bt.soc.scram_freqs=192
-persist.vendor.bt.aac_frm_ctl.enabled=true
-persist.vendor.bt.aac_vbr_frm_ctl.enabled=true
 vendor.bt.pts.pbap=true
 ro.bluetooth.emb_wp_mode=false
 ro.bluetooth.wipower=false 
 ro.vendor.bluetooth.wipower=false
-persist.bluetooth.enabledelayreports=true
-persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+persist.service.btui.use_aptx=1
+persist.bt.enableAptXHD=true
+persist.bt.a2dp.aptx_disable=false
+persist.bt.a2dp.aptx_hd_disable=false
+persist.bt.a2dp.aac_disable=false
 persist.bt.sbc_hd_enabled=1
-persist.bluetooth.sbc_hd_higher_bitrate=1" >> $MODPATH/system.prop
+persist.vendor.btstack.enable.splita2dp=true
+persist.vendor.btstack.connect.peer_earbud=true
+persist.vendor.btstack.enable.twsplussho=true
+persist.vendor.btstack.enable.swb=true
+persist.vendor.btstack.enable.swbpm=true
+persist.vendor.btstack.enable.lpa=false
+persist.vendor.btstack.avrcp.pos_time=1000
+persist.vendor.qcom.bluetooth.scram.enabled=false
+persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true 
+persist.vendor.qcom.bluetooth.enable.splita2dp=true 
+persist.vendor.qcom.bluetooth.twsp_state.enabled=false
+persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
+persist.vendor.qcom.bluetooth.enable.swb=true
+persist.vendor.bt.a2dp.aac_whitelist=false
+persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
+persist.vendor.bt.aac_frm_ctl.enabled=true
+persist.vendor.bt.aac_vbr_frm_ctl.enabled=true
+persist.bluetooth.enabledelayreports=true
+persist.bluetooth.sbc_hd_higher_bitrate=1
+persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/system.prop
 }
 
 AUTO_EN() {
@@ -1719,6 +1808,7 @@ AUTO_EN() {
     ui_print " - You selected AUTO installation mode - "
     AUTO_In=true
 	
+	clear_screen
 	ui_print " "
 	ui_print " - The installation has started! - "
 	
@@ -1788,6 +1878,7 @@ AUTO_RU() {
 	ui_print " - Вы выбрали режим установки АВТО - "
     AUTO_In=true
 	
+	clear_screen
 	ui_print " "
 	ui_print " - Установка началась! - "
 	
@@ -1853,6 +1944,7 @@ AUTO_RU() {
 }
 
 English() {
+	  clear_screen
 	  if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
 		HIFI=true
 	  ui_print " "
@@ -1905,6 +1997,7 @@ esac
 }
 
 Russian() {
+	  clear_screen
 	  if [ "$SD662" ] || [ "$SD665" ] || [ "$SD690" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ]; then
 		HIFI=true
 	  ui_print " "
@@ -1956,6 +2049,7 @@ esac
 }
 	
 ENG_Manual() {
+	  clear_screen
 	  ui_print " "
 	  ui_print " - You selected Manual mode - "
 	  ui_print " "
@@ -2125,16 +2219,16 @@ ENG_Manual() {
 	fi
 
 	ui_print " "
-	ui_print " - Added new Dirac -"
+	ui_print " - Added new dirac -"
 	  ui_print "***************************************************"
 	  ui_print "* [9/14]                                          *"
 	  ui_print "*                                                 *"
-	  ui_print "* This option will add a new Dirac to the system  *"
+	  ui_print "* This option will add a new dirac to the system  *"
 	  ui_print "*   If you encounter wheezing from the outside    *"
 	  ui_print "*    speaker, first of all when reinstalling      *"
 	  ui_print "*               skip this step.                   *"
 	  ui_print "***************************************************"
-	ui_print "   Added new Dirac?"
+	ui_print "   Added new dirac?"
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = YES, Vol Down = NO"
@@ -2328,6 +2422,7 @@ ENG_Manual() {
 }
 
 RU_Manual() {
+	clear_screen
 	ui_print " "
 	ui_print " - Вы выбрали РУЧНОЙ режим установки - "
 	ui_print " "
@@ -2498,17 +2593,17 @@ RU_Manual() {
 	fi
 
 	ui_print " "
-	ui_print " - Добавление нового Dirac -"
+	ui_print " - Добавление нового dirac -"
 	  ui_print "**************************************************"
 	  ui_print "* [9/13]                                         *"
 	  ui_print "*                                                *"
-	  ui_print "*     Эта опция добавит новый Dirac в систему    *"
+	  ui_print "*     Эта опция добавит новый dirac в систему    *"
 	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
 	  ui_print "*  динамика, в первую очередь при переустановке  *"
 	  ui_print "*             пропустите данный пункт.           *"
 	  ui_print "*                                                *"
 	  ui_print "**************************************************"
-	ui_print "   Добавить новый Dirac?"
+	ui_print "   Добавить новый dirac?"
 	sleep 1
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
@@ -2702,6 +2797,7 @@ RU_Manual() {
 }
 
 All_En() {
+	clear_screen
 	ui_print " "
 	ui_print " - You selected INSTALL ALL "
 	ui_print " "
@@ -2742,6 +2838,7 @@ All_En() {
 }
 
 All_Ru() {
+	clear_screen
 	ui_print " "
 	ui_print " - Вы выбрали УСТАНОВИТЬ ВСЁ "
 	ui_print " "
