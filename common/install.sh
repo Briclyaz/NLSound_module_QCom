@@ -225,10 +225,6 @@ DEVFEA="/vendor/etc/device_features/*.xml"; DEVFEAA="/system/etc/device_features
 IOPOLICY="$(find /system /vendor -type f -name "audio_io_policy.conf")"
 AUDIOPOLICY="$(find /system /vendor -type f -name "audio_policy_configuration.xml")"
 
-FIRMRN7PRO=$MODPATH/common/NLSound/firmrn7pro
-FEATURES=$MODPATH/common/NLSound/features
-WHYDED=$MODPATH/common/NLSound/whyded
-FIRMWARE=$MODPATH/common/NLSound/firmware
 NEWdirac=$MODPATH/common/NLSound/newdirac
 
 STEP1=false
@@ -314,11 +310,6 @@ patch_volumes() {
 		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX0 Digital Volume"]' "92"
 		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_RX1 Digital Volume"]' "92"
-		#Mi10* gains by NLSound Team
-		patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
-		patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
-		patch_xml -s $MIX '/mixer/ctl[@name="Class-H Head Room"]' "17"
-		patch_xml -s $MIX '/mixer/ctl[@name="RCV Class-H Head Room"]' "17"
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 	done
 }
@@ -1219,7 +1210,7 @@ if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
 		patch_xml -u $ACONF '/configs/property[@name="audio_extn_hdmi_spk_enabled"]' "true"
 		patch_xml -u $ACONF '/configs/property[@name="use_xml_audio_policy_conf"]' "true"
 		patch_xml -u $ACONF '/configs/property[@name="voice_concurrency"]' "false "
-		patch_xml -u $ACONF '/configs/property[@name="afe_proxy_enabled"]' "true"
+		patch_xml -u $ACONF '/configs/property[@name="afe_proxy_enabled"]' "false"
 		patch_xml -u $ACONF '/configs/property[@name="compress_voip_enabled"]' "false"
 		patch_xml -u $ACONF '/configs/property[@name="fm_power_opt"]' "true"
 		patch_xml -u $ACONF '/configs/property[@name="record_play_concurrency"]' "false"
@@ -1239,15 +1230,6 @@ if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
 		patch_xml -u $ACONF '/configs/property[@name="wma_offload_enabled"]' "true"
 	done
 fi
-	if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-		cp -f $FIRMWARE/* $MODPATH/system/vendor
-	fi
-	if [ "$POCOF1" ]; then
-		cp -f $FIRMPOCOF1/* $MODPATH/system/vendor
-	fi
-	if [ "$MIA2" ]; then
-		cp -f $FIRMRN7PRO/* $MODPATH/system/vendor
-	fi
 }
 
 device_features_system() {
@@ -1341,7 +1323,7 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_3LE"
 		else
-			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_Mode"]' "HD2"
+            patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
@@ -1403,9 +1385,9 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_INT_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
-			patch_xml -u $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
-			patch_xml -u $MIX '/mixer/ctl[@name="Boost Option"]' "BOOST_ON_FOREVER"
-			patch_xml -u $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
+			patch_xml -s $MIX '/mixer/ctl[@name="Boost Option"]' "BOOST_ALWAYS"
+			patch_xml -s $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
 	done
 	
 	#for MCP in $MC; do
@@ -1443,7 +1425,6 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
 			patch_xml -u $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_3LE"
 		else
-			patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_Mode"]' "HD2"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
@@ -1626,8 +1607,6 @@ clear_screen() {
 
 prop() {
 echo -e "\n#
-ro.config.media_vol_steps=30
-
 persist.vendor.audio.spv4.enable=true
 persist.vendor.audio.avs.afe_api_version=9
 
@@ -1647,11 +1626,11 @@ vendor.audio.tunnel.encode=true
 tunnel.audio.encode=true
 qc.tunnel.audio.encode=true
 audio.decoder_override_check=true
-use.non-omx.mp3.decoder=false
-use.non-omx.aac.decoder=false
-vendor.media.omx=0
 mpq.audio.decode=true
 audio.nat.codec.enabled=1
+use.non-omx.mp3.decoder=false
+use.non-omx.aac.decoder=false
+use.non-omx.flac.decoder=false
 
 media.stagefright.enable-player=true
 media.stagefright.enable-http=true
@@ -1705,7 +1684,6 @@ vendor.audio.feature.kpi_optimize.enable=true
 vendor.audio.feature.power_mode.enable=true 
 vendor.audio.feature.compress_meta_data.enable=false
 vendor.audio.feature.compr_cap.enable=false
-vendor.audio.feature.compr_voip.enable=false
 vendor.audio.feature.ssrec.enable=true
 vendor.audio.feature.dynamic_ecns.enable=true
 vendor.audio.feature.concurrent_capture.enable=true
@@ -1725,27 +1703,31 @@ persist.vendor.audio.hifi.int_codec=true
 effect.reverb.pcm=1
 vendor.audio.safx.pbe.enabled=true
 vendor.audio.soundfx.usb=false
+vendor.audio.keep_alive.disabled=false
+vendor.audio.pp.asphere.enabled=true
 ro.vendor.audio.3d.audio.support=true
-ro.vendor.audio.soundfx.type=dirac
 ro.vendor.audio.sfx.speaker=false
 ro.vendor.audio.sfx.earadj=false
+ro.vendor.audio.sfx.audiovisual=false
+ro.vendor.audio.sfx.independentequalizer=false
 ro.vendor.audio.surround.support=true
 ro.vendor.audio.scenario.support=true
 ro.vendor.audio.vocal.support=true
 ro.vendor.audio.voice.change.support=true
 ro.vendor.audio.voice.change.youme.support=true
-ro.vendor.audio.xiaoaitongxue.aec=true
 persist.vendor.audio.ambisonic.capture=true
 persist.vendor.audio.ambisonic.auto.profile=true
 persist.vendor.audio.misound.disable=true
 
-ro.vendor.audio.afe.record=true
+vendor.audio.hdr.record.enable=true
+vendor.audio.3daudio.record.enable=true
 ro.vendor.audio.sdk.ssr=false
 ro.vendor.audio.recording.hd=true
 ro.ril.enable.amr.wideband=1
 persist.audio.lowlatency.rec=true
 
 ro.vendor.audio.game.mode=true
+ro.vendor.audio.game.vibrate=true
 ro.audio.soundtrigger.lowpower=false
 vendor.power.pasr.enabled=true
 vendor.audio.matrix.limiter.enable=0
@@ -1788,16 +1770,17 @@ persist.vendor.btstack.enable.swb=true
 persist.vendor.btstack.enable.swbpm=true
 persist.vendor.btstack.enable.lpa=false
 persist.vendor.btstack.avrcp.pos_time=1000
-persist.vendor.qcom.bluetooth.scram.enabled=false
-persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true 
-persist.vendor.qcom.bluetooth.enable.splita2dp=true 
-persist.vendor.qcom.bluetooth.twsp_state.enabled=false
-persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
-persist.vendor.qcom.bluetooth.enable.swb=true
 persist.vendor.bt.a2dp.aac_whitelist=false
 persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
 persist.vendor.bt.aac_frm_ctl.enabled=true
 persist.vendor.bt.aac_vbr_frm_ctl.enabled=true
+persist.vendor.qcom.bluetooth.scram.enabled=false
+persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
+persist.vendor.qcom.bluetooth.enable.splita2dp=true 
+persist.vendor.qcom.bluetooth.twsp_state.enabled=false
+persist.vendor.qcom.bluetooth.a2dp_mcast_test.enabled=false
+persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
+persist.vendor.qcom.bluetooth.enable.swb=true
 persist.bluetooth.enabledelayreports=true
 persist.bluetooth.sbc_hd_higher_bitrate=1
 persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/system.prop
@@ -2432,7 +2415,7 @@ RU_Manual() {
 	sleep 1
 	ui_print " - Отключение глубокого буффера -"
 	  ui_print "**************************************************"
-	  ui_print "* [1/13]                                         *"
+	  ui_print "* [1/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*             Эта опция отключит                 *"
 	  ui_print "*     глубокий буффер в вашем устройстве.        *"
@@ -2451,7 +2434,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Увеличить уровни и шаги громкости медиа -"
 	  ui_print "**************************************************"
-	  ui_print "* [2/13]                                         *"
+	  ui_print "* [2/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                О С Т О Р О Ж Н О!              *"
 	  ui_print "*          Подтверждение этой опции может        *"
@@ -2472,7 +2455,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Увеличить громкости микрофонов -"
 	  ui_print "**************************************************"
-	  ui_print "* [3/13]                                         *"
+	  ui_print "* [3/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*                 Эта опция увеличит             *"
 	  ui_print "*           уровни громкостей микрофонов в       *"
@@ -2490,7 +2473,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - IIR патчи -"
 	  ui_print "**************************************************"
-	  ui_print "* [4/13]                                         *"
+	  ui_print "* [4/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    IIR влияет на итоговую кривую АЧХ ваших     *"
 	  ui_print "* наушников. По-умолчанию используется настройка *"
@@ -2511,7 +2494,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Патчинг audio_platform файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [5/13]                                         *"
+	  ui_print "* [5/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*    Подтверждение этой опции позволит модулю    *"
 	  ui_print "* использовать иной алгоритм работы аудио кодека *"
@@ -2531,7 +2514,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Отключение компандеров -"
 	  ui_print "**************************************************"
-	  ui_print "* [6/13]                                         *"
+	  ui_print "* [6/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "* Компандирование - существует для сжатия аудио. *"
 	  ui_print "*     Из-за этого алгоритма вы можете слышать    *"
@@ -2553,7 +2536,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Настройка внутреннего аудио кодека -"
 	  ui_print "**************************************************"
-	  ui_print "* [7/13]                                         *"
+	  ui_print "* [7/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*               Эта опция настроит               *"
 	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
@@ -2570,7 +2553,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Патчинг device_features файлов -"
 	  ui_print "**************************************************"
-	  ui_print "* [8/13]                                         *"
+	  ui_print "* [8/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*  Этот шаг сделает следующее:                   *"
 	  ui_print "*   - Разблокирует частоты дискретизации         *"
@@ -2595,7 +2578,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Добавление нового dirac -"
 	  ui_print "**************************************************"
-	  ui_print "* [9/13]                                         *"
+	  ui_print "* [9/14]                                         *"
 	  ui_print "*                                                *"
 	  ui_print "*     Эта опция добавит новый dirac в систему    *"
 	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
@@ -2614,7 +2597,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Установить другие патчи в mixer_paths файлы - "
 	  ui_print "**************************************************"
-	  ui_print "* [10/13]                                        *"
+	  ui_print "* [10/14]                                        *"
 	  ui_print "*                                                *"
 	  ui_print "*       Содержит экспериментальные настройки     *"
 	  ui_print "*        Если вы столкнулись с проблемами        *"
@@ -2632,7 +2615,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Установить твики в prop файл - "
 	  ui_print "***************************************************"
-	  ui_print "* [11/13]                                         *"
+	  ui_print "* [11/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*  Эта опция сильнее всех изменит качество звука  *"
 	  ui_print "*          Может вызвать проблемы.                *"
@@ -2649,7 +2632,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print " - Улучшить Bluetooth - "
 	  ui_print "***************************************************"
-	  ui_print "* [12/13]                                         *"
+	  ui_print "* [12/14]                                         *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Эта опция улучшит качество аудио         *"
 	  ui_print "*     в Bluetooth, а также исправит проблему с    *"
@@ -2693,10 +2676,10 @@ RU_Manual() {
 	  ui_print "*          [Рекомендуется к установке]            *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install?"
+	ui_print "   Установить?"
 	sleep 1
 	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
 	  STEP14=true
 	fi
