@@ -109,7 +109,7 @@ prop_process() {
   ui_print " "
   ui_print "***************************************************"
   ui_print "*                                                 *"
-  ui_print "*                NLSound v3.0 BETA                *"
+  ui_print "*               NLSound v3.0 STABLE               *"
   ui_print "*                                                 *"
   ui_print "*               special version for               *"
   ui_print "*                                                 *"
