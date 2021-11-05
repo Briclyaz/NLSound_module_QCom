@@ -1185,6 +1185,11 @@ companders() {
 		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 30 Volume"]' 0
 		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 31 Volume"]' 0
 		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 32 Volume"]' 0
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 41 Volume"]' 0
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 42 Volume"]' 0
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 43 Volume"]' 0
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 44 Volume"]' 0
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 45 Volume"]' 0
 	done
 }
 
@@ -1290,7 +1295,7 @@ persist.dirac.acs.controller=gef
 persist.dirac.gef.oppo.syss=true
 persist.dirac.config=64
 persist.dirac.gef.exs.did=50,50
-persist.dirac.gef.ext.did=450,450,450,450
+persist.dirac.gef.ext.did=500,500,500,500
 persist.dirac.gef.ins.did=0,0,0
 persist.dirac.gef.int.did=0,0,0,0
 persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
@@ -1303,7 +1308,10 @@ persist.dirac.gef.ins.mid=268512738
 persist.dirac.gef.int.mid=268512736
 persist.dirac.path=/vendor/etc/dirac
 ro.dirac.acs.storeSettings=1
-persist.dirac.acs.ignore_error=1" >> $MODPATH/system.prop
+persist.dirac.acs.ignore_error=1
+ro.audio.soundfx.dirac=true
+ro.vendor.audio.soundfx.type=dirac
+persist.audio.dirac.speaker=true" >> $MODPATH/system.prop
 } 
 
 mixer() {
@@ -1343,7 +1351,7 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
-			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
+			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
 			patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1388,6 +1396,10 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
 			patch_xml -s $MIX '/mixer/ctl[@name="Boost Option"]' "BOOST_ALWAYS"
 			patch_xml -s $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
+            patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
+            patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
+            patch_xml -s $MIX '/mixer/ctl[@name="RCV Boost Target Voltage"]' "170"
+            patch_xml -s $MIX '/mixer/ctl[@name="Boost Target Voltage"]' "170"
 	done
 	
 	#for MCP in $MC; do
@@ -1444,7 +1456,7 @@ mixer_lite() {
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
-			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "6"
+			patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHL"]' "Switch"
 			patch_xml -u $MIX '/mixer/ctl[@name="HPHR"]' "Switch"
 			#ADDED 12.04.2021 by NLSound Team
@@ -1462,6 +1474,10 @@ mixer_lite() {
 			patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Channels"]' "Two"
 			patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
+            patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
+            patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
+            patch_xml -s $MIX '/mixer/ctl[@name="RCV Boost Target Voltage"]' "170"
+            patch_xml -s $MIX '/mixer/ctl[@name="Boost Target Voltage"]' "170"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_SLIM7_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_PRI_AUX_UL_HL Switch"]' "1"
 			patch_xml -u $MIX '/mixer/ctl[@name="HFP_AUX_UL_HL Switch"]' "1"
@@ -1615,6 +1631,7 @@ ro.mediacodec.max_sample_rate=2822400
 vendor.audio.flac.sw.decoder.24bit=true
 vendor.audio.aac.sw.decoder.24bit=true
 vendor.audio.use.sw.alac.decoder=true
+flac.sw.decoder.24bit.support=true
 vendor.audio.flac.sw.encoder.24bit=true
 vendor.audio.aac.sw.encoder.24bit=true
 vendor.audio.use.sw.ape.decoder=true
@@ -1652,6 +1669,7 @@ vendor.av.offload.enable=true
 qc.av.offload.enable=true
 audio.offload.buffer.size.kb=32
 vendor.audio.offload.buffer.size.kb=32
+vendor.audio.offload.multiaac.enable=true
 
 lpa.decode=false
 lpa30.decode=false
@@ -1676,7 +1694,7 @@ vendor.audio.feature.external_dsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
 vendor.audio.feature.external_speaker_tfa.enable=true
 vendor.audio.feature.ext_hw_plugin=true
-vendor.audio.feature.ras.enable=true
+vendor.audio.feature.ras.enable=false
 vendor.audio.feature.afe_proxy.enable=true
 vendor.audio.feature.src_trkn.enable=true
 vendor.audio.feature.spkr_prot.enable=true
@@ -1687,6 +1705,8 @@ vendor.audio.feature.compr_cap.enable=false
 vendor.audio.feature.ssrec.enable=true
 vendor.audio.feature.dynamic_ecns.enable=true
 vendor.audio.feature.concurrent_capture.enable=true
+vendor.audio.feature.snd_mon.enable=true
+vendor.audio.feature.deepbuffer_as_primary.enable=false
 vendor.audio.feature.devicestate_listener.enable=false
 vendor.audio.feature.thermal_listener.enable=false
 vendor.audio.feature.hifi_audio.enable=true
@@ -1704,14 +1724,14 @@ effect.reverb.pcm=1
 vendor.audio.safx.pbe.enabled=true
 vendor.audio.soundfx.usb=false
 vendor.audio.keep_alive.disabled=false
-vendor.audio.pp.asphere.enabled=true
 ro.vendor.audio.3d.audio.support=true
+ro.vendor.audio.soundfx.usb=false
 ro.vendor.audio.sfx.speaker=false
 ro.vendor.audio.sfx.earadj=false
+ro.vendor.audio.sfx.scenario=false
 ro.vendor.audio.sfx.audiovisual=false
 ro.vendor.audio.sfx.independentequalizer=false
 ro.vendor.audio.surround.support=true
-ro.vendor.audio.scenario.support=true
 ro.vendor.audio.vocal.support=true
 ro.vendor.audio.voice.change.support=true
 ro.vendor.audio.voice.change.youme.support=true
@@ -1721,22 +1741,26 @@ persist.vendor.audio.misound.disable=true
 
 vendor.audio.hdr.record.enable=true
 vendor.audio.3daudio.record.enable=true
+ro.qc.sdk.audio.ssr=false
 ro.vendor.audio.sdk.ssr=false
+ro.vendor.audio.afe.record=false
 ro.vendor.audio.recording.hd=true
 ro.ril.enable.amr.wideband=1
 persist.audio.lowlatency.rec=true
 
-ro.vendor.audio.game.mode=true
-ro.vendor.audio.game.vibrate=true
-ro.audio.soundtrigger.lowpower=false
 vendor.power.pasr.enabled=true
 vendor.audio.matrix.limiter.enable=0
 vendor.audio.enable.mirrorlink=false
 vendor.audio.capture.enforce_legacy_copp_sr=true
-vendor.audio.spkr_prot.tx.sampling_rate=48000
 vendor.audio.snd_card.open.retries=50
 vendor.audio.volume.headset.gain.depcal=true
 vendor.audio.tfa9874.dsp.enabled=true
+vendor.audio.spkr_prot.tx.sampling_rate=48000
+ro.audio.soundtrigger.lowpower=false
+ro.vendor.audio.soundtrigger.adjconf=true
+ro.vendor.audio.game.mode=true
+ro.vendor.audio.game.vibrate=true
+ro.vendor.audio.sos=true
 ro.vendor.audio.multiroute=true
 ro.vendor.audio.enhance.support=true
 ro.vendor.audio.gain.support=true
@@ -1751,8 +1775,10 @@ persist.vendor.audio.delta.refresh=true" >> $MODPATH/system.prop
 improve_bluetooth() {
 echo -e "\n# Bluetooth
 
+qcom.hw.aac.encoder=true
 audio.effect.a2dp.enable=1
 vendor.audio.effect.a2dp.enable=1
+vendor.audio.hw.aac.encoder=true
 vendor.bt.pts.pbap=true
 ro.bluetooth.emb_wp_mode=false
 ro.bluetooth.wipower=false 
@@ -1781,7 +1807,7 @@ persist.vendor.qcom.bluetooth.twsp_state.enabled=false
 persist.vendor.qcom.bluetooth.a2dp_mcast_test.enabled=false
 persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
 persist.vendor.qcom.bluetooth.enable.swb=true
-persist.bluetooth.enabledelayreports=true
+persist.bluetooth.disableabsvol=true
 persist.bluetooth.sbc_hd_higher_bitrate=1
 persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/system.prop
 }
