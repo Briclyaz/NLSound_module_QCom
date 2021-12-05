@@ -581,23 +581,23 @@ if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; the
 	mkdir -p `dirname $APLI`
 	cp -f $MAGISKMIRROR$OAPLI $APLI
 	sed -i 's/\t/  /g' $APLI
-		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' "true"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=24"	 
-		patch_xml -s $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=192000"
+		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
+		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>" $APLI
+		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>" $APLI
+		patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=24"
+		patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
 	if [ ! "$(grep '<app_types>' $APLI)" ]; then
 		sed -i "s/<\/audio_platform_info>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/" $APLI		  
 	else
 	for i in 69936 69940; do
-		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
+		[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
     done
 	fi
 	
@@ -1539,8 +1539,8 @@ mixer() {
 	for OMIX in $MPATHS; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 	if $HIFI; then
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "CF_NEG_3DB_4HZ"
@@ -1552,8 +1552,8 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX4 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX5 HPF cut off"]' "CF_NEG_3DB_4HZ"
 	else
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
-		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "MIN_3DB_4Hz"
