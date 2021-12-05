@@ -330,7 +330,7 @@ MPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
 APIXML="$VENDOR/etc/audio_platform_info.xml"
 APIIXML="$VENDOR/etc/audio_platform_info_intcodec.xml"
 APIEXML="$VENDOR/etc/audio_platform_info_extcodec.xml"
-DEVFEA="$VENDOR/etc/device_features/$DEVICE.xml"; DEVFEAA="$SYSTEM/etc/device_features/$DEVICE.xml"
+DEVFEA="$VENDOR/etc/device_features/$DEVICE.xml"; 
 IOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_io_policy.conf")"
 AUDIOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_policy_configuration.xml")"
 SNDTRGS="$(find $SYSTEM $VENDOR -type f -name "*sound_trigger_mixer_paths*.xml")"
@@ -355,15 +355,12 @@ STEP15=false
 
 ALL=false
 
-mkdir -p $MODPATH/tools
-cp -f $MODPATH/common/addon/External-Tools/tools/$ARCH32/* $MODPATH/tools/
-
-  for OMIX in ${MPATHS}; do
-	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $MIX`
+for OMIX in $MPATHS; do
+    MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+    mkdir -p `dirname $MIX`
 	cp -f $MAGISKMIRROR$OMIX $MIX
 	sed -i 's/\t/  /g' $MIX
-	done
+done
 
 deep_buffer() {
 	echo -e '\n#PATCH DEEP BUFFER\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
@@ -376,9 +373,6 @@ deep_buffer() {
 patch_volumes() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-    mkdir -p `dirname $MIX`
-	cp -f $MAGISKMIRROR$OMIX $MIX
-	sed -i 's/\t/  /g' $MIX
 		patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX2 Digital Volume"]' "90"
@@ -441,8 +435,6 @@ patch_volumes() {
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX1 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX2 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX3 Digital Volume"]' "90"
-		patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT1 Volume"]' "16"
-		patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT2 Volume"]' "16"
 		patch_xml -u $MIX '/mixer/ctl[@name="HPHL Volume"]' "18"
 		patch_xml -u $MIX '/mixer/ctl[@name="HPHR Volume"]' "18"
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
@@ -452,9 +444,6 @@ patch_volumes() {
 patch_microphone() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $MIX`
-	cp -f $MAGISKMIRROR$OMIX $MIX
-	sed -i 's/\t/  /g' $MIX
 	if ! $HIFI; then
 		patch_xml -u $MIX '/mixer/ctl[@name="ADC1 Volume"]' "12"
 		patch_xml -u $MIX '/mixer/ctl[@name="ADC2 Volume"]' "12"
@@ -508,15 +497,36 @@ patch_microphone() {
 		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="ADC3 Volume"]' "12"
 		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="ADC1 Volume"]' "12"
 		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="ADC3 Volume"]' "12"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX0"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX1"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX2"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX3"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX4"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX5"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX6"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX7"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX8"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX9"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX10"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="DMIC MUX11"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX0"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX1"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX2"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX3"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX4"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX5"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX6"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX7"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX8"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX9"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX10"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="AMIC MUX11"]' "ZERO"
 	done
 }
 
 iir_patches() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $MIX`
-	cp -f $MAGISKMIRROR$OMIX $MIX
-	sed -i 's/\t/  /g' $MIX
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="0"]' "268833620"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="1"]' "537398060"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="2"]' "267510580"
@@ -555,29 +565,17 @@ iir_patches() {
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "90"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "90"
 		
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 MUX"]' "RX0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX0"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX0"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX1"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX1"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX1"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX2"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX2"
 		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX2"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX3"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX3"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX3"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX4"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX4"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX4"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX5"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX5"
-		patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX5"
 	done
 }
 
-audio_platform_info_int() {
+audio_platform_info() {
+if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; then
 	for OAPLI in $APINF; do
 	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
 	mkdir -p `dirname $APLI`
@@ -585,192 +583,7 @@ audio_platform_info_int() {
 	sed -i 's/\t/  /g' $APLI
 		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
 		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' "true"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=24"	 
-		patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=24"
-		patch_xml -u $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=192000"
-	if [ ! "$(grep '<app_types>' $APLI)" ]; then
-		sed -i "s/<\/audio_platform_info_intcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_intcodec>/" $APLI		  
-	else
-	for i in 69936 69940; do
-		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
-    done
-	fi
-	
-	for OMIX in $MPATHS; do
-    MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
-		patch_xml -s $MIX '/mixer/ctl[@name="Display Port RX Bit Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="Display Port RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="SEC_MI2S_RX Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SEC_MI2S_RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_0 TX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_TX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_TX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 Channels"]' "Two"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_5 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 Format"]' "S32_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="DSD_L Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="DSD_R Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "24"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
-		
-		
-		if $HIFI; then
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_TX Format"]' "S24_3LE"
-		else
-			#kekwait
-			patch_xml -s $MIX '/mixer/ctl[@name="MEM"]' "by_NLSound"
-		fi
-		
-		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-			patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
-		fi
-	done
-
-	for OSNDTRG in ${SNDTRGS}; do
-	STG="$MODPATH$(echo $OSNDTRG | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $STG`
-	cp -f $MAGISKMIRROR$OSNDTRG $STG
-	sed -i 's/\t/  /g' $STG
-		patch_xml -s $STG '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
-	done
-done
-}
-
-audio_platform_info_ext() {
-	for OAPLI in $APINF; do
-	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $APLI`
-	cp -f $MAGISKMIRROR$OAPLI $APLI
-	sed -i 's/\t/  /g' $APLI
-		patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/config_params/param[@key="hifi_filter"]' "true"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES_44_1"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "bit_width=24"
-		patch_xml -s $APLI '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=24"	 
-		patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "bit_width=24"
-		patch_xml -u $APLI '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "max_rate=192000"
-	if [ ! "$(grep '<app_types>' $APLI)" ]; then
-		sed -i "s/<\/audio_platform_info_extcodec>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/" $APLI		  
-	else
-	for i in 69936 69940; do
-		[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI			
-    done
-	fi
-	
-	for OMIX in $MPATHS; do
-    MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $MIX '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
-		patch_xml -s $MIX '/mixer/ctl[@name="Display Port RX Bit Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="Display Port RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="SEC_MI2S_RX Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="SEC_MI2S_RX SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_0 TX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_TX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_TX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 Channels"]' "Two"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_5 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 Format"]' "S32_LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_5 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/ctl[@name="DSD_L Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="DSD_R Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "24"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_0 RX Format"]' "DSD_DOP"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
-		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
-		
-		
-		if $HIFI; then
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_TX Format"]' "S24_3LE"
-		else
-			#kekwait
-			patch_xml -s $MIX '/mixer/ctl[@name="MEM"]' "by_NLSound"
-		fi
-		
-		if [ "$RN5PRO" ] || [ "$MI9" ] || [ "$MI8" ] || [ "$MI8P" ] || [ "$MI9P" ] || [ "$MIA2" ]; then
-			patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
-		fi
-	done
-	
-	for OSNDTRG in ${SNDTRGS}; do
-	STG="$MODPATH$(echo $OSNDTRG | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $STG`
-	cp -f $MAGISKMIRROR$OSNDTRG $STG
-	sed -i 's/\t/  /g' $STG
-		patch_xml -s $STG '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference"]/ctl[@name="EC Reference SampleRate"]' "KHZ_192"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
-		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
-	done
-done
-}
-
-audio_platform_info() {
-	for OAPLI in $APINF; do
-	APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $APLI`
-	cp -f $MAGISKMIRROR$OAPLI $APLI
-	sed -i 's/\t/  /g' $APLI
-		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
-		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_HEADPHONES"]' "bit_width=24"
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_REVERSE"]' "bit_width=24"
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER_PROTECTED"]' "bit_width=24"
@@ -778,8 +591,8 @@ audio_platform_info() {
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_SPEAKER"]' "bit_width=24"
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_GAME_HEADPHONES"]' "bit_width=24"
 		patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=24"	 
-		patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=24"
-		patch_xml -u $APLI '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=24"
+		patch_xml -s $APLI '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=192000"
 	if [ ! "$(grep '<app_types>' $APLI)" ]; then
 		sed -i "s/<\/audio_platform_info>/  <app_types> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n    <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/" $APLI		  
 	else
@@ -853,7 +666,10 @@ audio_platform_info() {
 		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference Bit Format"]' "S24_LE"
 		patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
 	done
-done
+	
+	sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APLI
+	done
+fi
 }
 
 companders() {
@@ -1617,6 +1433,9 @@ audio_codec() {
 if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
 	for OACONF in $ACONFS; do
 	ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $ACONF`
+	cp -f $MAGISKMIRROR$OACONF $ACONF
+	sed -i 's/\t/  /g' $ACONF
 		patch_xml -u $ACONF '/configs/property[@name="audio.offload.disable"]' "false"
 		patch_xml -u $ACONF '/configs/property[@name="audio.offload.min.duration.secs"]' "30"
 		patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.sva.conc.enabled"]' "false"
@@ -1657,7 +1476,8 @@ if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
 fi
 }
 
-device_features_system() {
+device_features() {
+if find $SYSTEM $VENDOR -type f -name "$DEVICE*.xml" >/dev/null; then
 	for ODEVFEA in $DEVFEA; do 
 	DEVFEA="$MODPATH$(echo $ODEVFEA | sed "s|^/vendor|/system/vendor|g")"
 	mkdir -p `dirname $DEVFEA`
@@ -1672,26 +1492,7 @@ device_features_system() {
 		patch_xml -s $DEVFEA '/features/bool[@name="support_high_latency"]' "false"
 		patch_xml -s $DEVFEA '/features/bool[@name="support_interview_record_param"]' "false"
 	done
-}
-
-device_features_vendor() {
-	for ODEVFEAA in $DEVFEAA; do 
-	DEVFEAA="$MODPATH$(echo $ODEVFEAA | sed "s|^/vendor|/system/vendor|g")"
-	mkdir -p `dirname $DEVFEAA`
-	cp -f $MAGISKMIRROR$ODEVFEAA $DEVFEAA
-	sed -i 's/\t/  /g' $DEVFEAA
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_a2dp_latency"]' "true"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_samplerate_48000"]' "true"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_samplerate_96000"]' "true"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_samplerate_192000"]' "true"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_low_latency"]' "true"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_mid_latency"]' "false"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_high_latency"]' "false"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_interview_record_param"]' "false"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_voip_record"]' "true"
-		patch_xml -s $DEVFEAA '/features/integer[@name="support_inner_record"]' "1"
-		patch_xml -s $DEVFEAA '/features/bool[@name="support_hifi"]' "true"
-	done
+ fi
 }
 
 dirac() {
@@ -1738,8 +1539,8 @@ mixer() {
 	for OMIX in $MPATHS; do
 	MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
 	if $HIFI; then
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "CF_NEG_3DB_4HZ"
@@ -1751,8 +1552,8 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX4 HPF cut off"]' "CF_NEG_3DB_4HZ"
 		patch_xml -s $MIX '/mixer/ctl[@name="TX5 HPF cut off"]' "CF_NEG_3DB_4HZ"
 	else
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
+		#patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1793,6 +1594,14 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia1 EQ Enable"]' "Off"
 		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia2 EQ Enable"]' "Off"
 		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia3 EQ Enable"]' "Off"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX0 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX1 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX2 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX3 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX4 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX5 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX6 MUX"]' "ZERO"
+		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX7 MUX"]' "ZERO"
 		if ["$POCOX3"]; then
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "56"
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
@@ -2151,51 +1960,28 @@ AUTO_EN() {
 	
 	if [ $AUTO_In = true ]; then
 		deep_buffer
-	fi
-	
-	if [ $AUTO_In = true ]; then
 		iir_patches
-	fi
- 
-	ui_print " "
-	ui_print "   ########================================= 20% done!"
-	
-	if [ -f $sys_tem/vendor/etc/audio_platform_info.xml ]; then
+		
+		ui_print " "
+		ui_print "   ########================================= 20% done!"
+		
 		audio_platform_info
-	 elif [ -f $sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
-		audio_platform__info_ext
-	  elif [ -f $sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
-		 audio_platform_info_int
-	 fi
-	
-	if [ $AUTO_In = true ]; then
 		companders
-	fi
-	
-	ui_print " "
-	ui_print "   ##################====================== 45% done!"
-	
-	if [ $AUTO_In = true ]; then
+		
+		ui_print " "
+		ui_print "   ##################====================== 45% done!"
+		
 		audio_codec
-	fi
-	
-	ui_print " "
-	ui_print "   ########################================ 60% done!"
-	
-	if [ $AUTO_In = true ]; then
-	  if [ -f $sys_tem/etc/device_features/$DEVICE.xml ]; then
-		device_features_system
-	  elif [ -f $sys_tem/vendor/etc/device_features/$DEVICE.xml ]; then
-		device_features_vendor
-	  fi
-	fi
-	
-	if [ $AUTO_In = true ]; then
+		
+		ui_print " "
+		ui_print "   ########################================ 60% done!"
+		
+		device_features
 		mixer
 	fi
 	
-	SET_PERM_RM
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
@@ -2221,54 +2007,31 @@ AUTO_RU() {
 	
 	if [ $AUTO_In = true ]; then
 		deep_buffer
-	fi
-	
-	if [ $AUTO_In = true ]; then
 		iir_patches
-	fi
- 
-	ui_print " "
-	ui_print "   ########================================= 20% done!"
-	
-	if [ -f $sys_tem/vendor/etc/audio_platform_info.xml ]; then
+		
+		ui_print " "
+		ui_print "   ########================================= 20% done!"
+		
 		audio_platform_info
-	 elif [ -f $sys_tem/vendor/etc/audio_platform_info_extcodec.xml ]; then
-		audio_platform__info_ext
-	  elif [ -f $sys_tem/vendor/etc/audio_platform_info_intcodec.xml ]; then
-		 audio_platform_info_int
-	 fi
-	
-	if [ $AUTO_In = true ]; then
 		companders
-	fi
-	
-	ui_print " "
-	ui_print "   ##################====================== 45% done!"
-	
-	if [ $AUTO_In = true ]; then
+		
+		ui_print " "
+		ui_print "   ##################====================== 45% done!"
+		
 		audio_codec
+		
+		ui_print " "
+		ui_print "   ########################================ 60% done!"
+		
+		device_features
+		mixer
 	fi
 	
-	ui_print " "
-	ui_print "   ########################================ 60% done!"
-	
-	if [ $AUTO_In = true ]; then
-	  if [ -f $sys_tem/etc/device_features/$DEVICE.xml ]; then
-		device_features_system
-	  elif [ -f $sys_tem/vendor/etc/device_features/$DEVICE.xml ]; then
-		device_features_vendor
-	  fi
-	fi
-	
-	if [ $AUTO_In = true ]; then
-		mixer_lite
-	fi
-	
-	SET_PERM_RM
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
-    ui_print "   ######################################## 100% готово!"
+    ui_print "   ######################################## 100% done!"
 	
 	ui_print " "
 	ui_print " - Всё готово! "
@@ -2690,13 +2453,7 @@ ENG_Manual() {
     ui_print "   ################======================== 40% done!"
 	
 	if [ $STEP5 = true ]; then
-     if [ -f $APII ]; then
-		audio_platform_info_int
-	 elif [ -f $APIE ]; then
-        audio_platform__info_ext
-     elif [ -f $API ]; then
-        audio_platform_info
-     fi
+		audio_platform_info
 	fi
 	
 	if [ $STEP6 = true ]; then
@@ -2711,11 +2468,7 @@ ENG_Manual() {
 	fi
 	
 	if [ $STEP8 = true ]; then
-      if [ -f $DEVFEA ]; then
-		device_features_system
-      elif [ -f $DEVFEAA ]; then
-        device_features_vendor
-      fi
+      device_features
 	fi
 
     ui_print " "
@@ -2745,8 +2498,8 @@ ENG_Manual() {
 		audio_policy
 	fi
 	
-	SET_PERM_RM
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
@@ -2978,7 +2731,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-	  STEP11=true
+		STEP11=true
 	fi
 	
 	ui_print " "
@@ -2997,7 +2750,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-	  STEP12=true
+		STEP12=true
 	fi
 	
 	ui_print " "
@@ -3014,7 +2767,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-	  STEP13=true
+		STEP13=true
 	fi
 	
 	ui_print " "
@@ -3033,7 +2786,7 @@ RU_Manual() {
 	ui_print " "
 	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
 	if chooseport; then
-	  STEP14=true
+		STEP14=true
 	fi
 	
 	ui_print " "
@@ -3065,13 +2818,7 @@ RU_Manual() {
     ui_print "   ################======================== 40% done!"
 	
 	if [ $STEP5 = true ]; then
-     if [ -f $APII ]; then
-		audio_platform_info_int
-	 elif [ -f $APIE ]; then
-        audio_platform__info_ext
-     elif [ -f $API ]; then
-        audio_platform_info
-     fi
+		audio_platform_info
 	fi
 	
 	if [ $STEP6 = true ]; then
@@ -3086,11 +2833,7 @@ RU_Manual() {
 	fi
 	
 	if [ $STEP8 = true ]; then
-      if [ -f $DEVFEA ]; then
-		device_features_system
-      elif [ -f $DEVFEAA ]; then
-        device_features_vendor
-      fi
+      device_features
 	fi
 
     ui_print " "
@@ -3119,9 +2862,9 @@ RU_Manual() {
 	if [ $STEP14 = true ]; then
 		audio_policy
 	fi
-
-	SET_PERM_RM
+	
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
     ui_print "   ######################################## 100% готово!"
@@ -3143,15 +2886,7 @@ All_En() {
 		patch_microphone
 		patch_volumes
 		iir_patches
-		
-		if [ -f $APII ]; then
-			audio_platform_info_int
-		elif [ -f $APIE ]; then
-			audio_platform_info_ext
-		elif [ -f $API ]; then
-			audio_platform_info
-		fi
-		
+		audio_platform_info
 		companders
 		audio_codec
 		device_features_system
@@ -3163,9 +2898,8 @@ All_En() {
 		io_policy
 		audio_policy
 	fi
-	
-	SET_PERM_RM
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
 	ui_print " - All done!"
@@ -3184,15 +2918,7 @@ All_Ru() {
 		patch_microphone
 		patch_volumes
 		iir_patches
-		
-		if [ -f $APII ]; then
-			audio_platform_info_int
-		elif [ -f $APIE ]; then
-			audio_platform_info_ext
-		elif [ -f $API ]; then
-			audio_platform_info
-		fi
-		
+		audio_platform_info
 		companders
 		audio_codec
 		device_features_system
@@ -3205,8 +2931,8 @@ All_Ru() {
 		audio_policy
 	fi
 	
-	SET_PERM_RM
 	MOVERPATH
+	SET_PERM_RM
 	
 	ui_print " "
 	ui_print " - Всё готово!"
