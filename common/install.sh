@@ -363,7 +363,7 @@ for OMIX in $MPATHS; do
 done
 
 deep_buffer() {
-	echo -e '\n#PATCH DEEP BUFFER\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false' >> $MODPATH/system.prop
+	echo -e '\n#PATCH DEEP BUFFER\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false\nvendor.audio.feature.deepbuffer_as_primary.enable=false' >> $MODPATH/system.prop
 		for OACONF in $ACONF; do
 		ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
 			patch_xml -u $ACONF '/configs/property[@name="audio.deep_buffer.media"]' "false"
@@ -1591,9 +1591,6 @@ mixer() {
         patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
         patch_xml -s $MIX '/mixer/ctl[@name="RCV Boost Target Voltage"]' "170"
         patch_xml -s $MIX '/mixer/ctl[@name="Boost Target Voltage"]' "170"
-		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia1 EQ Enable"]' "Off"
-		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia2 EQ Enable"]' "Off"
-		patch_xml -s $MIX '/mixer/ctl[@name="MultiMedia3 EQ Enable"]' "Off"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX0 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX1 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX2 MUX"]' "ZERO"
@@ -1602,7 +1599,7 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX5 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX6 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX7 MUX"]' "ZERO"
-		if ["$POCOX3"]; then
+		if [ "$POCOX3" ]; then
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "56"
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT LEFT"]' "0"
@@ -1629,6 +1626,11 @@ mixer() {
 			patch_xml -u $MIX '/mixer/ctl[@name="Amp Output Level"]' "2"
 			patch_xml -u $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
 		fi
+	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia"]' "1"
+	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia HDMI"]' "1"
+	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia I2S"]' "1"
+	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia MI2S"]' "1"
+	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia"]' "1"
 	done
 }
 
@@ -1752,18 +1754,16 @@ clear_screen() {
 
 prop() {
 echo -e "\n#
+persist.vendor.audio.spv3.enable=true
 persist.vendor.audio.spv4.enable=true
-persist.vendor.audio.avs.afe_api_version=9
-ro.vendor.audio.spk.clean=false
-ro.vendor.audio.surround.support=false
-ro.vendor.audio.scenario.support=false
 
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
+vendor.audio.flac.qti.decoder=true
+flac.sw.decoder.24bit.support=true
 vendor.audio.flac.sw.decoder.24bit=true
 vendor.audio.aac.sw.decoder.24bit=true
 vendor.audio.use.sw.alac.decoder=true
-flac.sw.decoder.24bit.support=true
 vendor.audio.flac.sw.encoder.24bit=true
 vendor.audio.aac.sw.encoder.24bit=true
 vendor.audio.use.sw.ape.decoder=true
@@ -1774,7 +1774,6 @@ vendor.audio.aac.quality=100
 vendor.audio.tunnel.encode=true
 tunnel.audio.encode=true
 qc.tunnel.audio.encode=true
-audio.decoder_override_check=true
 mpq.audio.decode=true
 audio.nat.codec.enabled=1
 use.non-omx.mp3.decoder=false
@@ -1796,51 +1795,30 @@ vendor.audio.parser.ip.buffer.size=262144
 vendor.mm.enable.qcom_parser=63963135
 persist.mm.enable.prefetch=true
 
-av.offload.enable=true
-vendor.av.offload.enable=true
-qc.av.offload.enable=true
-audio.offload.buffer.size.kb=32
-vendor.audio.offload.buffer.size.kb=32
-vendor.audio.offload.multiaac.enable=true
-
 lpa.decode=false
 lpa30.decode=false
 lpa.use-stagefright=false
 lpa.releaselock=false
 
 af.thread.throttle=0
-af.fast.track.multiplier=2
-ro.af.client_heap_size_kbyte=7168
-
-vendor.audio_hal.in_period_size=144
-vendor.audio_hal.period_multiplier=3 
-vendor.audio.hal.output.suspend.supported=true
 
 audio.playback.mch.downsample=false
-ro.vendor.audio.playbackScene=true
-vendor.audio.playback.dsp.pathdelay=0
 vendor.audio.playback.mch.downsample=false
 persist.vendor.audio.playback.mch.downsample=false
 
 vendor.audio.feature.external_dsp.enable=true
+vendor.audio.feature.external_qdsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
 vendor.audio.feature.external_speaker_tfa.enable=true
+vendor.audio.feature.receiver_aided_stereo.enable=true
 vendor.audio.feature.ext_hw_plugin=true
-vendor.audio.feature.ras.enable=false
-vendor.audio.feature.afe_proxy.enable=true
-vendor.audio.feature.src_trkn.enable=true
-vendor.audio.feature.spkr_prot.enable=true
-vendor.audio.feature.kpi_optimize.enable=true
-vendor.audio.feature.power_mode.enable=true 
+vendor.audio.feature.source_track_enabled=true
+vendor.audio.feature.keep_alive.enable=true
 vendor.audio.feature.compress_meta_data.enable=false
 vendor.audio.feature.compr_cap.enable=false
-vendor.audio.feature.ssrec.enable=true
-vendor.audio.feature.dynamic_ecns.enable=true
-vendor.audio.feature.concurrent_capture.enable=true
-vendor.audio.feature.snd_mon.enable=true
-vendor.audio.feature.deepbuffer_as_primary.enable=false
 vendor.audio.feature.devicestate_listener.enable=false
 vendor.audio.feature.thermal_listener.enable=false
+vendor.audio.feature.power_mode.enable=true
 vendor.audio.feature.hifi_audio.enable=true
 
 ro.hardware.hifi.support=true
@@ -1856,50 +1834,39 @@ effect.reverb.pcm=1
 vendor.audio.safx.pbe.enabled=true
 vendor.audio.soundfx.usb=false
 vendor.audio.keep_alive.disabled=false
-ro.vendor.audio.3d.audio.support=true
 ro.vendor.audio.soundfx.usb=false
 ro.vendor.audio.sfx.speaker=false
 ro.vendor.audio.sfx.earadj=false
 ro.vendor.audio.sfx.scenario=false
 ro.vendor.audio.sfx.audiovisual=false
 ro.vendor.audio.sfx.independentequalizer=false
-ro.vendor.audio.surround.support=true
-ro.vendor.audio.vocal.support=true
-ro.vendor.audio.voice.change.support=true
-ro.vendor.audio.voice.change.youme.support=true
+ro.vendor.audio.3d.audio.support=true
+ro.vendor.audio.playbackScene=true
 persist.vendor.audio.ambisonic.capture=true
 persist.vendor.audio.ambisonic.auto.profile=true
-persist.vendor.audio.misound.disable=true
 
+vendor.voice.dsd.playback.conc.disabled=false
 vendor.audio.hdr.record.enable=true
 vendor.audio.3daudio.record.enable=true
 ro.qc.sdk.audio.ssr=false
 ro.vendor.audio.sdk.ssr=false
-ro.vendor.audio.afe.record=false
 ro.vendor.audio.recording.hd=true
 ro.ril.enable.amr.wideband=1
 persist.audio.lowlatency.rec=true
 
-vendor.power.pasr.enabled=true
 vendor.audio.matrix.limiter.enable=0
-vendor.audio.enable.mirrorlink=false
 vendor.audio.capture.enforce_legacy_copp_sr=true
+vendor.audio.hal.output.suspend.supported=true
 vendor.audio.snd_card.open.retries=50
 vendor.audio.volume.headset.gain.depcal=true
 vendor.audio.tfa9874.dsp.enabled=true
-vendor.audio.spkr_prot.tx.sampling_rate=48000
 ro.audio.soundtrigger.lowpower=false
 ro.vendor.audio.soundtrigger.adjconf=true
-ro.vendor.audio.game.mode=true
-ro.vendor.audio.game.vibrate=true
-ro.vendor.audio.sos=true
-ro.vendor.audio.multiroute=true
+ro.vendor.audio.ns.support=true
 ro.vendor.audio.enhance.support=true
 ro.vendor.audio.gain.support=true
-persist.vendor.audio.ha_proxy.enabled=true
 persist.vendor.audio.ll_playback_bargein=true
 persist.vendor.audio.bcl.enabled=false
-persist.vendor.audio.hw.binder.size_kbyte=1024
 persist.vendor.audio.format.24bit=true
 persist.vendor.audio.delta.refresh=true" >> $MODPATH/system.prop
 }
@@ -1907,9 +1874,9 @@ persist.vendor.audio.delta.refresh=true" >> $MODPATH/system.prop
 improve_bluetooth() {
 echo -e "\n# Bluetooth
 
-qcom.hw.aac.encoder=true
 audio.effect.a2dp.enable=1
 vendor.audio.effect.a2dp.enable=1
+qcom.hw.aac.encoder=true
 vendor.audio.hw.aac.encoder=true
 vendor.bt.pts.pbap=true
 ro.bluetooth.emb_wp_mode=false
@@ -1921,23 +1888,13 @@ persist.bt.a2dp.aptx_disable=false
 persist.bt.a2dp.aptx_hd_disable=false
 persist.bt.a2dp.aac_disable=false
 persist.bt.sbc_hd_enabled=1
-persist.vendor.btstack.enable.splita2dp=true
-persist.vendor.btstack.connect.peer_earbud=true
-persist.vendor.btstack.enable.twsplussho=true
-persist.vendor.btstack.enable.swb=true
-persist.vendor.btstack.enable.swbpm=true
 persist.vendor.btstack.enable.lpa=false
-persist.vendor.btstack.avrcp.pos_time=1000
 persist.vendor.bt.a2dp.aac_whitelist=false
-persist.vendor.bt.a2dp.addr_check_enabled_for_aac=true
 persist.vendor.bt.aac_frm_ctl.enabled=true
 persist.vendor.bt.aac_vbr_frm_ctl.enabled=true
 persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
-persist.vendor.qcom.bluetooth.enable.splita2dp=true 
+persist.vendor.btstack.enable.twsplussho=true
 persist.vendor.qcom.bluetooth.twsp_state.enabled=false
-persist.vendor.qcom.bluetooth.a2dp_mcast_test.enabled=false
-persist.vendor.qcom.bluetooth.aptxadaptiver2_1_support=true
-persist.vendor.qcom.bluetooth.enable.swb=true
 persist.bluetooth.disableabsvol=true
 persist.bluetooth.sbc_hd_higher_bitrate=1
 persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/system.prop
