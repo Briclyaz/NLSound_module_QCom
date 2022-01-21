@@ -140,70 +140,26 @@ case $2 in
 esac
 }
 
-#author - Lord_Of_The_Lost@Telegram
 patch_xml() {
-  local Name0=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
-  local Value0=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
-  [ "$(echo "$4" | grep '=')" ] && Name1=$(echo "$4" | sed "s|=.*||") || local Name1="value"
-  local Value1=$(echo "$4" | sed "s|.*=||")
-  case $1 in
-  "-s"|"-u"|"-i")
-    local SNP=$(echo "$3" | sed -r "s|(^.*/.*)\[@.*=\".*\".*$|\1|")
-    local NP=$(dirname "$SNP")
-    local SN=$(basename "$SNP")
-    if [ "$5" ]; then
-      [ "$(echo "$5" | grep '=')" ] && local Name2=$(echo "$5" | sed "s|=.*||") || local Name2="value"
-      local Value2=$(echo "$5" | sed "s|.*=||")
-    fi
-    if [ "$6" ]; then
-      [ "$(echo "$6" | grep '=')" ] && local Name3=$(echo "$6" | sed "s|=.*||") || local Name3="value"
-      local Value3=$(echo "$6" | sed "s|.*=||")
-    fi
-    if [ "$7" ]; then
-      [ "$(echo "$7" | grep '=')" ] && local Name4=$(echo "$7" | sed "s|=.*||") || local Name4="value"
-      local Value4=$(echo "$7" | sed "s|.*=||")
-    fi
-  ;;
+  case "$2" in
+    *mixer_paths*.xml) [ $MIXNUM -gt 5 ] || sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
+    *) sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
   esac
+  local NAME=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
+  local NAMEC=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
+  local VAL=$(echo "$4" | sed "s|.*=||")
+  [ "$(echo $4 | grep '=')" ] && local VALC=$(echo "$4" | sed "s|=.*||") || local VALC="value"
   case "$1" in
-    "-d") xmlstarlet ed -L -d "$3" "$2";;
-    "-u") xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2";;
-    "-s")
-      if [ "$(xmlstarlet sel -t -m "$3" -c . "$2")" ]; then
-        xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2"
-      else
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      fi;;
-    "-i")
-      if [ "$(xmlstarlet sel -t -m "$3[@$Name1=\"$Value1\"]" -c . "$2")" ]; then
-        xmlstarlet ed -L -d "$3[@$Name1=\"$Value1\"]" "$2"
-      fi
-      if [ -z "$Value3" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      elif [ "$Value4" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
-        -i "$SNP-$MODID" -t attr -n "$Name4" -v "$Value4" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      elif [ "$Value3" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      fi
-      ;;
+    "-d") xmlstarlet ed -L -d "$3" $2;;
+    "-u") xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2;;
+    "-s") if [ "$(xmlstarlet sel -t -m "$3" -c . $2)" ]; then
+            xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2
+          else
+            local SNP=$(echo "$3" | sed "s|\[.*$||")
+            local NP=$(dirname "$SNP")
+            local SN=$(basename "$SNP")
+            xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" -i "$SNP-$MODID" -t attr -n "$NAMEC" -v "$NAME" -i "$SNP-$MODID" -t attr -n "$VALC" -v "$VAL" -r "$SNP-$MODID" -v "$SN" $2
+          fi;;
   esac
 }
 
@@ -320,12 +276,24 @@ POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BPROPCHECKER)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BPROPCHECKER)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BPROPCHECKER)
 
+ONEPLUS7=$(grep -E "ro.product.vendor.device=guacamoleb.*" $BPROPCHECKER)
+ONEPLUS7PRO=$(grep -E "ro.product.vendor.device=guacamole.*" $BPROPCHECKER)
+ONEPLUS7TPRO=$(grep -E "ro.product.vendor.device=hotdog.*" $BPROPCHECKER)
+ONEPLUS7T=$(grep -E "ro.product.vendor.device=hotdogb.*" $BPROPCHECKER)
+ONEPLUS8=$(grep -E "ro.product.vendor.device=instantnoodle.*" $BPROPCHECKER)
+ONEPLUS8PRO=$(grep -E "ro.product.vendor.device=instantnoodlep.*" $BPROPCHECKER)
+ONEPLUS8T=$(grep -E "ro.product.vendor.device=kebab.*" $BPROPCHECKER)
+ONEPLUSNORD=$(grep -E "ro.product.vendor.device=avicii.*" $BPROPCHECKER)
+ONEPLUS99PRO9R=$(grep -E "ro.product.vendor.device=lemonade.*" $BPROPCHECKER)
+
+
 DEVICE=$(getprop ro.product.vendor.device)
 
 ACONF="$(find $SYSTEM $VENDOR -type f -name "audio_configs*.xml")"
 APINF="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml")"
 AECFGS="$(find $SYSTEM $VENDOR -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
 MPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
+MMPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
 #MCGAX="$(find $SYSTEM $VENDOR -type f -name "*media_codecs_google_c2_audio*.xml" -o -name "*media_codecs_google_audio*.xml" -o -name "*media_codecs_vendor_audio*.xml")"
 APIXML="$VENDOR/etc/audio_platform_info.xml"
 APIIXML="$VENDOR/etc/audio_platform_info_intcodec.xml"
@@ -353,15 +321,6 @@ STEP13=false
 STEP14=false
 STEP15=false
 
-ALL=false
-
-for OMIX in $MPATHS; do
-    MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-    mkdir -p `dirname $MIX`
-	cp -f $MAGISKMIRROR$OMIX $MIX
-	sed -i 's/\t/  /g' $MIX
-done
-
 deep_buffer() {
 	echo -e '\n#PATCH DEEP BUFFER\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false\nvendor.audio.feature.deepbuffer_as_primary.enable=false' >> $MODPATH/system.prop
 		for OACONF in $ACONF; do
@@ -373,6 +332,9 @@ deep_buffer() {
 patch_volumes() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
+	mkdir -p `dirname $MIX`
+	cp -f $MAGISKMIRROR$OMIX $MIX
+	sed -i 's/\t/  /g' $MIX
 		patch_xml -u $MIX '/mixer/ctl[@name="RX0 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX1 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX2 Digital Volume"]' "90"
@@ -435,8 +397,6 @@ patch_volumes() {
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX1 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX2 Digital Volume"]' "90"
 		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_RX3 Digital Volume"]' "90"
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHL Volume"]' "18"
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHR Volume"]' "18"
 		echo -e '\nro.config.media_vol_steps=30' >> $MODPATH/system.prop
 	done
 }
@@ -584,13 +544,6 @@ if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; the
 		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
 		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
 		patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>" $APLI
-		sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>" $APLI
 		patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=24"
 		patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
 	if [ ! "$(grep '<app_types>' $APLI)" ]; then
@@ -633,17 +586,14 @@ if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; the
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
 		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_CDC_DMA_RX_0 SampleRate"]' "KHZ_192"
 		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_CDC_DMA_RX_0 Format"]' "S24_3LE"
-		patch_xml -s $MIX '/mixer/ctl[@name="WSA_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="RX_CDC_DMA_RX_0 Port Mixer SLIM_7_TX"]' "1"
 		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SLIM_2_RX Format"]' "DSD_DOP"
 		
 		
 		if $HIFI; then
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_192"
-			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "S24_3LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "DSD_DOP"
+			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_96"
+			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "DSD_DOP"
 			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_RX Format"]' "S24_3LE"
 			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_TX Format"]' "S24_3LE"
 		else
@@ -675,757 +625,757 @@ fi
 companders() {
 	for OMIX in $MPATHS; do
     MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g")"
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP1"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX2 Switch"]' 0	
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP3 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP4 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP5 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP6 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP7 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP8 Switch"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX2"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP1"]' 0
-		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP2"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="SpkrLeft COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="SpkrRight COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="WSA_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="WSA_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="RX_COMP1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="RX_COMP2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX1 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX2 Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="HPHL_COMP Switch"]' 0
-		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="HPHR_COMP Switch"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 16 Volume"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 15 Volume"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 29 Volume"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 30 Volume"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 31 Volume"]' 0
-		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 32 Volume"]' 0
-        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 41 Volume"]' 0
-        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 42 Volume"]' 0
-        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 43 Volume"]' 0
-        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 44 Volume"]' 0
-        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 45 Volume"]' 0
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="asr-mic"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc1"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc2"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="adc3"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="va-enroll-mic"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-and-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="speaker-mono-2"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="handset"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-ce"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-karaoke"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-44.1"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-dsd"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="tty-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP1"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="true-native-mode"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="headphones-generic"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voice-anc-fb-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="aac-initial"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-on"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc2-on"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="anc-off-headphone-combo"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="voiceanc-headphone"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="ADSP testfwk"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="bt-a2dp"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="deep-buffer-playback headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="COMP0 RX2 Switch"]' "0"	
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP3 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP4 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP5 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP6 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP7 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP8 Switch"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX2"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP1"]' "0"
+		patch_xml -s $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP2"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="SpkrLeft COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="SpkrRight COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="WSA_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="WSA_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="RX_COMP1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="RX_COMP2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX1 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="COMP0 RX2 Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="HPHL_COMP Switch"]' "0"
+		patch_xml -u $MIX '/mixer/path[@name="low-latency-playback headphones"]/ctl[@name="HPHR_COMP Switch"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 16 Volume"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 15 Volume"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 29 Volume"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 30 Volume"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 31 Volume"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 32 Volume"]' "0"
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 41 Volume"]' "0"
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 42 Volume"]' "0"
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 43 Volume"]' "0"
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 44 Volume"]' "0"
+        patch_xml -s $MIX '/mixer/ctl[@name="Compress Playback 45 Volume"]' "0"
 	done
 }
 
@@ -1553,7 +1503,7 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TX5 HPF cut off"]' "CF_NEG_3DB_4HZ"
 	else
 		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "HD2"
-		patch_xml -u $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX HPH HD2 Mode"]' "On"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "MIN_3DB_4Hz"
 		patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "MIN_3DB_4Hz"
@@ -1570,27 +1520,39 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="TAS2557 Volume"]' "30"
 		echo -e '\nro.sound.alsa=TAS2557' >> $MODPATH/system.prop
 	fi
+        patch_xml -u $MIX '/mixer/ctl[@name="Tfa Enable"]' "1"
+        patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "music"
+        patch_xml -s $MIX '/mixer/ctl[@name="DK Profile"]' "receiver"
+        patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
+		patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
 		patch_xml -s $MIX '/mixer/ctl[@name="headphones]/ctl[@name="PowerCtrl"]' "0"
-		patch_xml -s $MIX '/mixer/ctl[@name="TFA Profile"]' "speaker"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 MIX3 DSD HPHL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="RX INT2 MIX3 DSD HPHR Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
-		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
-		patch_xml -u $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
-		patch_xml -s $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
-		patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_ALGO_STATUS"]' "ENABLE"
-		patch_xml -s $MIX '/mixer/ctl[@name="TFA987X_TX_ENABLE"]' "ENABLE"
-		patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "1" 
-		patch_xml -s $MIX '/mixer/ctl[@name="BDE AMP Enable"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="Amp Volume Location"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
-		patch_xml -s $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
-		patch_xml -s $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
-        patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
+		patch_xml -s $MIX '/mixer/ctl[@name="DSD_L Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="DSD_R Switch"]' "1"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT0 DEM MUX"]' "CLSH_DSM_OUT"
+		patch_xml -u $MIX '/mixer/ctl[@name="RX INT1 DEM MUX"]' "CLSH_DSM_OUT"
+	    patch_xml -s $MIX '/mixer/ctl[@name="RCV AMP PCM Gain"]' "20"
         patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "20"
         patch_xml -s $MIX '/mixer/ctl[@name="RCV Boost Target Voltage"]' "170"
         patch_xml -s $MIX '/mixer/ctl[@name="Boost Target Voltage"]' "170"
+        patch_xml -s $MIX '/mixer/ctl[@name="Amp DSP Enable"]' "1" 
+		patch_xml -s $MIX '/mixer/ctl[@name="BDE AMP Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="Amp Volume Location"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="Ext Spk Boost"]' "ENABLE"
+		patch_xml -s $MIX '/mixer/ctl[@name="PowerCtrl"]' "0"
+		patch_xml -u $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
+		patch_xml -s $MIX '/mixer/ctl[@name="Adsp Working Mode"]' "full"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX_Native"]' "ON"
+		patch_xml -s $MIX '/mixer/ctl[@name="HPH Idle Detect"]' "ON"
+		patch_xml -s $MIX '/mixer/ctl[@name="Set Custom Stereo OnOff"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX_Softclip Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_Softclip0 Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_Softclip1 Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Function"]' "On"
+		patch_xml -s $MIX '/mixer/ctl[@name="HiFi Filter"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="A2DP_SLIM7_UL_HL Switch"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="SLIM7_RX_DL_HL Switch"]' "1"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX0 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX1 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX2 MUX"]' "ZERO"
@@ -1600,31 +1562,31 @@ mixer() {
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX6 MUX"]' "ZERO"
 		patch_xml -u $MIX '/mixer/ctl[@name="SLIM RX7 MUX"]' "ZERO"
 		if [ "$POCOX3" ]; then
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "56"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT LEFT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE LEFT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE LEFT"]' "7"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP LEFT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP LEFT"]' "3"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X RX MODE LEFT"]' "Receiver"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE LEFT"]' "15"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT LEFT"]' "63"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME RIGHT"]' "56"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN RIGHT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT RIGHT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE RIGHT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE RIGHT"]' "7"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP RIGHT"]' "0"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP RIGHT"]' "3"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE RIGHT"]' "12"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT RIGHT"]' "55"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X VBAT LPF LEFT"]' "DISABLE"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256X VBAT LPF RIGHT"]' "DISABLE"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS256x Profile id"]' "1"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS25XX_SMARTPA_ENABLE"]' "ENABLE"
-			patch_xml -u $MIX '/mixer/ctl[@name="Amp Output Level"]' "2"
-			patch_xml -u $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "66"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT LEFT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE LEFT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE LEFT"]' "7"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP LEFT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP LEFT"]' "3"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X RX MODE LEFT"]' "Receiver"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE LEFT"]' "15"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT LEFT"]' "63"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME RIGHT"]' "56"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN RIGHT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT RIGHT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE RIGHT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE RIGHT"]' "7"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP RIGHT"]' "0"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP RIGHT"]' "3"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE RIGHT"]' "12"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT RIGHT"]' "55"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF LEFT"]' "DISABLE"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF RIGHT"]' "DISABLE"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS256x Profile id"]' "1"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_SMARTPA_ENABLE"]' "ENABLE"
+			patch_xml -s $MIX '/mixer/ctl[@name="Amp Output Level"]' "22"
+			patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
 		fi
 	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia"]' "1"
 	patch_xml -s $MIX '/mixer/ctl[@name="SRS TruMedia HDMI"]' "1"
@@ -1754,12 +1716,8 @@ clear_screen() {
 
 prop() {
 echo -e "\n#
-persist.vendor.audio.spv3.enable=true
-persist.vendor.audio.spv4.enable=true
-
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
-vendor.audio.flac.qti.decoder=true
 flac.sw.decoder.24bit.support=true
 vendor.audio.flac.sw.decoder.24bit=true
 vendor.audio.aac.sw.decoder.24bit=true
@@ -1780,20 +1738,9 @@ use.non-omx.mp3.decoder=false
 use.non-omx.aac.decoder=false
 use.non-omx.flac.decoder=false
 
-media.stagefright.enable-player=true
-media.stagefright.enable-http=true
-media.stagefright.enable-aac=true
-media.stagefright.enable-qcp=true
-media.stagefright.enable-fma2dp=true
-media.stagefright.enable-scan=true
-media.stagefright.audio.sink=128
-media.stagefright.thumbnail.prefer_hw_codecs=true
-mmp.enable.3g2=true
 media.aac_51_output_enabled=true
-mm.enable.smoothstreaming=true
 vendor.audio.parser.ip.buffer.size=262144
 vendor.mm.enable.qcom_parser=63963135
-persist.mm.enable.prefetch=true
 
 lpa.decode=false
 lpa30.decode=false
@@ -1806,6 +1753,7 @@ audio.playback.mch.downsample=false
 vendor.audio.playback.mch.downsample=false
 persist.vendor.audio.playback.mch.downsample=false
 
+vendor.audio.feature.dynamic_ecns.enable=true
 vendor.audio.feature.external_dsp.enable=true
 vendor.audio.feature.external_qdsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
@@ -1841,7 +1789,6 @@ ro.vendor.audio.sfx.scenario=false
 ro.vendor.audio.sfx.audiovisual=false
 ro.vendor.audio.sfx.independentequalizer=false
 ro.vendor.audio.3d.audio.support=true
-ro.vendor.audio.playbackScene=true
 persist.vendor.audio.ambisonic.capture=true
 persist.vendor.audio.ambisonic.auto.profile=true
 
@@ -1878,10 +1825,6 @@ audio.effect.a2dp.enable=1
 vendor.audio.effect.a2dp.enable=1
 qcom.hw.aac.encoder=true
 vendor.audio.hw.aac.encoder=true
-vendor.bt.pts.pbap=true
-ro.bluetooth.emb_wp_mode=false
-ro.bluetooth.wipower=false 
-ro.vendor.bluetooth.wipower=false
 persist.service.btui.use_aptx=1
 persist.bt.enableAptXHD=true
 persist.bt.a2dp.aptx_disable=false
@@ -1917,23 +1860,38 @@ AUTO_EN() {
 	
 	if [ $AUTO_In = true ]; then
 		deep_buffer
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		iir_patches
-		
-		ui_print " "
-		ui_print "   ########================================= 20% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ########================================= 20% done!"
+	
+	if [ $AUTO_In = true ]; then
 		audio_platform_info
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		companders
-		
-		ui_print " "
-		ui_print "   ##################====================== 45% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ##################====================== 45% done!"
+	
+	if [ $AUTO_In = true ]; then
 		audio_codec
-		
-		ui_print " "
-		ui_print "   ########################================ 60% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ########################================ 60% done!"
+	
+	if [ $AUTO_In = true ]; then
 		device_features
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		mixer
 	fi
 	
@@ -1949,7 +1907,7 @@ AUTO_EN() {
 
 AUTO_RU() {
 	ui_print " "
-	ui_print " - Вы выбрали режим установки АВТО - "
+	ui_print " - Вы выбрали автоустановку - "
     AUTO_In=true
 	
 	clear_screen
@@ -1964,23 +1922,38 @@ AUTO_RU() {
 	
 	if [ $AUTO_In = true ]; then
 		deep_buffer
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		iir_patches
-		
-		ui_print " "
-		ui_print "   ########================================= 20% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ########================================= 20% done!"
+	
+	if [ $AUTO_In = true ]; then
 		audio_platform_info
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		companders
-		
-		ui_print " "
-		ui_print "   ##################====================== 45% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ##################====================== 45% done!"
+	
+	if [ $AUTO_In = true ]; then
 		audio_codec
-		
-		ui_print " "
-		ui_print "   ########################================ 60% done!"
-		
+	fi
+	
+	ui_print " "
+	ui_print "   ########################================ 60% done!"
+	
+	if [ $AUTO_In = true ]; then
 		device_features
+	fi
+	
+	if [ $AUTO_In = true ]; then
 		mixer
 	fi
 	
@@ -2021,9 +1994,6 @@ English() {
 	  ui_print " "
 	  ui_print " 2. Manual (You configure the module yourself)"
 	  ui_print " "
-	  ui_print " "
-	  ui_print " 3. Install all (For experienced users, may cause problems)"
-	  ui_print " "
 	  ui_print "        Selected: "
 	  ui_print " "
 	  
@@ -2032,12 +2002,11 @@ English() {
 	  ui_print " "
 	  if $VKSEL; then
 		ENG_CHK=$((ENG_CHK + 1))
-		ALL=true
 	  else
 		break
 	  fi
 		
-	  if [ $ENG_CHK -gt 3 ]; then
+	  if [ $ENG_CHK -gt 2 ]; then
 		ENG_CHK=1
 	  fi
 done
@@ -2045,7 +2014,6 @@ done
 case $ENG_CHK in
 	1) AUTO_EN;;
 	2) ENG_Manual;;
-	3) All_En;;
 esac
 }
 
@@ -2071,13 +2039,10 @@ Russian() {
 	  ui_print " "
 	  ui_print " - Заметка: [VOL+] - выбор, [VOL-] - подтверждение "
 	  ui_print " "
-	  ui_print " 1. Авто (Только самое необходимое для"
-	  ui_print "    вашего устройства будет установлено)"
+	  ui_print " 1. Авто (Будет установлено только самое"
+	  ui_print "    необходимое для вашего устройства)"
 	  ui_print " "
 	  ui_print " 2. Ручной (Вы самостоятельно настраиваете модуль)"
-	  ui_print " "
-	  ui_print " "
-	  ui_print " 3. Установить всё (Для опытных пользователей, может вызвать проблемы)"
 	  ui_print " "
 	  ui_print "        Выбран: "
 	  ui_print " "
@@ -2086,12 +2051,11 @@ Russian() {
 	  ui_print " "
 	  if $VKSEL; then
 		RU_CHK=$((RU_CHK + 1))
-		ALL=true
 	  else
 		break
 	  fi
 		
-	  if [ $RU_CHK -gt 3 ]; then
+	  if [ $RU_CHK -gt 2 ]; then
 		RU_CHK=1
 	  fi
 done
@@ -2099,7 +2063,6 @@ done
 case $RU_CHK in
 	1) AUTO_RU;;
 	2) RU_Manual;;
-	3) All_Ru;;
 esac
 }
 	
@@ -2112,28 +2075,29 @@ ENG_Manual() {
 	  ui_print " "
 	  
 	  sleep 1
-	  ui_print " - Disable Deep Buffer -"
 	  ui_print "***************************************************"
 	  ui_print "* [1/14]                                          *"
+	  ui_print "*                   Deep Buffer                   *"
 	  ui_print "*                                                 *"
-	  ui_print "*               This option disable               *"
+	  ui_print "*             This option will disable            *"
 	  ui_print "*            deep buffer in your device.          *"
 	  ui_print "*         If you want more low frequencies,       *"
 	  ui_print "*                skip this option.                *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Disable deep buffer?"
+	ui_print "   "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 		STEP1=true
 	fi
 
 	ui_print " "
-	ui_print " - Improve volume levels and change media volume steps -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [2/14]                                          *"
+	  ui_print "*            Improving volume levels              *"
+	  ui_print "*         and change media volume steps           *"
 	  ui_print "*                                                 *"
 	  ui_print "*               A T T E N T I O N!                *"
 	  ui_print "*   Confirming this option may harm your device!  *"
@@ -2141,37 +2105,37 @@ ENG_Manual() {
 	  ui_print "*              Choose at your own risk!           *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Improve volume levels and media volume steps?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP2=true
 		
 	fi
 
 	ui_print " "
-	ui_print " - Improve microphones levels -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [3/14]                                          *"
+	  ui_print "*         Improving microphones levels            *"
 	  ui_print "*                                                 *"
-	  ui_print "*             This option improving               *"
+	  ui_print "*            This option will improve             *"
 	  ui_print "*     microphone volume levels and quality in     *"
 	  ui_print "*                 your device.                    *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Improve microphone levels?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP3=true
 	fi
 
 	ui_print " "
-	ui_print " - IIR patches -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [4/14]                                          *"
+	  ui_print "*                   IIR patches                   *"
 	  ui_print "*                                                 *"
 	  ui_print "* IIR affects the final frequency response curve. *"
 	  ui_print "*   headphones. The default setting is with an    *"
@@ -2181,18 +2145,18 @@ ENG_Manual() {
 	  ui_print "*        [Recommended for installation]           *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install IIR patches?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP4=true
 	fi
 
 	ui_print " "
-	ui_print " - Patching audio platform files -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [5/14]                                          *"
+	  ui_print "*          Patching audio platform files          *"
 	  ui_print "*                                                 *"
 	  ui_print "* Confirming this option will allow the module to *"
 	  ui_print "*      use a different audio codec algorithm      *"
@@ -2201,18 +2165,18 @@ ENG_Manual() {
 	  ui_print "*        [Recommended for installation]           *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Patching audio platform files?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP5=true
 	fi
 
 	ui_print " "
-	ui_print " - Disable сompanders -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [6/14]                                          *"
+	  ui_print "*             Disabling сompanders                *"
 	  ui_print "*                                                 *"
 	  ui_print "*    Companding-exists for audio compression.     *"
 	  ui_print "*    Because of this algorithm, you can hear      *"
@@ -2223,35 +2187,35 @@ ENG_Manual() {
 	  ui_print "*        [Recommended for installation]           *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "    Disable companders?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = YES, Vol Down = NO"
+	ui_print "    Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP6=true
 	fi
 
 	ui_print " "
-	ui_print " - Configurating interal audio codec -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [7/14]                                          *"
+	  ui_print "*       Configurating interal audio codec         *"
 	  ui_print "*                                                 *"
-	  ui_print "*            This option configuring              *"
+	  ui_print "*           This option will configure            *"
 	  ui_print "*       your device's internal audio codec.       *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Configurate?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	   STEP7=true
 	fi
 	 
 	ui_print " "
-	ui_print " - Patch device_features files -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [8/14]                                          *"
+	  ui_print "*         Patching device_features files          *"
 	  ui_print "*                                                 *"
 	  ui_print "*        This step will do the following:         *"
 	  ui_print "*        - Unlocks the sampling frequency         *"
@@ -2265,126 +2229,412 @@ ENG_Manual() {
 	  ui_print "*  And much more . . .                            *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "    Install this step?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = YES, Vol Down = NO"
+	ui_print "    Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 		STEP8=true
 	fi
 
 	ui_print " "
-	ui_print " - Added new dirac -"
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [9/14]                                          *"
+	  ui_print "*                  New dirac                      *"
 	  ui_print "*                                                 *"
 	  ui_print "* This option will add a new dirac to the system  *"
 	  ui_print "*   If you encounter wheezing from the outside    *"
 	  ui_print "*    speaker, first of all when reinstalling      *"
 	  ui_print "*               skip this step.                   *"
 	  ui_print "***************************************************"
-	ui_print "   Added new dirac?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip" 
 	if chooseport; then
 		STEP9=true
 	fi
 
 	ui_print " "
-	ui_print " - Install other patches in mixer_paths - "
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [10/14]                                         *"
+	  ui_print "*         Other patches in mixer_paths            *"
 	  ui_print "*                                                 *"
 	  ui_print "*        Contains experimental settings           *"
 	  ui_print "*          If you encounter problems              *"
 	  ui_print "*     after installation - skip this step.        *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install patches in mixer_paths files?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP10=true
 	fi
 	  
 	ui_print " "
-	ui_print " - Install tweaks in prop file - "
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [11/14]                                         *"
+	  ui_print "*             Tweaks in prop file                 *"
 	  ui_print "*                                                 *"
 	  ui_print "*    This option will change the sound quality    *"
 	  ui_print "*                  the most.                      *"
 	  ui_print "*             May cause problems.                 *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP11=true
 	fi
 	
 	ui_print " "
-	ui_print " - Improve Bluetooth - "
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [12/14]                                         *"
+	  ui_print "*               Improve Bluetooth                 *"
 	  ui_print "*                                                 *"
 	  ui_print "*   This option will improve the audio quality    *"
 	  ui_print "*    in Bluetooth, as well as fix the problem     *"
 	  ui_print "*      of disappearing the AAC codec switch       *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP12=true
 	fi
 	
 	ui_print " "
-	ui_print " - Switch audio output from DIRECT to DIRECT_PCM - "
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [13/14]                                         *"
+	  ui_print "*              Switch audio output                *"
 	  ui_print "*                                                 *"
 	  ui_print "*  This option will switch DIRECT to DIRECT_PCM,  *"
 	  ui_print "*      which will improve the sound detail.       *"
 	  ui_print "*         [Recommended for installation]          *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP13=true
 	fi
 	
 	ui_print " "
-	ui_print " - Turn off useless DRC - "
+	ui_print " "
 	  ui_print "***************************************************"
 	  ui_print "* [14/14]                                         *"
+	  ui_print "*              Turn off useless DRC               *"
 	  ui_print "*                                                 *"
-	  ui_print "*    Limit the dynamic range of the soundtrack    *"
+	  ui_print "* DRC Limits the dynamic range of the soundtrack  *"
 	  ui_print "*       (the difference between the loudest       *"
 	  ui_print "*             and the quietest sounds)            *"
 	  ui_print "*                                                 *"
 	  ui_print "***************************************************"
-	ui_print "   Install?"
+	ui_print "  "
 	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = YES, Vol Down = NO"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP14=true
 	fi
 	
+	install_manual_en
+}
+
+RU_Manual() {
+	 clear_screen
+	 ui_print " "
+	 ui_print " - Вы выбрали РУЧНОЙ режим установки - "
+	 ui_print " "
+	 ui_print " - Настрой меня, пожалуйста >.< -"
+	 ui_print " "
+
+	sleep 1
+	  ui_print "**************************************************"
+	  ui_print "* [1/14]                                         *"
+	  ui_print "*        Отключение глубокого буффера            *"
+	  ui_print "*                                                *"
+	  ui_print "*             Эта опция отключит                 *"
+	  ui_print "*     глубокий буффер в вашем устройстве.        *"
+	  ui_print "*     Если вам недостаточно низких частот,       *"
+	  ui_print "*            пропустите этот пункт.              *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP1=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [2/14]                                         *"
+	  ui_print "*   Увеличение уровней и шагов громкости медиа   *"
+	  ui_print "*                                                *"
+	  ui_print "*                О С Т О Р О Ж Н О!              *"
+	  ui_print "*          Подтверждение этой опции может        *"
+	  ui_print "*          нанести вред вашему устройству!       *"
+	  ui_print "*      NLSound Team не несёт ответственности     *"
+	  ui_print "*               за ваше устройство!              *"
+	  ui_print "*          Выбирать на свой страх и риск!        *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	  STEP2=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [3/14]                                         *"
+	  ui_print "*         Увеличичение громкости микрофонов      *"
+	  ui_print "*                                                *"
+	  ui_print "*                 Эта опция увеличит             *"
+	  ui_print "*    уровни громкостей и качество микрофонов в   *"
+	  ui_print "*                  вашем устройстве.             *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print " "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	  STEP3=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [4/14]                                         *"
+	  ui_print "*                  IIR патчи                     *"
+	  ui_print "*                                                *"
+	  ui_print "*    IIR влияет на итоговую кривую АЧХ ваших     *"
+	  ui_print "* наушников. По-умолчанию используется настройка *"
+	  ui_print "*  с акцентом на верхнюю границу низких частот   *"
+	  ui_print "*       и нижнюю границу средних частот.         *"
+	  ui_print "*  После применения эти границы будут усилены.   *"
+	  ui_print "*        [Рекомендуется для установки]           *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	  STEP4=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [5/14]                                         *"
+	  ui_print "*         Патчинг audio_platform файлов          *"
+	  ui_print "*                                                *"
+	  ui_print "*      Установка этой опции позволит модулю      *"
+	  ui_print "* использовать иной алгоритм работы аудио кодека *"
+	  ui_print "* для ваших любимых композиций, а также улучшит  *"
+	  ui_print "*       качество звука при видеосъёмке.          *"
+	  ui_print "*        [Рекомендуется для установки]           *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	  STEP5=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [6/14]                                         *"
+	  ui_print "*            Отключение компандеров              *"
+	  ui_print "*                                                *"
+	  ui_print "* Компандирование - существует для сжатия аудио. *"
+	  ui_print "*     Из-за этого алгоритма вы можете слышать    *"
+	  ui_print "*      шипение в тракте даже lossless аудио.     *"
+	  ui_print "*   Этот алгоритм не работает должным образом.   *"
+	  ui_print "*   Всё, что он делает - бессмысленно ухудшает   *"
+	  ui_print "*        качество вашего любимого аудио.         *"
+	  ui_print "*         [Рекомендуется для установки]          *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "    Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	  STEP6=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [7/14]                                         *"
+	  ui_print "*       Настройка внутреннего аудио кодека       *"
+	  ui_print "*                                                *"
+	  ui_print "*               Эта опция настроит               *"
+	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print " "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+	   STEP7=true
+	fi
+	 
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [8/14]                                         *"
+	  ui_print "*        Патчинг device_features файлов          *"
+	  ui_print "*                                                *"
+	  ui_print "*  Этот шаг сделает следующее:                   *"
+	  ui_print "*   - Разблокирует частоты дискретизации         *"
+	  ui_print "*     вплоть до 192000 kHz;                      *"
+	  ui_print "*   - Активирует режим чувствительности для      *"
+	  ui_print "*     Bluetooth наушников;                       *"
+	  ui_print "*   - Включит HD запись аудио;                   *"
+	  ui_print "*   - Улучшит качество Voip записи;              *"
+	  ui_print "*   - Включит поддержку Hi-Fi (для под. ус-тв);  *"
+	  ui_print "*                                                *"
+	  ui_print "*  И многое другое . . .                         *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "    Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP8=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [9/14]                                         *"
+	  ui_print "*                  Новый dirac                   *"
+	  ui_print "*                                                *"
+	  ui_print "*     Эта опция добавит новый dirac в систему    *"
+	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
+	  ui_print "*  динамика, в первую очередь при переустановке  *"
+	  ui_print "*             пропустите данный пункт.           *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP9=true
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "**************************************************"
+	  ui_print "* [10/14]                                        *"
+	  ui_print "*   Установка других патчей в mixer_paths файлы  *"
+	  ui_print "*                                                *"
+	  ui_print "*       Содержит экспериментальные настройки     *"
+	  ui_print "*        Если вы столкнулись с проблемами        *"
+	  ui_print "*   после установки - пропустите данный пункт.   *"
+	  ui_print "*                                                *"
+	  ui_print "**************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP10=true
+	fi
+	
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [11/14]                                         *"
+	  ui_print "*         Установка твиков в prop файл            *"
+	  ui_print "*                                                 *"
+	  ui_print "*  Эта опция сильнее всех изменит качество звука  *"
+	  ui_print "*             Может вызвать проблемы.             *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print " "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP11=true
+	fi
+	
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [12/14]                                         *"
+	  ui_print "*               Улучшение Bluetooth               *"
+	  ui_print "*                                                 *"
+	  ui_print "*        Эта опция улучшит качество аудио         *"
+	  ui_print "*     в Bluetooth, а также исправит проблему с    *"
+	  ui_print "*      исчезновением переключателя ААС кодека.    *"
+	  ui_print "*            Может вызвать проблемы.              *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP12=true
+	fi
+	
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [13/14]                                         *"
+	  ui_print "*          Переключение роута/пути звука          *"
+	  ui_print "*                                                 *"
+	  ui_print "* Эта опция переключит путь DIRECT на DIRECT_PCM, *"
+	  ui_print "*       и улучшит качество итогового звука.       *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print " "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP13=true
+	fi
+	
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*           Отключение бесполезного DRC           *"
+	  ui_print "*                                                 *"
+	  ui_print "*  DRC Ограничивает динамический диапазон аудио   *"
+	  ui_print "*  треков если разница между низкими и высокими   *"
+	  ui_print "*           частотами слишком большая.            *"
+	  ui_print "*          [Рекомендуется к установке]            *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print " "
+	sleep 1
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	if chooseport; then
+		STEP14=true
+	fi
+	
+	install_manual_ru
+}
+
+install_manual_en() {
+	clear_screen
 	ui_print " "
 	ui_print " - Processing. . . . -"
 	ui_print " "
-	ui_print " - You can minimize Magisk and use the device -"
+	ui_print " - You can minimize Magisk and use the device normally -"
 	ui_print " - and then come back here to reboot and apply the changes. -"
 	
 	if [ $STEP1 = true ]; then
@@ -2466,290 +2716,12 @@ ENG_Manual() {
     ui_print " "
 }
 
-RU_Manual() {
-	 clear_screen
-	 ui_print " "
-	 ui_print " - Вы выбрали РУЧНОЙ режим установки - "
-	 ui_print " "
-	 ui_print " - Настрой меня, пожалуйста >.< -"
-	 ui_print " "
-
-	sleep 1
-	ui_print " - Отключение глубокого буффера -"
-	  ui_print "**************************************************"
-	  ui_print "* [1/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*             Эта опция отключит                 *"
-	  ui_print "*     глубокий буффер в вашем устройстве.        *"
-	  ui_print "*     Если вам недостаточно низких частот,       *"
-	  ui_print "*            пропустите этот пункт.              *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Отключить глубокий буффер?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP1=true
-	fi
-
-	ui_print " "
-	ui_print " - Увеличить уровни и шаги громкости медиа -"
-	  ui_print "**************************************************"
-	  ui_print "* [2/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*                О С Т О Р О Ж Н О!              *"
-	  ui_print "*          Подтверждение этой опции может        *"
-	  ui_print "*          нанести вред вашему устройству!       *"
-	  ui_print "*      NLSound Team не несёт ответственности     *"
-	  ui_print "*               за ваше устройство!              *"
-	  ui_print "*          Выбирать на свой страх и риск!        *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Увеличить уровни и шаги громкости медиа?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	  STEP2=true
-	fi
-
-	ui_print " "
-	ui_print " - Увеличить громкости микрофонов -"
-	  ui_print "**************************************************"
-	  ui_print "* [3/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*                 Эта опция увеличит             *"
-	  ui_print "*           уровни громкостей микрофонов в       *"
-	  ui_print "*                  вашем устройстве.             *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Увеличить громкости микрофонов?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	  STEP3=true
-	fi
-
-	ui_print " "
-	ui_print " - IIR патчи -"
-	  ui_print "**************************************************"
-	  ui_print "* [4/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*    IIR влияет на итоговую кривую АЧХ ваших     *"
-	  ui_print "* наушников. По-умолчанию используется настройка *"
-	  ui_print "*  с акцентом на верхнюю границу низких частот   *"
-	  ui_print "*       и нижнюю границу средних частот.         *"
-	  ui_print "*  После применения эти границы будут усилены.   *"
-	  ui_print "*        [Рекомендуется для установки]           *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Установить IIR патчи?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	  STEP4=true
-	fi
-
-	ui_print " "
-	ui_print " - Патчинг audio_platform файлов -"
-	  ui_print "**************************************************"
-	  ui_print "* [5/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*    Подтверждение этой опции позволит модулю    *"
-	  ui_print "* использовать иной алгоритм работы аудио кодека *"
-	  ui_print "* для ваших любимых композиций, а также улучшит  *"
-	  ui_print "*       качество звука при видеосъёмке.          *"
-	  ui_print "*        [Рекомендуется для установки]           *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Патчить audio platform файлы?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	  STEP5=true
-	fi
-
-	ui_print " "
-	ui_print " - Отключение компандеров -"
-	  ui_print "**************************************************"
-	  ui_print "* [6/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "* Компандирование - существует для сжатия аудио. *"
-	  ui_print "*     Из-за этого алгоритма вы можете слышать    *"
-	  ui_print "*      шипение в тракте даже lossless аудио.     *"
-	  ui_print "*   Этот алгоритм не работает должным образом.   *"
-	  ui_print "*   Всё, что он делает - бессмысленно ухудшает   *"
-	  ui_print "*        качество вашего любимого аудио.         *"
-	  ui_print "*         [Рекомендуется для установки]          *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "    Отключить компандеры?"
-	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	  STEP6=true
-	fi
-
-	ui_print " "
-	ui_print " - Настройка внутреннего аудио кодека -"
-	  ui_print "**************************************************"
-	  ui_print "* [7/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*               Эта опция настроит               *"
-	  ui_print "*   внутреннний аудио кодек вашего устройства.   *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Настроить?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-	   STEP7=true
-	fi
-	 
-	ui_print " "
-	ui_print " - Патчинг device_features файлов -"
-	  ui_print "**************************************************"
-	  ui_print "* [8/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*  Этот шаг сделает следующее:                   *"
-	  ui_print "*   - Разблокирует частоты дискретизации         *"
-	  ui_print "*     вплоть до 192000 kHz;                      *"
-	  ui_print "*   - Активирует режим чувствительности для      *"
-	  ui_print "*     Bluetooth наушников;                       *"
-	  ui_print "*   - Включит HD запись аудио;                   *"
-	  ui_print "*   - Улучшит качество Voip записи;              *"
-	  ui_print "*   - Включит поддержку Hi-Fi (для под. ус-тв);  *"
-	  ui_print "*                                                *"
-	  ui_print "*  И многое другое . . .                         *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "    Установить этот пункт?"
-	sleep 1
-	ui_print " "
-	ui_print "    Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP8=true
-	fi
-
-	ui_print " "
-	ui_print " - Добавление нового dirac -"
-	  ui_print "**************************************************"
-	  ui_print "* [9/14]                                         *"
-	  ui_print "*                                                *"
-	  ui_print "*     Эта опция добавит новый dirac в систему    *"
-	  ui_print "*    Если вы столкнётесь с хрипами из внешнего   *"
-	  ui_print "*  динамика, в первую очередь при переустановке  *"
-	  ui_print "*             пропустите данный пункт.           *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Добавить новый dirac?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP9=true
-	fi
-
-	ui_print " "
-	ui_print " - Установить другие патчи в mixer_paths файлы - "
-	  ui_print "**************************************************"
-	  ui_print "* [10/14]                                        *"
-	  ui_print "*                                                *"
-	  ui_print "*       Содержит экспериментальные настройки     *"
-	  ui_print "*        Если вы столкнулись с проблемами        *"
-	  ui_print "*   после установки - пропустите данный пункт.   *"
-	  ui_print "*                                                *"
-	  ui_print "**************************************************"
-	ui_print "   Установить патчи в mixer_paths файлы?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP10=true
-	fi
-	
-	ui_print " "
-	ui_print " - Установить твики в prop файл - "
-	  ui_print "***************************************************"
-	  ui_print "* [11/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "*  Эта опция сильнее всех изменит качество звука  *"
-	  ui_print "*          Может вызвать проблемы.                *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "   Установить?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP11=true
-	fi
-	
-	ui_print " "
-	ui_print " - Улучшить Bluetooth - "
-	  ui_print "***************************************************"
-	  ui_print "* [12/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "*        Эта опция улучшит качество аудио         *"
-	  ui_print "*     в Bluetooth, а также исправит проблему с    *"
-	  ui_print "*      исчезновением переключателя ААС кодека.    *"
-	  ui_print "*            Может вызвать проблемы.              *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "   Установить?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP12=true
-	fi
-	
-	ui_print " "
-	ui_print " - Переключает роут звука с DIRECT на DIRECT_PCM - "
-	  ui_print "***************************************************"
-	  ui_print "* [13/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "*    Эта опция переключит DIRECT на DIRECT_PCM,   *"
-	  ui_print "*       и улучшит качество итогового звука.       *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "   Установить?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP13=true
-	fi
-	
-	ui_print " "
-	ui_print " - Отключить бесполезную DRC функцию - "
-	  ui_print "***************************************************"
-	  ui_print "* [14/14]                                         *"
-	  ui_print "*                                                 *"
-	  ui_print "* Ограничивает динамический диапазон аудио треков *"
-	  ui_print "*      если разница между низкими и высокими      *"
-	  ui_print "*           частотами слишком большая.            *"
-	  ui_print "*          [Рекомендуется к установке]            *"
-	  ui_print "*                                                 *"
-	  ui_print "***************************************************"
-	ui_print "   Установить?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = ДА, Vol Down = НЕТ"
-	if chooseport; then
-		STEP14=true
-	fi
-	
+install_manual_ru() {
+	clear_screen
 	ui_print " "
 	ui_print " - Обработка. . . . -"
 	ui_print " "
-	ui_print " - Вы можете свернуть Magisk и пользоваться устройством -"
+	ui_print " - Вы можете свернуть Magisk и пользоваться устройством как обычно -"
 	ui_print " - а затем вернуться сюда для перезагрузки и применения изменений. -"
     
 	if [ $STEP1 = true ]; then
@@ -2829,71 +2801,6 @@ RU_Manual() {
     ui_print " "
     ui_print " - Всё готово! С любовью, NLSound Team. - "
     ui_print " "
-}
-
-All_En() {
-	clear_screen
-	ui_print " "
-	ui_print " - You selected INSTALL ALL "
-	ui_print " "
-	ui_print " - Installation started! Please, wait..."
-	
-	if [ $ALL = true ]; then
-		deep_buffer
-		patch_microphone
-		patch_volumes
-		iir_patches
-		audio_platform_info
-		companders
-		audio_codec
-		device_features_system
-		device_features_vendor
-		dirac
-		mixer
-		prop
-		improve_bluetooth
-		io_policy
-		audio_policy
-	fi
-	MOVERPATH
-	SET_PERM_RM
-	
-	ui_print " "
-	ui_print " - All done!"
-	ui_print " "
-}
-
-All_Ru() {
-	clear_screen
-	ui_print " "
-	ui_print " - Вы выбрали УСТАНОВИТЬ ВСЁ "
-	ui_print " "
-	ui_print " - Установка начата! Пожалуйста, подождите..."
-	
-	if [ $ALL = true ]; then
-		deep_buffer
-		patch_microphone
-		patch_volumes
-		iir_patches
-		audio_platform_info
-		companders
-		audio_codec
-		device_features_system
-		device_features_vendor
-		dirac
-		mixer
-		prop
-		improve_bluetooth
-		io_policy
-		audio_policy
-	fi
-	
-	MOVERPATH
-	SET_PERM_RM
-	
-	ui_print " "
-	ui_print " - Всё готово!"
-	ui_print " "
 }
 
 ui_print " "
