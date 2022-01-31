@@ -1557,6 +1557,11 @@ mixer() {
 		patch_xml -s $MIX '/mixer/ctl[@name="App Type Gain"]' "8192"
 		patch_xml -s $MIX '/mixer/ctl[@name="Audiosphere Enable"]' "Off"
 		patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "0"
+		patch_xml -s $MIX '/mixer/ctl[@name="ASM Bit Width"]' "32"
+		patch_xml -s $MIX '/mixer/ctl[@name="RX_Softclip Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_Softclip0 Enable"]' "1"
+		patch_xml -s $MIX '/mixer/ctl[@name="WSA_Softclip1 Enable"]' "1"
+		
 		if [ "$POCOX3" ]; then
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "78"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
@@ -1584,7 +1589,22 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="Amp Output Level"]' "22"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
 		fi
+<<<<<<< HEAD
 	done
+=======
+		
+		if [ "$RN10PRO" ] || [ "$RN10PROMAX" ]; then
+			patch_xml -s $MIX '/mixer/ctl[@name="aw882_xx_rx_switch"]' "Enable"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw882_xx_tx_switch"]' "Enable"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw882_copp_switch"]' "Enable"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_0_prof"]' "Receiver"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_0_switch"]' "Enable"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_prof"]' "Receiver"
+			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_switch"]' "Enable"
+		fi
+	fi
+done
+>>>>>>> 806da04 (Add personal parameters speakers for RN10Pro&RN10ProMax)
 }
 
 io_policy(){
