@@ -590,12 +590,11 @@ if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; the
 		
 		
 		if $HIFI; then
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "DSD_DOP"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX Format"]' "S24_LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="SLIMBUS_7_RX SampleRate"]' "KHZ_96"
+			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX Format"]' "S32_LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="SLIM_7_RX SampleRate"]' "KHZ_96"
 			patch_xml -s $MIX '/mixer/ctl[@name="headphones"]/ctl[@name="SLIM_5_RX Format"]' "DSD_DOP"
 			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_RX Format"]' "S24_3LE"
-			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_TX Format"]' "S24_3LE"
+			patch_xml -s $MIX '/mixer/ctl[@name="PRIM_MI2S_TX Format"]' "S32_LE"
 		else
 			#kekwait
 			patch_xml -s $MIX '/mixer/ctl[@name="MEM"]' "by_NLSound"
