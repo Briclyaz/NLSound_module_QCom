@@ -2,4 +2,4 @@
 
    [Changelog](ссылка)
 
-   [GitHub](Ссылка)
+   [GitHub](https://github.com/Briclyaz/NLSound_module_QCom)
