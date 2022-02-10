@@ -2480,7 +2480,7 @@ RU_Manual() {
 	  ui_print "**************************************************"
 	ui_print "  "
 	sleep 1
-	ui_print "    Vol Up = Установить, Vol Down = Пропустить"
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
 	if chooseport; then
 	  STEP6=true
 	fi
@@ -2522,7 +2522,7 @@ RU_Manual() {
 	  ui_print "**************************************************"
 	ui_print "  "
 	sleep 1
-	ui_print "    Vol Up = Установить, Vol Down = Пропустить"
+	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
 	if chooseport; then
 		STEP8=true
 	fi
