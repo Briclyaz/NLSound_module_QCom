@@ -2199,7 +2199,7 @@ ENG_Manual() {
 	  ui_print "***************************************************"
 	ui_print "  "
 	sleep 1
-	ui_print "    Vol Up = Install, Vol Down = Skip"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 	  STEP6=true
 	fi
@@ -2241,7 +2241,7 @@ ENG_Manual() {
 	  ui_print "***************************************************"
 	ui_print "  "
 	sleep 1
-	ui_print "    Vol Up = Install, Vol Down = Skip"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	if chooseport; then
 		STEP8=true
 	fi
