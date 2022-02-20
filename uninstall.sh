@@ -1,17 +1,18 @@
-# Don't modify anything after this
-if [ -f $INFO ]; then
-  while read LINE; do
-    if [ "$(echo -n $LINE | tail -c 1)" == "~" ]; then
-      continue
-    elif [ -f "$LINE~" ]; then
-      mv -f $LINE~ $LINE
-    else
-      rm -f $LINE
-      while true; do
-        LINE=$(dirname $LINE)
-        [ "$(ls -A $LINE 2>/dev/null)" ] && break 1 || rm -rf $LINE
-      done
-    fi
-  done < $INFO
-  rm -f $INFO
-fi
+(
+
+mount /data
+mount -o rw,remount /data
+MODDIR=${0%/*}
+MODID=`echo "$MODDIR" | sed -n -e 's/\/data\/adb\/modules\///p'`
+
+resetprop -p --delete persist.vendor.audio_hal.dsp_bit_width_enforce_mode
+
+rm -rf /metadata/magisk/"$MODID"
+rm -rf /mnt/vendor/persist/magisk/"$MODID"
+rm -rf /persist/magisk/"$MODID"
+rm -rf /data/unencrypted/magisk/"$MODID"
+rm -rf /cache/magisk/"$MODID"
+
+) 2>/dev/null
+
+
