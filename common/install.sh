@@ -1588,9 +1588,6 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="Amp Output Level"]' "22"
 			patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
 		fi
-<<<<<<< HEAD
-	done
-=======
 		
 		if [ "$RN10PRO" ] || [ "$RN10PROMAX" ]; then
 			patch_xml -s $MIX '/mixer/ctl[@name="aw882_xx_rx_switch"]' "Enable"
@@ -1601,9 +1598,7 @@ mixer() {
 			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_prof"]' "Receiver"
 			patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_switch"]' "Enable"
 		fi
-	fi
 done
->>>>>>> 806da04 (Add personal parameters speakers for RN10Pro&RN10ProMax)
 }
 
 io_policy(){
