@@ -1,5 +1,4 @@
-#v3.3 BETA
+*v3.3 STABLE*
 
-   [Changelog](ссылка)
+   [Changelog](https://teletype.in/@briclyaz/nlsound-v3-3-stable-changelog)
 
-   [GitHub](https://github.com/Briclyaz/NLSound_module_QCom)
