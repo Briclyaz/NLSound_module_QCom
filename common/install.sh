@@ -1884,7 +1884,6 @@ ro.vendor.audio.hifi=true
 persist.audio.hifi=true
 persist.audio.hifi.volume=72
 persist.audio.hifi.int_codec=true
-persist.vendor.audio.hifi=true
 persist.vendor.audio.hifi.int_codec=true
 
 audio.offload.pcm.16bit.enable=true
