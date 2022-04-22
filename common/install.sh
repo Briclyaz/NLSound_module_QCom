@@ -2072,8 +2072,8 @@ persist.bluetooth.disableabsvol=true
 persist.bluetooth.sbc_hd_higher_bitrate=1
 persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/system.prop
 }
-	
-() {
+
+install_function() {	
 	  clear_screen
 	  ui_print " "
 	  ui_print " - You selected Manual mode - "
@@ -2382,10 +2382,6 @@ persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/syst
 	  STEP13=true
 	  sed -i 's/STEP13=false/STEP13=true/g' $SETTINGS
 	fi
-	
-	if $STEP4; then
-		addon_settings
-	fi
 
 	clear_screen
 	ui_print " "
@@ -2445,74 +2441,83 @@ persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/syst
 		audio_policy
 	fi
 
+	if $STEP4; then
+		addon_settings
+	fi
+}
+
+
 addon_settings() {
 	clear_screen
 
 	ui_print " "
-	ui_print " - Вы подтвердили установку 24-битной фиксации (ШАГ4)"
-	ui_print " - Вы хотите установить дополнение для данного пункта "
-	ui_print " - от стороннего автора?"
+	ui_print " - You have confirmed the setting for 24-bit audio. (STEP4)"
+	ui_print " - Do you want to install an add-on for this item "
+	ui_print " - from a third-party author?"
 	sleep 1
 	ui_print " "
-	ui_print "   Vol Up = Установить, Vol Down = Пропустить"
+	ui_print "   Vol Up = Install, Vol Down = Skip"
 	ui_print " "
 	if chooseport 60; then
 	clear_screen
 
 	ui_print " "
-	ui_print " - Запуск 24-бит дополнения ..."
+	ui_print " - Running 24-bit addons ..."
 	ui_print " "
-	ui_print " - Автор: Rei Ryuki | https://t.me/androidryukimods "
+	ui_print " - Credits: Rei Ryuki | https://t.me/androidryukimods "
 	ui_print " "
 
 	sleep 3
 
 	clear_screen
 
-	ui_print " 1. Скачайте приложение ТЕРМИНАЛ из Плей Стора"
-	ui_print " 2. Введите SU для получения прав суперполь-ля"
-	ui_print " 3. Вводите необходимые команды в окно терминала"
+	ui_print " 1. Download TERMINAL app in Play Market"
+	ui_print " 2. Enter su to get superuser rights"
+	ui_print " 3. Enter the commands you need in the terminal."
 	ui_print " ========================================================="
 	sleep 3
-	ui_print "          К О М А Н Д Ы            "
+	ui_print "          C O M M A N D S            "
 	ui_print " "
 	ui_print " "
 	ui_print " setprop hires.primary 1                        "
-	ui_print " - Включить Hi-Res с низкой задержкой "
-	ui_print " для первичного аудиовыхода."
+	ui_print " - Enable Hi-Res to low latency "
+	ui_print " playback (primary) output..."
 	sleep 2
 	ui_print " ---------------------------------------------------------"
 	ui_print " setprop hires.32 1                                "
-	ui_print " - Форсинг для PCM аудио формата "
-	ui_print " 32 бит аудио вместо 24 бит"
+	ui_print " - Forcing audio format PCM to "
+	ui_print " 32 bit instead of 24 bit..."
 	sleep 2
 	ui_print " ---------------------------------------------------------"
 	ui_print " setprop hires.float 1                                "
-	ui_print " - Активировать формат PCM float..."
+	ui_print " - Enable audio format PCM float..."
 	sleep 2
 	ui_print " ---------------------------------------------------------"
 	ui_print " setprop speaker.16                                "
-	ui_print " - Форсировать для аудио формата PCM 16 бит "
-	ui_print " для основного динамика (-ов)"
+	ui_print " - Forcing audio format PCM 16 bit "
+	ui_print " to internal speaker..."
 	sleep 2
 	ui_print " ---------------------------------------------------------"
 	ui_print " setprop sample.rate 88                                "
-	ui_print " - Форсинг частоты дискретизации 88200.."
-	ui_print " - Возможные значения: 88, 96, 128, 176, 192, 352, 384"
+	ui_print " - Forcing sample rate to 88200.."
+	ui_print " - Possible values: 88, 96, 128, 176, 192, 352, 384"
 	sleep 2
 	ui_print " "
 	ui_print " ========================================================="
 	ui_print " "
-	ui_print " Нажмите клавишу громкости ВВЕРХ "
-	ui_print " когда закончите ввод необходимых команд"
+	ui_print " Press the volume key UP as soon "
+	ui_print " as you finish entering commands."
 	ui_print " ========================================================="
-	ui_print " Либо нажмите клавишу громкости ВНИЗ "
-	ui_print " если вы хотите пропустить установку аддона."
+	ui_print " Or press the volume down button if "
+	ui_print " you don't want to install the addon."
 	ui_print " "
 
 	if chooseport 60; then
 	clear_screen
-	ui_print " - Обработка . . . Пожалуйста, подождите . . . "
+	ui_print " - Processing . . . Please, wait . . . "
+	ui_print " "
+
+	sed -i 's/addon_install=0/addon_install=1/g' $SETTINGS
 
 	# sepolicy.rule
 	if [ "$BOOTMODE" != true ]; then
@@ -2532,7 +2537,8 @@ addon_settings() {
 
 	# cleaning
 	ui_print " "
-	ui_print " - Очистка..."
+	ui_print " - Cleaning..."
+	ui_print " "
 	rm -f $MODPATH/LICENSE
 	rm -rf /metadata/magisk/$MODID
 	rm -rf /mnt/vendor/persist/magisk/$MODID
@@ -2543,97 +2549,107 @@ addon_settings() {
 
 	# primary
 	if getprop | grep -Eq "hires.primary\]: \[1"; then
-	ui_print " - Включить Hi-Res с низкой задержкой для первичного аудиовыхода"
+	ui_print " "
+	ui_print " - Enable Hi-Res to low latency playback (primary) output..."
 	sed -i 's/#p//g' $MODPATH/.aml.sh
-	sed -i 's/buffer/buffer and low latency/g' $MODPATH/module.prop
+	sed -i 's/hires.primary=0/hires.primary=1/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	fi
 
 	# force 32
 	if getprop | grep -Eq "hires.32\]: \[1"; then
 	ui_print " "
-	ui_print " - Форсинг для аудио формата PCM 32-бит вместо 24-бит."
+	ui_print " - Forcing audio format PCM to 32 bit instead of 24 bit..."
 	sed -i 's/#h//g' $MODPATH/.aml.sh
 	sed -i 's/#h//g' $MODPATH/service.sh
-	sed -i 's/enforce_mode 24/enforce_mode 32/g' $MODPATH/service.sh
-	#sed -i 's/24 bit/32 bit/g' $MODPATH/module.prop
+	sed -i 's/hires.primary=0/hires.primary=1/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	fi
 
 	# force float
 	if getprop | grep -Eq "hires.float\]: \[1"; then
 	ui_print " "
-	ui_print " - Включить аудио формат PCM float..."
+	ui_print " - Enable audio format PCM float..."
 	sed -i 's/#f//g' $MODPATH/.aml.sh
-	#sed -i 's/24 bit/24 bit and float/g' $MODPATH/module.prop
-	#sed -i 's/32 bit/32 bit and float/g' $MODPATH/module.prop
+	sed -i 's/hires.float=0/hires.float=1/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	fi
 
 	# speaker 16
 	if getprop | grep -Eq "speaker.16\]: \[1"; then
 	ui_print " "
-	ui_print " - Форсировать для аудио формата РСМ 16-бит для внешнего динамика (-ов)"
+	ui_print " - Forcing audio format PCM 16 bit to internal speaker..."
 	sed -i 's/#s//g' $MODPATH/.aml.sh
-	#sed -i 's/playback/playback and low resolution to internal speaker/g' $MODPATH/module.prop
+	sed -i 's/speaker.16=0/speaker.16=1/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	fi
 
 	# sampling rates
 	if getprop | grep -Eq "sample.rate\]: \[88"; then
 	ui_print " "
-	ui_print " - Форсинг 88200 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 88200..."
 	sed -i 's/|48000/|48000|88200/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 88200/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=88/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[96"; then
 	ui_print " "
-	ui_print " - Форсинг 96000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 96000..."
 	sed -i 's/|48000/|48000|88200|96000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 96000/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=96/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[128"; then
 	ui_print " "
-	ui_print " - Форсинг 128000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 128000..."
 	sed -i 's/|48000/|48000|88200|96000|128000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 128000/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=128/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[176"; then
 	ui_print " "
-	ui_print " - Форсинг 176000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 176400..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 192000/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=176/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[192"; then
 	ui_print " "
-	ui_print " - Форсинг 192000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 192000..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 192000/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=192/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[352"; then
 	ui_print " "
-	ui_print " - Форсинг 352000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 352800..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 352800/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=352/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[384"; then
 	ui_print " "
-	ui_print " - Форсинг 384000 частоты дискретизации..."
+	ui_print " - Forcing sample rate to 384000..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800|384000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800,384000/g' $MODPATH/.aml.sh
-	#sed -i 's/bit/bit with sample rate 354000/g' $MODPATH/module.prop
+	sed -i 's/sample.rate=0/sample.rate=384/g' $SETTINGS
+	sleep 2
 	ui_print " "
 	fi
 
 	# permission
 	ui_print " "
-	ui_print " - Установка разрешений..."
+	ui_print " - Setting permission..."
 	ui_print " "
 	DIR=`find $MODPATH/system/vendor -type d`
 	for DIRS in $DIR; do
@@ -2650,14 +2666,19 @@ addon_settings() {
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
 	fi
-	
+
 	ui_print " "
-	ui_print " - Аддон успешно установлен!"
+	ui_print " - Addon succesfully installed!"
 	sleep 1
 fi
 fi
+}
 
-	
+
+if [ "$(getprop ro.hardware 2>/dev/null)" == "qcom" ]; then
+	install_function
+fi
+
 	MOVERPATH
 	SET_PERM_RM
 	
@@ -2667,5 +2688,3 @@ fi
     ui_print " "
     ui_print " - All done! With love, NLSound Team. - "
     ui_print " "
-
-}
