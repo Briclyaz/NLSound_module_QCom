@@ -1,6 +1,6 @@
 MODPATH=${0%/*}
 
-# destinations
+# destination
 MODAPC=`find $MODPATH/system -type f -name *policy*.conf`
 MODAPX=`find $MODPATH/system -type f -name *policy*.xml`
 MODAPI=`find $MODPATH/system -type f -name *audio*platform*info*.xml`
@@ -11,7 +11,7 @@ if [ "$MODAPC" ]; then
     sed -i '/^outputs/a\
   deep_buffer_24 {\
     flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
+    formats AUDIO_FORMAT_PCM_24_BIT_PACKED|AUDIO_FORMAT_PCM_8_24_BIT\
     sampling_rates 44100|48000\
     bit_width 24\
     app_type 69940\
@@ -21,32 +21,32 @@ if [ "$MODAPC" ]; then
 #p    sed -i '/^outputs/a\
 #p  default_24bit {\
 #p    flags AUDIO_OUTPUT_FLAG_PRIMARY\
-#p    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
+#p    formats AUDIO_FORMAT_PCM_24_BIT_PACKED|AUDIO_FORMAT_PCM_8_24_BIT\
 #p    sampling_rates 44100|48000\
 #p    bit_width 24\
 #p    app_type 69937\
 #p  }' $MODAPC
 #p  fi
-#h  if ! grep -Eq deep_buffer_32 $MODAPC; then
-#h    sed -i '/^outputs/a\
-#h  deep_buffer_32 {\
-#h    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-#h    formats AUDIO_FORMAT_PCM_32_BIT\
-#h    sampling_rates 44100|48000\
-#h    bit_width 32\
-#h    app_type 69940\
-#h  }' $MODAPC
-#h  fi
-#h#p  if ! grep -Eq default_32bit $MODAPC; then
-#h#p    sed -i '/^outputs/a\
-#h#p  default_32bit {\
-#h#p    flags AUDIO_OUTPUT_FLAG_PRIMARY\
-#h#p    formats AUDIO_FORMAT_PCM_32_BIT\
-#h#p    sampling_rates 44100|48000\
-#h#p    bit_width 32\
-#h#p    app_type 69937\
-#h#p  }' $MODAPC
-#h#p  fi
+#32  if ! grep -Eq deep_buffer_32 $MODAPC; then
+#32    sed -i '/^outputs/a\
+#32  deep_buffer_32 {\
+#32    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
+#32    formats AUDIO_FORMAT_PCM_32_BIT\
+#32    sampling_rates 44100|48000\
+#32    bit_width 32\
+#32    app_type 69940\
+#32  }' $MODAPC
+#32  fi
+#32#p  if ! grep -Eq default_32bit $MODAPC; then
+#32#p    sed -i '/^outputs/a\
+#32#p  default_32bit {\
+#32#p    flags AUDIO_OUTPUT_FLAG_PRIMARY\
+#32#p    formats AUDIO_FORMAT_PCM_32_BIT\
+#32#p    sampling_rates 44100|48000\
+#32#p    bit_width 32\
+#32#p    app_type 69937\
+#32#p  }' $MODAPC
+#32#p  fi
 #f  if ! grep -Eq deep_buffer_float $MODAPC; then
 #f    sed -i '/^outputs/a\
 #f  deep_buffer_float {\
@@ -72,27 +72,33 @@ if [ "$MODAPX" ]; then
   sed -i '/AUDIO_OUTPUT_FLAG_DEEP_BUFFER/a\
                     <profile name="" format="AUDIO_FORMAT_PCM_24_BIT_PACKED"\
                              samplingRates="44100,48000"\
-                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
+                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>\
+                    <profile name="" format="AUDIO_FORMAT_PCM_8_24_BIT"\
+                             samplingRates="44100,48000"\
+                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
 #p  sed -i '/AUDIO_OUTPUT_FLAG_PRIMARY/a\
 #p                    <profile name="" format="AUDIO_FORMAT_PCM_24_BIT_PACKED"\
 #p                             samplingRates="44100,48000"\
-#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
-#h  sed -i '/AUDIO_OUTPUT_FLAG_DEEP_BUFFER/a\
-#h                    <profile name="" format="AUDIO_FORMAT_PCM_32_BIT"\
-#h                             samplingRates="44100,48000"\
-#h                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
-#h#p  sed -i '/AUDIO_OUTPUT_FLAG_PRIMARY/a\
-#h#p                    <profile name="" format="AUDIO_FORMAT_PCM_32_BIT"\
-#h#p                             samplingRates="44100,48000"\
-#h#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
+#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>\
+#p                    <profile name="" format="AUDIO_FORMAT_PCM_8_24_BIT"\
+#p                             samplingRates="44100,48000"\
+#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
+#32  sed -i '/AUDIO_OUTPUT_FLAG_DEEP_BUFFER/a\
+#32                    <profile name="" format="AUDIO_FORMAT_PCM_32_BIT"\
+#32                             samplingRates="44100,48000"\
+#32                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
+#32#p  sed -i '/AUDIO_OUTPUT_FLAG_PRIMARY/a\
+#32#p                    <profile name="" format="AUDIO_FORMAT_PCM_32_BIT"\
+#32#p                             samplingRates="44100,48000"\
+#32#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
 #f  sed -i '/AUDIO_OUTPUT_FLAG_DEEP_BUFFER/a\
 #f                    <profile name="" format="AUDIO_FORMAT_PCM_FLOAT"\
 #f                             samplingRates="44100,48000"\
-#f                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
+#f                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
 #f#p  sed -i '/AUDIO_OUTPUT_FLAG_PRIMARY/a\
 #f#p                    <profile name="" format="AUDIO_FORMAT_PCM_FLOAT"\
 #f#p                             samplingRates="44100,48000"\
-#f#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO"/>' $MODAPX
+#f#p                             channelMasks="AUDIO_CHANNEL_OUT_STEREO,AUDIO_CHANNEL_OUT_MONO"/>' $MODAPX
 fi
 
 # patch audio platform info
@@ -114,8 +120,10 @@ if [ "$MODAPI" ]; then
   fi
   sed -i 's/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="16"/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="24"/g' $MODAPI
   sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/g' $MODAPI
-#h  sed -i 's/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="24"/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="32"/g' $MODAPI
-#h  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="32"/g' $MODAPI
-#s  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/g' $MODAPI
-#s  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="32"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/g' $MODAPI
+#32  sed -i 's/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="24"/<device name="SND_DEVICE_OUT_HEADPHONES" bit_width="32"/g' $MODAPI
+#32  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="32"/g' $MODAPI
+#s16  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/g' $MODAPI
+#s16  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="32"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/g' $MODAPI
+#s24  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="16"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/g' $MODAPI
+#s24  sed -i 's/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="32"/<device name="SND_DEVICE_OUT_SPEAKER" bit_width="24"/g' $MODAPI
 fi

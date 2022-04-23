@@ -3,6 +3,14 @@
 mount /data
 mount -o rw,remount /data
 MODPATH=${0%/*}
+API=`getprop ro.build.version.sdk`
+AML=/data/adb/modules/aml
+
+# debug
+magiskpolicy --live "dontaudit system_server system_file file write"
+magiskpolicy --live "allow     system_server system_file file write"
+exec 2>$MODPATH/debug-pfsd.log
+set -x
 
 # run
 FILE=$MODPATH/sepolicy.sh
@@ -16,9 +24,9 @@ if [ -d /sbin/.magisk ]; then
 else
   MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
 fi
-ETC=$MAGISKTMP/mirror/system/etc
+ETC="/my_product/etc $MAGISKTMP/mirror/system/etc"
 VETC=$MAGISKTMP/mirror/system/vendor/etc
-VOETC=$MAGISKTMP/mirror/system/vendor/odm/etc
+VOETC="/odm/etc $MAGISKTMP/mirror/system/vendor/odm/etc"
 MODETC=$MODPATH/system/etc
 MODVETC=$MODPATH/system/vendor/etc
 MODVOETC=$MODPATH/system/vendor/odm/etc
@@ -35,74 +43,55 @@ if [ -d $VETC/audio/"$PROP" ]; then
   mkdir -p $MODVETC/audio/"$PROP"
 fi
 
-# audio policy
-NAME=*policy*
-rm -f `find $MODPATH/system -type f -name $NAME.conf -o -name $NAME.xml`
-AP=`find $ETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VAP=`find $VETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VAAP=`find $VETC/audio -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-VOAP=`find $VOETC -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-cp -f $AP $MODETC
-cp -f $VAP $MODVETC
-cp -f $VAAP $MODVETC/audio
-cp -f $VOAP $MODVOETC
-if [ "$SKU" ]; then
-  for SKUS in $SKU; do
-    VSAP=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-    cp -f $VSAP $MODVETC/audio/$SKUS
-  done
-fi
-if [ -d $VETC/audio/"$PROP" ]; then
-  VBAP=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME.conf -o -name $NAME.xml`
-  cp -f $VBAP $MODVETC/audio/"$PROP"
-fi
-
-# audio platform info
-NAME=*audio*platform*info*.xml
+# audio files
+NAME="*policy*.conf -o -name *policy*.xml -o -name *audio*platform*info*.xml"
 rm -f `find $MODPATH/system -type f -name $NAME`
-API=`find $ETC -maxdepth 1 -type f -name $NAME`
-VAPI=`find $VETC -maxdepth 1 -type f -name $NAME`
-VAAPI=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
-VOAPI=`find $VOETC -maxdepth 1 -type f -name $NAME`
-cp -f $API $MODETC
-cp -f $VAPI $MODVETC
-cp -f $VAAPI $MODVETC/audio
-cp -f $VOAPI $MODVOETC
+A=`find $ETC -maxdepth 1 -type f -name $NAME`
+VA=`find $VETC -maxdepth 1 -type f -name $NAME`
+VOA=`find $OETC -maxdepth 1 -type f -name $NAME`
+VAA=`find $VETC/audio -maxdepth 1 -type f -name $NAME`
+VBA=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
+if [ "$A" ]; then
+  cp -f $A $MODETC
+fi
+if [ "$VA" ]; then
+  cp -f $VA $MODVETC
+fi
+if [ "$VOA" ]; then
+  cp -f $VOA $MODOETC
+fi
+if [ "$VAA" ]; then
+  cp -f $VAA $MODOETC/audio
+fi
+if [ "$VBA" ]; then
+  cp -f $VBA $MODVETC/audio/"$PROP"
+fi
 if [ "$SKU" ]; then
   for SKUS in $SKU; do
-    VSAPI=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME`
-    cp -f $VSAPI $MODVETC/audio/$SKUS
+    VSA=`find $VETC/audio/$SKUS -maxdepth 1 -type f -name $NAME`
+    if [ "$VSA" ]; then
+      cp -f $VSA $MODVETC/audio/$SKUS
+    fi
   done
-fi
-if [ -d $VETC/audio/"$PROP" ]; then
-  VBAPI=`find $VETC/audio/"$PROP" -maxdepth 1 -type f -name $NAME`
-  cp -f $VBAPI $MODVETC/audio/"$PROP"
 fi
 
 # aml fix
-AML=/data/adb/modules/aml
 DIR=$AML/system/vendor/odm/etc
-if [ "$VOAP" ] || [ "$VOAPI" ]; then
-  if [ -d $AML ] && [ ! -d $DIR ]; then
-    mkdir -p $DIR
-    cp -f $VOAP $DIR
-    cp -f $VOAPI $DIR
-  fi
+if [ "$VOA" ] && [ -d $AML ] && [ ! -f $AML/disable ] && [ ! -d $DIR ]; then
+  mkdir -p $DIR
+  cp -f $VOA $DIR
 fi
-PROP=`getprop ro.build.version.sdk`
-if [ "$PROP" -ge 26 ]; then
-  magiskpolicy "dontaudit vendor_configs_file labeledfs filesystem associate"
-  magiskpolicy "allow     vendor_configs_file labeledfs filesystem associate"
-  magiskpolicy "dontaudit init vendor_configs_file dir relabelfrom"
-  magiskpolicy "allow     init vendor_configs_file dir relabelfrom"
-  magiskpolicy "dontaudit init vendor_configs_file file relabelfrom"
-  magiskpolicy "allow     init vendor_configs_file file relabelfrom"
+if [ "$API" -ge 26 ]; then
+  magiskpolicy --live "dontaudit vendor_configs_file labeledfs filesystem associate"
+  magiskpolicy --live "allow     vendor_configs_file labeledfs filesystem associate"
+  magiskpolicy --live "dontaudit init vendor_configs_file dir relabelfrom"
+  magiskpolicy --live "allow     init vendor_configs_file dir relabelfrom"
+  magiskpolicy --live "dontaudit init vendor_configs_file file relabelfrom"
+  magiskpolicy --live "allow     init vendor_configs_file file relabelfrom"
   chcon -R u:object_r:vendor_configs_file:s0 $DIR
-  magiskpolicy --live "type vendor_configs_file"
 fi
 
 # run
 sh $MODPATH/.aml.sh
 
 ) 2>/dev/null
-

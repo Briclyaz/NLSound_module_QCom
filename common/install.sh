@@ -102,22 +102,6 @@ SET_PERM_R $MODPATH/$MODID 0 0 0755 0644; [ -d $MODPATH/system/bin ] && chmod -R
 }
 
 #author - Lord_Of_The_Lost@Telegram
-MOVERPATH() {
-if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system_root/system ]; then
-mkdir -p $MODPATH/$MODID/system; cp -rf $MODPATH/$MODID/system_root/system/* $MODPATH/$MODID/system; rm -rf $MODPATH/$MODID/system_root
-fi
-if [ -d $MODPATH/$MODID/vendor ]; then
-mkdir -p $MODPATH$MIPSV; cp -rf $MODPATH/$MODID/vendor/* $MODPATH$MIPSV; rm -rf $MODPATH/$MODID/vendor
-fi
-if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system/system ]; then
-mkdir -p $MODPATH/$MODID/system; cp -rf $MODPATH/$MODID/system/system/* $MODPATH/$MODID/system; rm -rf $MODPATH/$MODID/system/system
-fi
-if [ $BOOTMODE != true ] && [ -d $MODPATH/$MODID/system_root/system/system_ext ]; then
-mkdir -p $MODPATH/$MODID/system/system_ext; cp -rf $MODPATH/$MODID/system_root/system/system_ext/* $MODPATH/$MODID/system/system_ext; rm -rf $MODPATH/$MODID/system_root
-fi
-}
-
-#author - Lord_Of_The_Lost@Telegram
 effects_patching() {
 case $1 in
 -pre) CONF=pre_processing; XML=preprocess;;
@@ -333,12 +317,12 @@ ONEPLUS99PRO9R=$(grep -E "ro.product.vendor.device=lemonade.*" $BPROPCHECKER)
 DEVICE=$(getprop ro.product.vendor.device)
 
 ACONF="$(find $SYSTEM $VENDOR -type f -name "audio_configs*.xml")"
-APINF="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml")"
+#APINF="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml")"
 AECFGS="$(find $SYSTEM $VENDOR -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
 MPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
-APIXML="$VENDOR/etc/audio_platform_info.xml"
-APIIXML="$VENDOR/etc/audio_platform_info_intcodec.xml"
-APIEXML="$VENDOR/etc/audio_platform_info_extcodec.xml"
+APIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info.xml")"
+APIIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_intcodec*.xml")"
+APIEXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_extcodec.xml")"
 DEVFEA="$VENDOR/etc/device_features/$DEVICE.xml"; 
 IOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_io_policy.conf")"
 AUDIOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_policy_configuration.xml")"
@@ -621,50 +605,155 @@ fi
 if $HIGHBIT; then
 
 if find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml" >/dev/null; then
-for OAPLI in $APINF; do
-APLI="$MODPATH$(echo $OAPLI | sed "s|^/vendor|/system/vendor|g")"
-mkdir -p `dirname $APLI`
-cp -f $MAGISKMIRROR$OAPLI $APLI
-sed -i 's/\t/  /g' $APLI
+for OAPIXML in $APIXML; do
+APIXMLF="$MODPATH$(echo $OAPIXML | sed "s|^/vendor|/system/vendor|g")"
+mkdir -p `dirname $APIXMLF`
+cp -f $MAGISKMIRROR$OAPIXMLF $APIXMLF
+sed -i 's/\t/  /g' $APIXMLF
 if $HIFI; then
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
-patch_xml -s $APLI '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER"]' "bit_width=32"
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"32\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"32\" \/>" $APLI
-patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=32"
-patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
-if [ ! "$(grep '<app_types>' $APLI)" ]; then
-sed -i "s/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/" $APLI  
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+patch_xml -s $APIXMLF '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER"]' "bit_width=32"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"32\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"32\" \/>' $APIXMLF
+patch_xml -s $APIXMLF '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=32"
+patch_xml -s $APIXMLF '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIXMLF)" ]; then
+sed -i 's/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/' $APIXMLF  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI
+[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIXMLF)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIXMLF
 done
- fi
+fi
 else
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
-patch_xml -s $APLI '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>" $APLI
-sed -i "s/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>" $APLI
-patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=24"
-patch_xml -s $APLI '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
-if [ ! "$(grep '<app_types>' $APLI)" ]; then
-sed -i "s/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/" $APLI  
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIXMLF '/audio_platform_info/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>' $APIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>' $APIXMLF
+patch_xml -s $APIXMLF '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=24"
+patch_xml -s $APIXMLF '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIXMLF)" ]; then
+sed -i 's/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info>/' $APIXMLF  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APLI)" ] || sed -i "/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}" $APLI
+[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIXMLF)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIXMLF
+done
+fi
+fi
+done
+fi
+
+if find $SYSTEM $VENDOR -type f -name "audio_platform_info_intcodec*.xml" >/dev/null; then
+for OAPIIXMLF in $APIIXML; do
+APIIXMLF="$MODPATH$(echo $OAPIIXMLF | sed "s|^/vendor|/system/vendor|g")"
+mkdir -p `dirname $APIXMLF`
+cp -f $MAGISKMIRROR$OAPIIXMLF $APIIXMLF
+sed -i 's/\t/  /g' $APIIXMLF
+if $HIFI; then
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER"]' "bit_width=32"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"32\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>' $APIIXMLF
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=32"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIIXMLF)" ]; then
+sed -i 's/<\/audio_platform_info_intcodec>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_intcodec>/' $APIIXMLF  
+else
+for i in 69936 69940; do
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_intcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIIXMLF)" ] || sed -i '/<audio_platform_info_intcodec>/,/<\/audio_platform_info_intcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIIXMLF
+done
+fi
+else
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>' $APIIXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>' $APIIXMLF
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=24"
+patch_xml -s $APIIXMLF '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIIXMLF)" ]; then
+sed -i 's/<\/audio_platform_info_intcodec>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_intcodec>/' $APIIXMLF  
+else
+for i in 69936 69940; do
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_intcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIIXMLF)" ] || sed -i '/<audio_platform_info_intcodec>/,/<\/audio_platform_info_intcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIIXMLF
+done
+fi
+fi
+done
+fi
+
+if find $SYSTEM $VENDOR -type f -name "audio_platform_info_extcodec*.xml" >/dev/null; then
+for OAPIEXMLF in $APIEXML; do
+APIEXMLF="$MODPATH$(echo $OAPIEXMLF | sed "s|^/vendor|/system/vendor|g")"
+mkdir -p `dirname $APIEXMLF`
+cp -f $MAGISKMIRROR$OAPIEXMLF $APIEXMLF
+sed -i 's/\t/  /g' $APIEXMLF
+if $HIFI; then
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_SPEAKER"]' "bit_width=32"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"32\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"32\" \/>' $APIEXMLF
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "bit_width=32"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIEXMLF)" ]; then
+sed -i 's/<\/audio_platform_info_extcodec>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/' $APIEXMLF  
+else
+for i in 69936 69940; do
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIEXMLF)" ] || sed -i '/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"32\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIEXMLF
+done
+fi
+else
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="native_audio_mode"]' "multiple_mix_dsp"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="hifi_filter"]' "true"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/config_params/param[@key="perf_lock_opts"]' "0, 0x0, 0x0, 0x0, 0x0"
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_REVERSE\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_SPEAKER_PROTECTED\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_HEADPHONES_44_1\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_SPEAKER\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_GAME_HEADPHONES\" bit_width=\"24\" \/>' $APIEXMLF
+sed -i 's/<\/audio_platform_info>/  <bit_width_configs> \n   <device name=\"SND_DEVICE_OUT_BT_A2DP\" bit_width=\"24\" \/>' $APIEXMLF
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "bit_width=24"
+patch_xml -s $APIEXMLF '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "max_rate=192000"
+if [ ! "$(grep '<app_types>' $APIEXMLF)" ]; then
+sed -i 's/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69936\" max_rate=\"192000\" \/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"69940\" max_rate=\"192000\" \/> \n  <app_types> \n<\/audio_platform_info_extcodec>/' $APIEXMLF  
+else
+for i in 69936 69940; do
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIEXMLF)" ] || sed -i '/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"24\" id=\"$i\" max_rate=\"192000\" \/> \n\1\2/}' $APIEXMLF
+done
+fi
+fi
 done
 fi
 
@@ -751,11 +840,9 @@ patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Refere
 patch_xml -s $STG '/mixer/path[@name="echo-reference a2dp"]/ctl[@name="EC Reference SampleRate"]' "KHZ_96"
 done
 
-sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APLI
-fi
-done
-
-fi
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIXMLF
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIIXMLF
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIEXMLF
 fi
 
 if $COMPANDERS; then
@@ -1949,11 +2036,8 @@ vendor.audio.dsd.sw.encoder.24bit=true
 use.non-omx.alac.decoder=false
 use.non-omx.ape.decoder=false
 use.non-omx.mpegh.decoder=false
-use.non-omx.flac.decoder=false
-use.non-omx.aac.decoder=false
 use.non-omx.vorbis.decoder=false
 use.non-omx.wma.decoder=false
-use.non-omx.mp3.decoder=false
 use.non-omx.amrnb.decoder=false
 use.non-omx.amrwb.decoder=false
 use.non-omx.mhas.decoder=false
@@ -2492,7 +2576,7 @@ addon_settings() {
 	ui_print " - Enable audio format PCM float..."
 	sleep 2
 	ui_print " ---------------------------------------------------------"
-	ui_print " setprop speaker.16                                "
+	ui_print " setprop speaker.bit 16                                   "
 	ui_print " - Forcing audio format PCM 16 bit "
 	ui_print " to internal speaker..."
 	sleep 2
@@ -2518,6 +2602,13 @@ addon_settings() {
 
 	sed -i 's/addon_install=0/addon_install=1/g' $SETTINGS
 
+	# magisk
+	if [ -d /sbin/.magisk ]; then
+	MAGISKTMP=/sbin/.magisk
+	else
+	MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
+	fi
+
 	# sepolicy.rule
 	if [ "$BOOTMODE" != true ]; then
 	mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
@@ -2535,9 +2626,7 @@ addon_settings() {
 	mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
 
 	# cleaning
-	ui_print " "
-	ui_print " - Cleaning..."
-	ui_print " "
+	ui_print "- Cleaning..."
 	rm -f $MODPATH/LICENSE
 	rm -rf /metadata/magisk/$MODID
 	rm -rf /mnt/vendor/persist/magisk/$MODID
@@ -2548,119 +2637,104 @@ addon_settings() {
 
 	# primary
 	if getprop | grep -Eq "hires.primary\]: \[1"; then
-	ui_print " "
-	ui_print " - Enable Hi-Res to low latency playback (primary) output..."
+	ui_print "- Enable Hi-Res to low latency playback (primary) output..."
 	sed -i 's/#p//g' $MODPATH/.aml.sh
-	sed -i 's/hires.primary=0/hires.primary=1/g' $SETTINGS
-	sleep 2
+	sed -i 's/buffer/buffer and low latency/g' $MODPATH/module.prop
 	ui_print " "
 	fi
 
 	# force 32
 	if getprop | grep -Eq "hires.32\]: \[1"; then
-	ui_print " "
-	ui_print " - Forcing audio format PCM to 32 bit instead of 24 bit..."
-	sed -i 's/#h//g' $MODPATH/.aml.sh
-	sed -i 's/#h//g' $MODPATH/service.sh
-	sed -i 's/hires.primary=0/hires.primary=1/g' $SETTINGS
-	sleep 2
+	ui_print "- Forcing audio format PCM to 32 bit instead of 24 bit..."
+	sed -i 's/#32//g' $MODPATH/.aml.sh
+	sed -i 's/#32//g' $MODPATH/service.sh
+	sed -i 's/enforce_mode 24/enforce_mode 32/g' $MODPATH/service.sh
+	sed -i 's/24 bit/32 bit/g' $MODPATH/module.prop
 	ui_print " "
 	fi
 
 	# force float
 	if getprop | grep -Eq "hires.float\]: \[1"; then
-	ui_print " "
-	ui_print " - Enable audio format PCM float..."
+	ui_print "- Enable audio format PCM float..."
 	sed -i 's/#f//g' $MODPATH/.aml.sh
-	sed -i 's/hires.float=0/hires.float=1/g' $SETTINGS
-	sleep 2
+	sed -i 's/24 bit/24 bit and float/g' $MODPATH/module.prop
+	sed -i 's/32 bit/32 bit and float/g' $MODPATH/module.prop
 	ui_print " "
 	fi
 
-	# speaker 16
-	if getprop | grep -Eq "speaker.16\]: \[1"; then
+	# speaker
+	if getprop | grep -Eq "speaker.bit\]: \[16"; then
+	ui_print "- Forcing audio format PCM 16 bit to internal speaker..."
+	sed -i 's/#s16//g' $MODPATH/.aml.sh
+	sed -i 's/playback/playback and low resolution to internal speaker/g' $MODPATH/module.prop
 	ui_print " "
-	ui_print " - Forcing audio format PCM 16 bit to internal speaker..."
-	sed -i 's/#s//g' $MODPATH/.aml.sh
-	sed -i 's/speaker.16=0/speaker.16=1/g' $SETTINGS
-	sleep 2
+	elif getprop | grep -Eq "hires.32\]: \[1" && getprop | grep -Eq "speaker.bit\]: \[24"; then
+	ui_print "- Forcing audio format PCM 24 bit to internal speaker..."
+	sed -i 's/#s24//g' $MODPATH/.aml.sh
+	sed -i 's/playback/playback and 24 bit to internal speaker/g' $MODPATH/module.prop
 	ui_print " "
 	fi
 
 	# sampling rates
 	if getprop | grep -Eq "sample.rate\]: \[88"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 88200..."
+	ui_print "- Forcing sample rate to 88200..."
 	sed -i 's/|48000/|48000|88200/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=88/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 88200/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[96"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 96000..."
+	ui_print "- Forcing sample rate to 96000..."
 	sed -i 's/|48000/|48000|88200|96000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=96/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 96000/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[128"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 128000..."
+	ui_print "- Forcing sample rate to 128000..."
 	sed -i 's/|48000/|48000|88200|96000|128000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=128/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 128000/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[176"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 176400..."
+	ui_print "- Forcing sample rate to 176400..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=176/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 192000/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[192"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 192000..."
+	ui_print "- Forcing sample rate to 192000..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=192/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 192000/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[352"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 352800..."
+	ui_print "- Forcing sample rate to 352800..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=352/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 352800/g' $MODPATH/module.prop
 	ui_print " "
 	elif getprop | grep -Eq "sample.rate\]: \[384"; then
-	ui_print " "
-	ui_print " - Forcing sample rate to 384000..."
+	ui_print "- Forcing sample rate to 384000..."
 	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800|384000/g' $MODPATH/.aml.sh
 	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800,384000/g' $MODPATH/.aml.sh
-	sed -i 's/sample.rate=0/sample.rate=384/g' $SETTINGS
-	sleep 2
+	sed -i 's/bit/bit with sample rate 354000/g' $MODPATH/module.prop
 	ui_print " "
 	fi
 
-	# permission
-	ui_print " "
-	ui_print " - Setting permission..."
-	ui_print " "
+# permission
+	ui_print "- Setting permission..."
 	DIR=`find $MODPATH/system/vendor -type d`
 	for DIRS in $DIR; do
 	chown 0.2000 $DIRS
 	done
-	if [ "$API" -gt 25 ]; then
-	magiskpolicy "dontaudit { vendor_file vendor_configs_file } labeledfs filesystem associate"
-	magiskpolicy "allow     { vendor_file vendor_configs_file } labeledfs filesystem associate"
-	magiskpolicy "dontaudit init { vendor_file vendor_configs_file } dir relabelfrom"
-	magiskpolicy "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
-	magiskpolicy "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
-	magiskpolicy "allow     init { vendor_file vendor_configs_file } file relabelfrom"
+	if [ "$API" -ge 26 ]; then
+	magiskpolicy --live "type vendor_file"
+	magiskpolicy --live "type vendor_configs_file"
+	magiskpolicy --live "dontaudit { vendor_file vendor_configs_file } labeledfs filesystem associate"
+	magiskpolicy --live "allow     { vendor_file vendor_configs_file } labeledfs filesystem associate"
+	magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } dir relabelfrom"
+	magiskpolicy --live "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
+	magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
+	magiskpolicy --live "allow     init { vendor_file vendor_configs_file } file relabelfrom"
 	chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
@@ -2669,16 +2743,14 @@ addon_settings() {
 	ui_print " "
 	ui_print " - Addon succesfully installed!"
 	sleep 1
-fi
-fi
+	fi
+	fi
 }
 
 
 if [ "$(getprop ro.hardware 2>/dev/null)" == "qcom" ]; then
 	install_function
 fi
-
-	MOVERPATH
 	SET_PERM_RM
 	
 	ui_print " "
