@@ -9,68 +9,25 @@ ADDONS="$OTHERTMPDIR/Addons"
 ALTADDONS="$MIRRORDIR/AltAddons"
 
 patch_xml() {
-  local Name0=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
-  local Value0=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
-  [ "$(echo "$4" | grep '=')" ] && Name1=$(echo "$4" | sed "s|=.*||") || local Name1="value"
-  local Value1=$(echo "$4" | sed "s|.*=||")
-  case $1 in
-  "-s"|"-u"|"-i")
-    local SNP=$(echo "$3" | sed -r "s|(^.*/.*)\[@.*=\".*\".*$|\1|")
-    local NP=$(dirname "$SNP")
-    local SN=$(basename "$SNP")
-	if [ "$5" ]; then
-      [ "$(echo "$5" | grep '=')" ] && local Name2=$(echo "$5" | sed "s|=.*||") || local Name2="value"
-      local Value2=$(echo "$5" | sed "s|.*=||")
-	fi
-	if [ "$6" ]; then
-      [ "$(echo "$6" | grep '=')" ] && local Name3=$(echo "$6" | sed "s|=.*||") || local Name3="value"
-      local Value3=$(echo "$6" | sed "s|.*=||")
-	fi
-	if [ "$7" ]; then
-      [ "$(echo "$7" | grep '=')" ] && local Name4=$(echo "$7" | sed "s|=.*||") || local Name4="value"
-      local Value4=$(echo "$7" | sed "s|.*=||")
-	fi
-  ;;
+  case "$2" in
+    *mixer_paths*.xml) [ $MIXNUM -gt 5 ] || sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
+    *) sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
   esac
+  local NAME=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
+  local NAMEC=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
+  local VAL=$(echo "$4" | sed "s|.*=||")
+  [ "$(echo $4 | grep '=')" ] && local VALC=$(echo "$4" | sed "s|=.*||") || local VALC="value"
   case "$1" in
-    "-d") xmlstarlet ed -L -d "$3" "$2";;
-    "-u") xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2";;
-    "-s")
-  	if [ "$(xmlstarlet sel -t -m "$3" -c . "$2")" ]; then
-        xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2"
-      else
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-  	fi;;
-    "-i")
-  	if [ "$(xmlstarlet sel -t -m "$3[@$Name1=\"$Value1\"]" -c . "$2")" ]; then
-        xmlstarlet ed -L -d "$3[@$Name1=\"$Value1\"]" "$2"
-  	fi
-  	if [ -z "$Value3" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      elif [ "$Value4" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
-        -i "$SNP-$MODID" -t attr -n "$Name4" -v "$Value4" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-      elif [ "$Value3" ]; then
-        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
-        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
-        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
-        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
-        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
-        -r "$SNP-$MODID" -v "$SN" "$2"
-  	fi
-      ;;
+    "-d") xmlstarlet ed -L -d "$3" $2;;
+    "-u") xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2;;
+    "-s") if [ "$(xmlstarlet sel -t -m "$3" -c . $2)" ]; then
+            xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2
+          else
+            local SNP=$(echo "$3" | sed "s|\[.*$||")
+            local NP=$(dirname "$SNP")
+            local SN=$(basename "$SNP")
+            xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" -i "$SNP-$MODID" -t attr -n "$NAMEC" -v "$NAME" -i "$SNP-$MODID" -t attr -n "$VALC" -v "$VAL" -r "$SNP-$MODID" -v "$SN" $2
+          fi;;
   esac
 }
 
@@ -373,7 +330,14 @@ COMPANDERS=false
 LOLMIXER=false
 
 deep_buffer() {
-echo -e '\n#PATCH DEEP BUFFER\naudio.deep_buffer.media=false\nvendor.audio.deep_buffer.media=false\nqc.audio.deep_buffer.media=false\nro.qc.audio.deep_buffer.media=false\npersist.vendor.audio.deep_buffer.media=false\nvendor.audio.feature.deepbuffer_as_primary.enable=false' >> $MODPATH/system.prop
+echo -e '\n#PATCH DEEP BUFFER
+audio.deep_buffer.media=false
+vendor.audio.deep_buffer.media=false
+qc.audio.deep_buffer.media=false
+ro.qc.audio.deep_buffer.media=false
+persist.vendor.audio.deep_buffer.media=false
+vendor.audio.feature.deepbuffer_as_primary.enable=false' >> $MODPATH/system.prop
+
 for OACONF in $ACONF; do
 ACONF="$MODPATH$(echo $OACONF | sed "s|^$VENDOR|$SYSTEM/vendor|g")"
 patch_xml -u $ACONF '/configs/property[@name="audio.deep_buffer.media"]' "false"
@@ -462,7 +426,7 @@ cp -f $NEWdirac/dirac_resource.dar $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
 cp -f $NEWdirac/dirac.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
 cp -f $NEWdirac/libdirac-capiv2.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
 cp -f $NEWdirac/libdiraceffect.so $MODPATH$SYSTEM/vendor/lib/soundfx
-echo -e "\n# Patch dirac
+echo -e '\n# Patch dirac
 persist.dirac.acs.controller=gef
 persist.dirac.gef.oppo.syss=true
 persist.dirac.config=64
@@ -483,7 +447,10 @@ ro.dirac.acs.storeSettings=1
 persist.dirac.acs.ignore_error=1
 ro.audio.soundfx.dirac=true
 ro.vendor.audio.soundfx.type=dirac
-persist.audio.dirac.speaker=true" >> $MODPATH/system.prop
+persist.audio.dirac.speaker=true
+persist.audio.dirac.eq=5.0,4.0,3.0,2.0,1.0,1.0,0.0
+persist.audio.dirac.headset=1
+persist.audio.dirac.music.state=1' >> $MODPATH/system.prop
 } 
 
 mixer_modify(){
@@ -820,7 +787,7 @@ patch_xml -s $MIX '/mixer/ctl[@name="INT4_MI2S_RX Format"]' "S24_3LE"
 patch_xml -s $MIX '/mixer/ctl[@name="INT3_MI2S_TX SampleRate"]' "KHZ_96"
 fi
 
-echo -e "#24-bit fixation by NLSound Team
+echo -e '#24-bit fixation by NLSound Team
 persist.vendor.audio_hal.dsp_bit_width_enforce_mode=24
 persist.audio_hal.dsp_bit_width_enforce_mode=24
 vendor.audio_hal.dsp_bit_width_enforce_mode=24
@@ -835,7 +802,59 @@ vendor.audio.aac.sw.decoder.24bit=true
 vendor.audio.use.sw.alac.decoder=true
 vendor.audio.flac.sw.encoder.24bit=true
 vendor.audio.aac.sw.encoder.24bit=true
-persist.vendor.audio.format.24bit=true" >> $MODPATH/system.prop
+persist.vendor.audio.format.24bit=true
+vendor.audio.alac.sw.decoder.24bit=true
+vendor.audio.ape.sw.decoder.24bit=true
+vendor.audio.mpegh.sw.decoder.24bit=true
+vendor.audio.flac.sw.decoder.24bit=true
+vendor.audio.aac.sw.decoder.24bit=true
+vendor.audio.vorbis.sw.decoder.24bit=true
+vendor.audio.wma.sw.decoder.24bit=true
+vendor.audio.mp3.sw.decoder.24bit=true
+vendor.audio.amrnb.sw.decoder.24bit=true
+vendor.audio.amrwb.sw.decoder.24bit=true
+vendor.audio.mhas.sw.decoder.24bit=true
+vendor.audio.g711.alaw.sw.decoder.24bit=true
+vendor.audio.g711.mlaw.sw.decoder.24bit=true
+vendor.audio.opus.sw.decoder.24bit=true
+vendor.audio.raw.sw.decoder.24bit=true
+vendor.audio.ac3.sw.decoder.24bit=true
+vendor.audio.eac3.sw.decoder.24bit=true
+vendor.audio.eac3_joc.sw.decoder.24bit=true
+vendor.audio.ac4.sw.decoder.24bit=true
+vendor.audio.qti.sw.decoder.24bit=true
+vendor.audio.dsp.sw.decoder.24bit=true
+vendor.audio.dsd.sw.decoder.24bit=true
+vendor.audio.alac.sw.encoder.24bit=true
+vendor.audio.ape.sw.encoder.24bit=true
+vendor.audio.mpegh.sw.encoder.24bit=true
+vendor.audio.flac.sw.encoder.24bit=true
+vendor.audio.aac.sw.encoder.24bit=true
+vendor.audio.vorbis.sw.encoder.24bit=true
+vendor.audio.wma.sw.encoder.24bit=true
+vendor.audio.mp3.sw.encoder.24bit=true
+vendor.audio.amrnb.sw.encoder.24bit=true
+vendor.audio.amrwb.sw.encoder.24bit=true
+vendor.audio.mhas.sw.encoder.24bit=true
+vendor.audio.g711.alaw.sw.encoder.24bit=true
+vendor.audio.g711.mlaw.sw.encoder.24bit=true
+vendor.audio.opus.sw.encoder.24bit=true
+vendor.audio.raw.sw.encoder.24bit=true
+vendor.audio.ac3.sw.encoder.24bit=true
+vendor.audio.eac3.sw.encoder.24bit=true
+vendor.audio.eac3_joc.sw.encoder.24bit=true
+vendor.audio.ac4.sw.encoder.24bit=true
+vendor.audio.qti.sw.encoder.24bit=true
+vendor.audio.dsp.sw.encoder.24bit=true
+vendor.audio.dsd.sw.encoder.24bit=true
+audio.offload.pcm.16bit.enable=true
+audio.offload.pcm.24bit.enable=true
+audio.offload.pcm.32bit.enable=true
+audio.offload.pcm.64bit.enable=true
+vendor.audio.offload.pcm.16bit.enable=true
+vendor.audio.offload.pcm.24bit.enable=true
+vendor.audio.offload.pcm.32bit.enable=true
+vendor.audio.offload.pcm.64bit.enable=true' >> $MODPATH/system.prop
 done
 
 for OSNDTRG in ${SNDTRGS}; do
@@ -1853,15 +1872,13 @@ prop() {
 echo -e "\n#
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
-vendor.audio.use.sw.ape.decoder=true
 vendor.audio.tunnel.encode=true
 tunnel.audio.encode=true
 qc.tunnel.audio.encode=true
 mpq.audio.decode=true
 audio.nat.codec.enabled=1
-use.non-omx.mp3.decoder=false
-use.non-omx.aac.decoder=false
-use.non-omx.flac.decoder=false
+audio.decoder_override_check=true
+
 vendor.audio.aac.complexity.default=10
 vendor.audio.aac.quality=100
 vendor.audio.vorbis.complexity.default=10
@@ -1884,25 +1901,85 @@ vendor.audio.raw.complexity.default=10
 vendor.audio.raw.quality=100
 vendor.audio.flac.complexity.default=10
 vendor.audio.flac.quality=100
-vendor.audio.ac3.complexity.default=10
-vendor.audio.ac3.quality=100
-vendor.audio.eac3.complexity.default=10
-vendor.audio.eac3.quality=100
-vendor.audio.ac4.complexity.default=10
-vendor.audio.ac4.quality=100
 vendor.audio.dsp.complexity.default=10
 vendor.audio.dsp.quality=100
 vendor.audio.dsd.complexity.default=10
 vendor.audio.dsd.quality=100
 vendor.audio.alac.complexity.default=10
 vendor.audio.alac.quality=100
-vendor.audio.ape.complexity.default=10
-vendor.audio.ape.quality=100
-#
+
+vendor.audio.use.sw.alac.decoder=true
+vendor.audio.use.sw.mpegh.decoder=true
+vendor.audio.use.sw.flac.decoder=true
+vendor.audio.use.sw.aac.decoder=true
+vendor.audio.use.sw.vorbis.decoder=true
+vendor.audio.use.sw.wma.decoder=true
+vendor.audio.use.sw.mp3.decoder=true
+vendor.audio.use.sw.amrnb.decoder=true
+vendor.audio.use.sw.amrwb.decoder=true
+vendor.audio.use.sw.mhas.decoder=true
+vendor.audio.use.sw.g711.alaw.decoder=true
+vendor.audio.use.sw.g711.mlaw.decoder=true
+vendor.audio.use.sw.opus.decoder=true
+vendor.audio.use.sw.raw.decoder=true
+vendor.audio.use.sw.qti.audio.decoder=true
+vendor.audio.use.sw.dsp.decoder=true
+vendor.audio.use.sw.dsd.decoder=true
+vendor.audio.use.sw.alac.encoder=true
+vendor.audio.use.sw.mpegh.encoder=true
+vendor.audio.use.sw.flac.encoder=true
+vendor.audio.use.sw.aac.encoder=true
+vendor.audio.use.sw.vorbis.encoder=true
+vendor.audio.use.sw.wma.encoder=true
+vendor.audio.use.sw.mp3.encoder=true
+vendor.audio.use.sw.amrnb.encoder=true
+vendor.audio.use.sw.amrwb.encoder=true
+vendor.audio.use.sw.mhas.encoder=true
+vendor.audio.use.sw.g711.alaw.encoder=true
+vendor.audio.use.sw.g711.mlaw.encoder=true
+vendor.audio.use.sw.opus.encoder=true
+vendor.audio.use.sw.raw.encoder=true
+vendor.audio.use.sw.qti.audio.encoder=true
+vendor.audio.use.sw.dsp.encoder=true
+vendor.audio.use.sw.dsd.encoder=true
+
+use.non-omx.alac.decoder=false
+use.non-omx.mpegh.decoder=false
+use.non-omx.vorbis.decoder=false
+use.non-omx.wma.decoder=false
+use.non-omx.amrnb.decoder=false
+use.non-omx.amrwb.decoder=false
+use.non-omx.mhas.decoder=false
+use.non-omx.g711.alaw.decoder=false
+use.non-omx.g711.mlaw.sw.decoder=false
+use.non-omx.opus.decoder=false
+use.non-omx.raw.decoder=false
+use.non-omx.qti.decoder=false
+use.non-omx.dsp.decoder=false
+use.non-omx.dsd.decoder=false
+use.non-omx.alac.encoder=false
+use.non-omx.mpegh.encoder=false
+use.non-omx.flac.encoder=false
+use.non-omx.aac.encoder=false
+use.non-omx.vorbis.encoder=false
+use.non-omx.wma.encoder=false
+use.non-omx.mp3.encoder=false
+use.non-omx.amrnb.encoder=false
+use.non-omx.amrwb.encoder=false
+use.non-omx.mhas.encoder=false
+use.non-omx.g711.alaw.encoder=false
+use.non-omx.g711.mlaw.sw.encoder=false
+use.non-omx.opus.encoder=false
+use.non-omx.raw.encoder=false
+use.non-omx.qti.encoder=false
+use.non-omx.dsp.encoder=false
+use.non-omx.dsd.encoder=false
 
 media.aac_51_output_enabled=true
-vendor.mm.enable.qcom_parser=16777215
-
+mm.enable.smoothstreaming=true
+mmp.enable.3g2=true
+mm.enable.qcom_parser=63963135
+vendor.mm.enable.qcom_parser=63963135
 
 lpa.decode=false
 lpa30.decode=false
@@ -1931,51 +2008,6 @@ vendor.audio.feature.thermal_listener.enable=false
 vendor.audio.feature.power_mode.enable=true
 vendor.audio.feature.hifi_audio.enable=true
 
-vendor.audio.use.sw.alac.decoder=true
-vendor.audio.use.sw.ape.decoder=true
-vendor.audio.use.sw.mpegh.decoder=true
-vendor.audio.use.sw.flac.decoder=true
-vendor.audio.use.sw.aac.decoder=true
-vendor.audio.use.sw.vorbis.decoder=true
-vendor.audio.use.sw.wma.decoder=true
-vendor.audio.use.sw.mp3.decoder=true
-vendor.audio.use.sw.amrnb.decoder=true
-vendor.audio.use.sw.amrwb.decoder=true
-vendor.audio.use.sw.mhas.decoder=true
-vendor.audio.use.sw.g711.alaw.decoder=true
-vendor.audio.use.sw.g711.mlaw.decoder=true
-vendor.audio.use.sw.opus.decoder=true
-vendor.audio.use.sw.raw.decoder=true
-vendor.audio.use.sw.ac3.decoder=true
-vendor.audio.use.sw.eac3.decoder=true
-vendor.audio.use.sw.eac3_joc.decoder=true
-vendor.audio.use.sw.ac4.decoder=true
-vendor.audio.use.sw.qti.audio.decoder=true
-vendor.audio.use.sw.dsp.decoder=true
-vendor.audio.use.sw.dsd.decoder=true
-vendor.audio.use.sw.alac.encoder=true
-vendor.audio.use.sw.ape.encoder=true
-vendor.audio.use.sw.mpegh.encoder=true
-vendor.audio.use.sw.flac.encoder=true
-vendor.audio.use.sw.aac.encoder=true
-vendor.audio.use.sw.vorbis.encoder=true
-vendor.audio.use.sw.wma.encoder=true
-vendor.audio.use.sw.mp3.encoder=true
-vendor.audio.use.sw.amrnb.encoder=true
-vendor.audio.use.sw.amrwb.encoder=true
-vendor.audio.use.sw.mhas.encoder=true
-vendor.audio.use.sw.g711.alaw.encoder=true
-vendor.audio.use.sw.g711.mlaw.encoder=true
-vendor.audio.use.sw.opus.encoder=true
-vendor.audio.use.sw.raw.encoder=true
-vendor.audio.use.sw.ac3.encoder=true
-vendor.audio.use.sw.eac3.encoder=true
-vendor.audio.use.sw.eac3_joc.encoder=true
-vendor.audio.use.sw.ac4.encoder=true
-vendor.audio.use.sw.qti.audio.encoder=true
-vendor.audio.use.sw.dsp.encoder=true
-vendor.audio.use.sw.dsd.encoder=true
-
 ro.hardware.hifi.support=true
 ro.audio.hifi=true
 ro.vendor.audio.hifi=true
@@ -1984,10 +2016,6 @@ persist.audio.hifi.volume=72
 persist.audio.hifi.int_codec=true
 persist.vendor.audio.hifi.int_codec=true
 
-audio.offload.pcm.16bit.enable=true
-audio.offload.pcm.24bit.enable=true
-audio.offload.pcm.32bit.enable=true
-audio.offload.pcm.64bit.enable=true
 audio.offload.pcm.float.enable=true
 audio.offload.track.enable=true
 vendor.audio.offload.track.enable=true
@@ -1995,110 +2023,7 @@ vendor.audio.offload.multiaac.enable=true
 vendor.audio.offload.multiple.enabled=true
 vendor.audio.offload.passthrough=true
 vendor.audio.offload.gapless.enabled=true
-vendor.audio.offload.pcm.16bit.enable=true
-vendor.audio.offload.pcm.24bit.enable=true
-vendor.audio.offload.pcm.32bit.enable=true
-vendor.audio.offload.pcm.64bit.enable=true
 vendor.audio.offload.pcm.float.enable=true
-vendor.audio.alac.sw.decoder.24bit=true
-vendor.audio.ape.sw.decoder.24bit=true
-vendor.audio.mpegh.sw.decoder.24bit=true
-vendor.audio.flac.sw.decoder.24bit=true
-vendor.audio.aac.sw.decoder.24bit=true
-vendor.audio.vorbis.sw.decoder.24bit=true
-vendor.audio.wma.sw.decoder.24bit=true
-vendor.audio.mp3.sw.decoder.24bit=true
-vendor.audio.amrnb.sw.decoder.24bit=true
-vendor.audio.amrwb.sw.decoder.24bit=true
-vendor.audio.mhas.sw.decoder.24bit=true
-vendor.audio.g711.alaw.sw.decoder.24bit=true
-vendor.audio.g711.mlaw.sw.decoder.24bit=true
-vendor.audio.opus.sw.decoder.24bit=true
-vendor.audio.raw.sw.decoder.24bit=true
-vendor.audio.ac3.sw.decoder.24bit=true
-vendor.audio.eac3.sw.decoder.24bit=true
-vendor.audio.eac3_joc.sw.decoder.24bit=true
-vendor.audio.ac4.sw.decoder.24bit=true
-vendor.audio.qti.sw.decoder.24bit=true
-vendor.audio.dsp.sw.decoder.24bit=true
-vendor.audio.dsd.sw.decoder.24bit=true
-vendor.audio.alac.sw.encoder.24bit=true
-vendor.audio.ape.sw.encoder.24bit=true
-vendor.audio.mpegh.sw.encoder.24bit=true
-vendor.audio.flac.sw.encoder.24bit=true
-vendor.audio.aac.sw.encoder.24bit=true
-vendor.audio.vorbis.sw.encoder.24bit=true
-vendor.audio.wma.sw.encoder.24bit=true
-vendor.audio.mp3.sw.encoder.24bit=true
-vendor.audio.amrnb.sw.encoder.24bit=true
-vendor.audio.amrwb.sw.encoder.24bit=true
-vendor.audio.mhas.sw.encoder.24bit=true
-vendor.audio.g711.alaw.sw.encoder.24bit=true
-vendor.audio.g711.mlaw.sw.encoder.24bit=true
-vendor.audio.opus.sw.encoder.24bit=true
-vendor.audio.raw.sw.encoder.24bit=true
-vendor.audio.ac3.sw.encoder.24bit=true
-vendor.audio.eac3.sw.encoder.24bit=true
-vendor.audio.eac3_joc.sw.encoder.24bit=true
-vendor.audio.ac4.sw.encoder.24bit=true
-vendor.audio.qti.sw.encoder.24bit=true
-vendor.audio.dsp.sw.encoder.24bit=true
-vendor.audio.dsd.sw.encoder.24bit=true
-use.non-omx.alac.decoder=false
-use.non-omx.ape.decoder=false
-use.non-omx.mpegh.decoder=false
-use.non-omx.vorbis.decoder=false
-use.non-omx.wma.decoder=false
-use.non-omx.amrnb.decoder=false
-use.non-omx.amrwb.decoder=false
-use.non-omx.mhas.decoder=false
-use.non-omx.g711.alaw.decoder=false
-use.non-omx.g711.mlaw.sw.decoder=false
-use.non-omx.opus.decoder=false
-use.non-omx.raw.decoder=false
-use.non-omx.ac3.decoder=false
-use.non-omx.eac3.decoder=false
-use.non-omx.eac3_joc.decoder=false
-use.non-omx.ac4.decoder=false
-use.non-omx.qti.decoder=false
-use.non-omx.dsp.decoder=false
-use.non-omx.dsd.decoder=false
-use.non-omx.alac.encoder=false
-use.non-omx.ape.encoder=false
-use.non-omx.mpegh.encoder=false
-use.non-omx.flac.encoder=false
-use.non-omx.aac.encoder=false
-use.non-omx.vorbis.encoder=false
-use.non-omx.wma.encoder=false
-use.non-omx.mp3.encoder=false
-use.non-omx.amrnb.encoder=false
-use.non-omx.amrwb.encoder=false
-use.non-omx.mhas.encoder=false
-use.non-omx.g711.alaw.encoder=false
-use.non-omx.g711.mlaw.sw.encoder=false
-use.non-omx.opus.encoder=false
-use.non-omx.raw.encoder=false
-use.non-omx.ac3.encoder=false
-use.non-omx.eac3.encoder=false
-use.non-omx.eac3_joc.encoder=false
-use.non-omx.ac4.encoder=false
-use.non-omx.qti.encoder=false
-use.non-omx.dsp.encoder=false
-use.non-omx.dsd.encoder=false
-audio.decoder_override_check=true
-ro.vendor.audio.hw.aac.decoder=true
-vendor.audio.hw.aac.decoder=true
-audio.hw.aac.decoder=true
-ro.vendor.audio.hw.aac.encoder=true
-vendor.audio.hw.aac.encoder=true
-audio.hw.aac.encoder=true
-qcom.hw.aac.encoder=true
-audio.hw.aac.decoder=true
-qcom.hw.aac.decoder=true
-
-ro.audio.pcm.samplerate=384000
-ro.audio.samplerate=384000
-persist.media.pa_volume=384000
 
 effect.reverb.pcm=1
 vendor.audio.safx.pbe.enabled=true
@@ -2146,9 +2071,15 @@ improve_bluetooth() {
 echo -e "\n# Bluetooth
 
 audio.effect.a2dp.enable=1
+audio.hw.aac.encoder=true
+audio.hw.aac.decoder=true
 vendor.audio.effect.a2dp.enable=1
-qcom.hw.aac.encoder=true
 vendor.audio.hw.aac.encoder=true
+vendor.audio.hw.aac.decoder=true
+ro.vendor.audio.hw.aac.encoder=true
+ro.vendor.audio.hw.aac.decoder=true
+qcom.hw.aac.encoder=true
+qcom.hw.aac.decoder=true
 persist.service.btui.use_aptx=1
 persist.bt.enableAptXHD=true
 persist.bt.a2dp.aptx_disable=false
