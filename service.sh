@@ -1,5 +1,3 @@
-(
-
 MODPATH=${0%/*}
 API=`getprop ro.build.version.sdk`
 AML=/data/adb/modules/aml
@@ -32,36 +30,44 @@ restart_audioserver
 # wait
 sleep 20
 
-# mount
+# aml fix
+DIR=$AML/system/vendor/odm/etc
+if [ -d $DIR ] && [ ! -f $AML/disable ]; then
+  chcon -R u:object_r:vendor_configs_file:s0 $DIR
+fi
+
+# function
+bind_other_etc() {
 NAME="*policy*.conf -o -name *policy*.xml -o -name *audio*platform*info*.xml"
 if [ ! -d $AML ] || [ -f $AML/disable ]; then
   DIR=$MODPATH/system/vendor
 else
   DIR=$AML/system/vendor
 fi
-FILE=`find $DIR/odm/etc -maxdepth 1 -type f -name $NAME`
-if [ "`realpath /odm/etc`" != /vendor/odm/etc ] && [ "$FILE" ]; then
-  for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount $j
-    mount -o bind $i $j
-  done
-  restart_audioserver
-fi
-if [ ! -d $AML ] || [ -f $AML/disable ]; then
-  DIR=$MODPATH/system
-else
-  DIR=$AML/system
-fi
 FILE=`find $DIR/etc -maxdepth 1 -type f -name $NAME`
+if [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ]; then
+  for i in $FILE; do
+    j="/odm$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
+  done
+fi
 if [ -d /my_product/etc ] && [ "$FILE" ]; then
   for i in $FILE; do
-    j="$(echo $i | sed "s|$DIR||")"
-    umount /my_product$j
-    mount -o bind $i /my_product$j
+    j="/my_product$(echo $i | sed "s|$DIR||")"
+    if [ -f $j ]; then
+      umount $j
+      mount -o bind $i $j
+    fi
   done
+fi
+if ( [ `realpath /odm/etc` == /odm/etc ] && [ "$FILE" ] )\
+|| ( [ -d /my_product/etc ] && [ "$FILE" ] ); then
   restart_audioserver
 fi
+}
 
-) 2>/dev/null
-
+# mount
+#pbind_other_etc

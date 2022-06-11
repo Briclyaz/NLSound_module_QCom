@@ -13,7 +13,7 @@ if [ "$MODAPC" ]; then
     flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
     formats AUDIO_FORMAT_PCM_24_BIT_PACKED|AUDIO_FORMAT_PCM_8_24_BIT\
     sampling_rates 44100|48000\
-    bit_width 24\
+    bit_width 24\g
     app_type 69940\
   }' $MODAPC
   fi
