@@ -4,10 +4,6 @@ MIRRORDIR="/data/local/tmp/NLSound"
 
 OTHERTMPDIR="/dev/NLSound"
 
-ADDONS="$OTHERTMPDIR/Addons"
-
-ALTADDONS="$MIRRORDIR/AltAddons"
-
 patch_xml() {
   case "$2" in
     *mixer_paths*.xml) [ $MIXNUM -gt 5 ] || sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
@@ -98,95 +94,6 @@ XMLSTARLET="$AADDONS/xmlstarlet-$arch"
 SQLITE3="$TMPDIR/SQLite3/sqlite3-$arch"
 FKEYCHECK="$ADDONS/keycheck-$arch"
 TINYMIX="$AADDONS/tinymix-$arch"
-}
-
-#author - Lord_Of_The_Lost@Telegram
-SET_PERM() {
-chown $2:$3 $1 || return 1
-chmod $4 $1 || return 1
-CON=$5
-[ -z $CON ] && CON=u:object_r:system_file:s0
-chcon $CON $1 || return 1
-}
-
-#author - Lord_Of_The_Lost@Telegram
-SET_PERM_R() {
-find $1 -type d 2>/dev/null | while read dir; do
-SET_PERM $dir $2 $3 $4 $6
-done
-find $1 -type f -o -type l 2>/dev/null | while read file; do
-SET_PERM $file $2 $3 $5 $6
-done
-}
-
-#author - Lord_Of_The_Lost@Telegram
-SET_PERM_RM() {
-SET_PERM_R $MODPATH/$MODID 0 0 0755 0644; [ -d $MODPATH/system/bin ] && chmod -R 777 $MODPATH/system/bin; [ -d $MODPATH/system/xbin ] && chmod -R 777 $MODPATH/system/xbin;
-}
-
-#author - Lord_Of_The_Lost@Telegram
-effects_patching() {
-case $1 in
--pre) CONF=pre_processing; XML=preprocess;;
--post) CONF=output_session_processing; XML=postprocess;;
-esac
-case $2 in
-*.conf) if [ ! "$(sed -n "/^$CONF {/,/^}/p" $2)" ]; then
-echo -e "\n$CONF {\n$3 {\n$4 {\n}\n}\n}" >> $2
-elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^}/p}" $2)" ]; then
-sed -i "/^$CONF {/,/^}/ s/$CONF {/$CONF {\n$3 {\n$4 {\n}\n}/" $2
-elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^}/ {/$4 {/,/}/p}}" $2)" ]; then
-sed -i "/^$CONF {/,/^}/ {/$3 {/,/^}/ s/$3 {/$3 {\n$4 {\n}/}" $2
-fi;;
-*.xml) if [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/p" $2)" ]; then 
-sed -i "/<\/audio_effects_conf>/i\<$XML>\n   <stream type=\"$3\">\n<apply effect=\"$4\"\/>\n<\/stream>\n<\/$XML>" $2
-elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/p}" $2)" ]; then 
-sed -i "/^ *<$XML>/,/^ *<\/$XML>/ s/<$XML>/<$XML>\n<stream type=\"$3\">\n<apply effect=\"$4\"\/>\n<\/stream>/" $2
-elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ {/^ *<apply effect=\"$4\"\/>/p}}" $2)" ]; then
-sed -i "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ s/<stream type=\"$3\">/<stream type=\"$3\">\n<apply effect=\"$4\"\/>/}" $2
-fi;;
-esac
-}
-
-#author - Lord_Of_The_Lost@Telegram
-memes_confxml() {
-case $FILE in
-*.conf) sed -i "/$1 {/,/}/d" $FILE
-sed -i "/$2 {/,/}/d" $FILE
-sed -i "s/^effects {/effects {\n  $1 {\nlibrary $2\nuuid $5\n  }/g" $FILE
-sed -i "s/^libraries {/libraries {\n  $2 {\npath $3\/$4\n  }/g" $FILE;;
-*.xml) sed -i "/$1/d" $FILE
-sed -i "/$2/d" $FILE
-sed -i "/<libraries>/ a\<library name=\"$2\" path=\"$4\"\/>" $FILE
-sed -i "/<effects>/ a\<effect name=\"$1\" library=\"$2\" uuid=\"$5\"\/>" $FILE;;
-esac
-}
-
-libs_checker(){
-ASDK="$(GREP_PROP "ro.build.version.sdk")"
-DYNLIB=true
-[ $ASDK -lt 26 ] && DYNLIB=false
-[ -z $DYNLIB ] && DYNLIB=false
-if $DYNLIB; then 
-DYNLIBPATCH="\/vendor"; 
-else 
-DYNLIBPATCH="\/system"; 
-fi
-}
-
-altmemes_confxml() {
-case $1 in
-*.conf) local SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
-local EFFECTS=$(sed -n "/^output_session_processing {/,/^}/ {/^$SPACES\music {/,/^$SPACES}/p}" $1 | grep -E "^$SPACES +[A-Za-z]+" | sed -r "s/( *.*) .*/\1/g")
-for EFFECT in $EFFECTS; do
-local SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
-[ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/ s/^/#/g}" $1
-done;;
-*.xml) local EFFECTS=$(sed -n "/^ *<postprocess>$/,/^ *<\/postprocess>$/ {/^ *<stream type=\"music\">$/,/^ *<\/stream>$/ {/<stream type=\"music\">/d; /<\/stream>/d; s/<apply effect=\"//g; s/\"\/>//g; p}}" $1)
-for EFFECT in $EFFECTS; do
-[ "$EFFECT" != "atmos" ] && sed -ri "s/^( *)<apply effect=\"$EFFECT\"\/>/\1<\!--<apply effect=\"$EFFECT\"\/>-->/" $1
-done;;
-esac
 }
 
 SD617=$(grep "ro.board.platform=msm8952" $BPROPCHECKER)
@@ -409,49 +316,6 @@ patch_xml -s $DEVFEA '/features/bool[@name="support_interview_record_param"]' "f
 done
  fi
 }
-
-dirac() {
-for OFILE in $AECFGS; do
-FILE="$MODPATH$(echo $OFILE | sed "s|^$VENDOR|$SYSTEM/vendor|g")"
-mkdir -p `dirname $FILE`
-cp -f $MAGISKMIRROR$OFILE $FILE
-altmemes_confxml $FILE
-memes_confxml "dirac_gef" "$MODID" "$DYNLIBPATCH\/lib\/soundfx" "libdiraceffect.so" "3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D"
-effects_patching -post "$FILE" "music" "dirac_gef"
-done
-mkdir -p $MODPATH$SYSTEM/vendor/etc/dirac $MODPATH$SYSTEM/vendor/lib/rfsa/adsp $MODPATH$SYSTEM/vendor/lib/soundfx
-cp -f $NEWdirac/diracvdd.bin $MODPATH$SYSTEM/vendor/etc/
-cp -f $NEWdirac/interfacedb $MODPATH$SYSTEM/vendor/etc/dirac
-cp -f $NEWdirac/dirac_resource.dar $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
-cp -f $NEWdirac/dirac.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
-cp -f $NEWdirac/libdirac-capiv2.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
-cp -f $NEWdirac/libdiraceffect.so $MODPATH$SYSTEM/vendor/lib/soundfx
-echo -e '\n# Patch dirac
-persist.dirac.acs.controller=gef
-persist.dirac.gef.oppo.syss=true
-persist.dirac.config=64
-persist.dirac.gef.exs.did=50,50
-persist.dirac.gef.ext.did=500,500,500,500
-persist.dirac.gef.ins.did=0,0,0
-persist.dirac.gef.int.did=0,0,0,0
-persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
-persist.dirac.gef.exs.appt=0x00011130,0x00011131
-persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
-persist.dirac.gef.ins.appt=0x00011130,0x00011131
-persist.dirac.gef.exs.mid=268512739
-persist.dirac.gef.ext.mid=268512737
-persist.dirac.gef.ins.mid=268512738
-persist.dirac.gef.int.mid=268512736
-persist.dirac.path=/vendor/etc/dirac
-ro.dirac.acs.storeSettings=1
-persist.dirac.acs.ignore_error=1
-ro.audio.soundfx.dirac=true
-ro.vendor.audio.soundfx.type=dirac
-persist.audio.dirac.speaker=true
-persist.audio.dirac.eq=5.0,4.0,3.0,2.0,1.0,1.0,0.0
-persist.audio.dirac.headset=1
-persist.audio.dirac.music.state=1' >> $MODPATH/system.prop
-} 
 
 mixer_modify(){
 for OMIX in ${MPATHS}; do
@@ -2275,29 +2139,6 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [8/13]                                          *"
-	  ui_print "*                  New dirac                      *"
-	  ui_print "*                                                 *"
-	  ui_print "*            When you click *Install*,            *"
-	  ui_print "*           you will apply the changes.           *"
-	  ui_print "*                                                 *"
-	  ui_print "* This option will add a new dirac to the system  *"
-	  ui_print "*   If you encounter wheezing from the outside    *"
-	  ui_print "*    speaker, first of all when reinstalling      *"
-	  ui_print "*               skip this step.                   *"
-	  ui_print "***************************************************"
-	ui_print "  "
-	sleep 1
-	ui_print "   Vol Up = Install, Vol Down = Skip" 
-	ui_print " "
-	if chooseport 60; then
-		STEP8=true
-		sed -i 's/STEP8=false/STEP8=true/g' $SETTINGS
-	fi
-
-	ui_print " "
-	ui_print " "
-	  ui_print "***************************************************"
 	  ui_print "* [9/13]                                          *"
 	  ui_print "*         Other patches in mixer_paths            *"
 	  ui_print "*                                                 *"
@@ -2438,10 +2279,6 @@ install_function() {
     ui_print " "
     ui_print "   ################======================== 40% done!"
 	
-	if $STEP8; then
-		dirac
-	fi
-	
 	if $STEP10; then
 		prop
 	fi
@@ -2543,6 +2380,8 @@ addon_settings() {
 	ui_print " "
 
 	sed -i 's/addon_install=0/addon_install=1/g' $SETTINGS
+
+	ui_print " "
 
 	# magisk
 	if [ -d /sbin/.magisk ]; then
@@ -2649,7 +2488,15 @@ addon_settings() {
 	ui_print " "
 	fi
 
-# permission
+	# other
+	FILE=$MODPATH/service.sh
+	if getprop | grep -Eq "other.etc\]: \[1"; then
+	ui_print "- Activating other etc files bind mount..."
+	sed -i 's/#p//g' $FILE
+	ui_print " "
+	fi
+
+	# permission
 	ui_print "- Setting permission..."
 	DIR=`find $MODPATH/system/vendor -type d`
 	for DIRS in $DIR; do
@@ -2668,6 +2515,7 @@ addon_settings() {
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
 	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
 	fi
+	ui_print " "
 
 	ui_print " "
 	ui_print " - Addon succesfully installed!"
