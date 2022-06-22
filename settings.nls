@@ -14,14 +14,13 @@ RESTORE=false
 #STEP5=Disabling companders
 #STEP6=Configurating interal audio codec
 #STEP7=Patching device_features files
-#STEP8=New dirac
-#STEP9=Other patches in mixer_paths
-#STEP10=Tweaks in prop files
-#STEP11=Improve bluetooth
-#STEP12=Switch audio output
-#STEP13=Turn off useless DRC
+#STEP8=Other patches in mixer_paths
+#STEP9=Tweaks in prop files
+#STEP10=Improve bluetooth
+#STEP11=Switch audio output
+#STEP12=Turn off useless DRC
+#STEP13=
 #STEP14=
-#STEP15=
 
 
 STEP1=false
@@ -38,7 +37,7 @@ STEP11=false
 STEP12=false
 STEP13=false
 STEP14=false
-STEP15=false
+
 
 #U use AUTO install? True = Yes, False = No, i'm using manual unstallation
 AUTO=false
