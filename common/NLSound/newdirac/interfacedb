@@ -1,0 +1,49 @@
+<InterfaceDb>
+  <Usecases>
+    <Usecase name="USECASE_INTERNAL_POWERSOUND">
+      <Parameters>
+        <Parameter id="3" name="Tonal Balance" defaultValue="0"/>
+        <Parameter id="2" name="Stereo width" defaultValue="0"/>
+      </Parameters>
+      <Modes>
+        <Mode name="Game">
+          <Parameter id="2" value="-1"/>
+          <Parameter id="3" value="-1"/>
+        </Mode>
+        <Mode name="Movie">
+          <Parameter id="2" value="1"/>
+          <Parameter id="3" value="1"/>
+        </Mode>
+        <Mode name="Music">
+          <Parameter id="2" value="0"/>
+          <Parameter id="3" value="0"/>
+        </Mode>
+        <Mode name="TikTok">
+          <Parameter id="2" value="0.5"/>
+          <Parameter id="3" value="0.5"/>
+        </Mode>
+      </Modes>
+    </Usecase>
+    <Usecase name="USECASE_INTERNAL_POWERSOUND2">
+      <Parameters/>
+      <Modes>
+        <Mode name="Game"/>
+        <Mode name="MOVIE"/>
+      </Modes>
+    </Usecase>
+    <Usecase name="USECASE_EXTERNAL_HEADSET">
+      <Parameters/>
+      <Modes>
+        <Mode name="Game"/>
+        <Mode name="Music"/>
+      </Modes>
+    </Usecase>
+    <Usecase name="USECASE_EXTERNAL_HEADSET2">
+      <Parameters/>
+      <Modes>
+        <Mode name="Game"/>
+        <Mode name="Music"/>
+      </Modes>
+    </Usecase>
+  </Usecases>
+</InterfaceDb>

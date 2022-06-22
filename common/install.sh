@@ -5,25 +5,68 @@ MIRRORDIR="/data/local/tmp/NLSound"
 OTHERTMPDIR="/dev/NLSound"
 
 patch_xml() {
-  case "$2" in
-    *mixer_paths*.xml) [ $MIXNUM -gt 5 ] || sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
-    *) sed -i "\$apatch_xml $1 \$MODPATH$(echo $2 | sed "s|$MODPATH||") '$3' \"$4\"" $MODPATH/.aml.sh;;
+  local Name0=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
+  local Value0=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
+  [ "$(echo "$4" | grep '=')" ] && Name1=$(echo "$4" | sed "s|=.*||") || local Name1="value"
+  local Value1=$(echo "$4" | sed "s|.*=||")
+  case $1 in
+  "-s"|"-u"|"-i")
+    local SNP=$(echo "$3" | sed -r "s|(^.*/.*)\[@.*=\".*\".*$|\1|")
+    local NP=$(dirname "$SNP")
+    local SN=$(basename "$SNP")
+	if [ "$5" ]; then
+      [ "$(echo "$5" | grep '=')" ] && local Name2=$(echo "$5" | sed "s|=.*||") || local Name2="value"
+      local Value2=$(echo "$5" | sed "s|.*=||")
+	fi
+	if [ "$6" ]; then
+      [ "$(echo "$6" | grep '=')" ] && local Name3=$(echo "$6" | sed "s|=.*||") || local Name3="value"
+      local Value3=$(echo "$6" | sed "s|.*=||")
+	fi
+	if [ "$7" ]; then
+      [ "$(echo "$7" | grep '=')" ] && local Name4=$(echo "$7" | sed "s|=.*||") || local Name4="value"
+      local Value4=$(echo "$7" | sed "s|.*=||")
+	fi
+  ;;
   esac
-  local NAME=$(echo "$3" | sed -r "s|^.*/.*\[@.*=\"(.*)\".*$|\1|")
-  local NAMEC=$(echo "$3" | sed -r "s|^.*/.*\[@(.*)=\".*\".*$|\1|")
-  local VAL=$(echo "$4" | sed "s|.*=||")
-  [ "$(echo $4 | grep '=')" ] && local VALC=$(echo "$4" | sed "s|=.*||") || local VALC="value"
   case "$1" in
-    "-d") xmlstarlet ed -L -d "$3" $2;;
-    "-u") xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2;;
-    "-s") if [ "$(xmlstarlet sel -t -m "$3" -c . $2)" ]; then
-            xmlstarlet ed -L -u "$3/@$VALC" -v "$VAL" $2
-          else
-            local SNP=$(echo "$3" | sed "s|\[.*$||")
-            local NP=$(dirname "$SNP")
-            local SN=$(basename "$SNP")
-            xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" -i "$SNP-$MODID" -t attr -n "$NAMEC" -v "$NAME" -i "$SNP-$MODID" -t attr -n "$VALC" -v "$VAL" -r "$SNP-$MODID" -v "$SN" $2
-          fi;;
+    "-d") xmlstarlet ed -L -d "$3" "$2";;
+    "-u") xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2";;
+    "-s")
+  	if [ "$(xmlstarlet sel -t -m "$3" -c . "$2")" ]; then
+        xmlstarlet ed -L -u "$3/@$Name1" -v "$Value1" "$2"
+      else
+        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
+        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
+        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
+        -r "$SNP-$MODID" -v "$SN" "$2"
+  	fi;;
+    "-i")
+  	if [ "$(xmlstarlet sel -t -m "$3[@$Name1=\"$Value1\"]" -c . "$2")" ]; then
+        xmlstarlet ed -L -d "$3[@$Name1=\"$Value1\"]" "$2"
+  	fi
+  	if [ -z "$Value3" ]; then
+        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
+        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
+        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
+        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
+        -r "$SNP-$MODID" -v "$SN" "$2"
+      elif [ "$Value4" ]; then
+        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
+        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
+        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
+        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
+        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
+        -i "$SNP-$MODID" -t attr -n "$Name4" -v "$Value4" \
+        -r "$SNP-$MODID" -v "$SN" "$2"
+      elif [ "$Value3" ]; then
+        xmlstarlet ed -L -s "$NP" -t elem -n "$SN-$MODID" \
+        -i "$SNP-$MODID" -t attr -n "$Name0" -v "$Value0" \
+        -i "$SNP-$MODID" -t attr -n "$Name1" -v "$Value1" \
+        -i "$SNP-$MODID" -t attr -n "$Name2" -v "$Value2" \
+        -i "$SNP-$MODID" -t attr -n "$Name3" -v "$Value3" \
+        -r "$SNP-$MODID" -v "$SN" "$2"
+  	fi
+      ;;
   esac
 }
 
@@ -198,17 +241,11 @@ MPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
 APIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml")"
 APIIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_intcodec*.xml")"
 APIEXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_extcodec*.xml")"
-DEVFEA="$VENDOR/etc/device_features/$DEVICE.xml"; 
+DEVFEA="$(find $SYSTEM $VENDOR -type f -name "$DEVICE*.xml")"; 
 IOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_io_policy.conf")"
 AUDIOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_policy_configuration.xml")"
 SNDTRGS="$(find $SYSTEM $VENDOR -type f -name "*sound_trigger_mixer_paths*.xml")"
-
-# destinations
-MODAPC=`find $MODPATH/system -type f -name *policy*.conf`
-MODAPX=`find $MODPATH/system -type f -name *policy*.xml`
-MODAPI=`find $MODPATH/system -type f -name *audio*platform*info*.xml`
-
-NEWdirac=$MODPATH/common/NLSound/newdirac
+MCODECS="$(find $SYSTEM $VENDOR -type f -name "media_codecs*audio.xml")"
 
 SETTINGS=$MODPATH/settings.nls
 
@@ -315,6 +352,96 @@ patch_xml -s $DEVFEA '/features/bool[@name="support_high_latency"]' "false"
 patch_xml -s $DEVFEA '/features/bool[@name="support_interview_record_param"]' "false"
 done
  fi
+}
+
+dirac() {
+for OFILE in $AECFGS; do
+FILE="$MODPATH$(echo $OFILE | sed "s|^$VENDOR|$SYSTEM/vendor|g")"
+mkdir -p `dirname $FILE`
+cp -f $MAGISKMIRROR$OFILE $FILE
+altmemes_confxml $FILE
+memes_confxml "dirac_gef" "$MODID" "$DYNLIBPATCH\/lib\/soundfx" "libdiraceffect.so" "3799D6D1-22C5-43C3-B3EC-D664CF8D2F0D"
+effects_patching -post "$FILE" "music" "dirac_gef"
+done
+mkdir -p $MODPATH$SYSTEM/vendor/etc/dirac $MODPATH$SYSTEM/vendor/lib/rfsa/adsp $MODPATH$SYSTEM/vendor/lib/soundfx
+cp -f $NEWdirac/diracvdd.bin $MODPATH$SYSTEM/vendor/etc/
+cp -f $NEWdirac/interfacedb $MODPATH$SYSTEM/vendor/etc/dirac
+cp -f $NEWdirac/dirac_resource.dar $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
+cp -f $NEWdirac/dirac.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
+cp -f $NEWdirac/libdirac-capiv2.so $MODPATH$SYSTEM/vendor/lib/rfsa/adsp
+cp -f $NEWdirac/libdiraceffect.so $MODPATH$SYSTEM/vendor/lib/soundfx
+echo -e '\n# Patch dirac
+persist.dirac.acs.controller=gef
+persist.dirac.gef.oppo.syss=true
+persist.dirac.config=64
+persist.dirac.gef.exs.did=50,50
+persist.dirac.gef.ext.did=1250,1250,1250,1250
+persist.dirac.gef.ins.did=50,50,50
+persist.dirac.gef.int.did=1250,1250,1250,1250
+persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
+persist.dirac.gef.exs.appt=0x00011130,0x00011131
+persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
+persist.dirac.gef.ins.appt=0x00011130,0x00011131
+persist.dirac.gef.exs.mid=268512739
+persist.dirac.gef.ext.mid=268512737
+persist.dirac.gef.ins.mid=268512738
+persist.dirac.gef.int.mid=268512736
+persist.dirac.path=/vendor/etc/dirac
+ro.dirac.acs.storeSettings=1
+persist.dirac.acs.ignore_error=1
+ro.audio.soundfx.dirac=true
+ro.vendor.audio.soundfx.type=dirac
+persist.audio.dirac.speaker=true
+persist.audio.dirac.eq=9.0,6.0,5.0,3.0,1.0,2.0,3.0
+persist.audio.dirac.headset=1
+persist.audio.dirac.music.state=1' >> $MODPATH/system.prop
+} 
+
+audio_codec() {
+if find /system /vendor -type f -name "audio_configs*.xml" >/dev/null; then
+for OACONF in ${ACONFS}; do
+ACONF="$MODPATH$(echo $OACONF | sed "s|^/vendor|/system/vendor|g")"
+mkdir -p `dirname $ACONF`
+cp_ch $MAGISKMIRROR$OACONF $ACONF
+sed -i 's/\t/  /g' $ACONF
+patch_xml -u $ACONF '/configs/property[@name="audio.offload.disable"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="audio.offload.min.duration.secs"]' "30"
+patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.sva.conc.enabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.va_concurrency_enabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.av.streaming.offload.enable"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.offload.track.enable"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.offload.multiple.enabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.rec.playback.conc.disabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.conc.fallbackpath"]' ""
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.dsd.playback.conc.disabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.path.for.pcm.voip"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.playback.conc.disabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.record.conc.disabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.voice.voip.conc.disabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="audio_extn_formats_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="audio_extn_hdmi_spk_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="use_xml_audio_policy_conf"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="voice_concurrency"]' "false "
+patch_xml -u $ACONF '/configs/property[@name="afe_proxy_enabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="compress_voip_enabled"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="fm_power_opt"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="record_play_concurrency"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.alac.decoder"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.ape.decoder"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.mpegh.decoder"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.flac.sw.decoder.24bit"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vendor.audio.hw.aac.encoder"]' "false"
+patch_xml -u $ACONF '/configs/property[@name="aac_adts_offload_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="alac_offload_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="ape_offload_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="flac_offload_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="pcm_offload_enabled_16"]' "false "
+patch_xml -u $ACONF '/configs/property[@name="pcm_offload_enabled_24"]' "false "
+patch_xml -u $ACONF '/configs/property[@name="qti_flac_decoder"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="vorbis_offload_enabled"]' "true"
+patch_xml -u $ACONF '/configs/property[@name="wma_offload_enabled"]' "true"
+done
+fi
 }
 
 mixer_modify(){
@@ -1928,7 +2055,14 @@ ro.vendor.audio.enhance.support=true
 ro.vendor.audio.gain.support=true
 persist.vendor.audio.ll_playback_bargein=true
 persist.vendor.audio.bcl.enabled=false
-persist.vendor.audio.delta.refresh=true" >> $MODPATH/system.prop
+persist.vendor.audio.delta.refresh=true
+
+aaudio.mmap_policy=2
+aaudio.mmap_exclusive_policy=2
+aaudio.hw_burst_min_usec=2000
+persist.vendor.ril.use_radio_hal=1.6
+ro.odm.build.media_performance_class=31
+" >> $MODPATH/system.prop
 }
 
 improve_bluetooth() {
@@ -1963,7 +2097,6 @@ persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/syst
 }
 
 install_function() {	
-	  clear_screen
 	  ui_print " "
 	  ui_print " - You selected Manual mode - "
 	  ui_print " "
@@ -1971,7 +2104,7 @@ install_function() {
 	  ui_print " "
 	  
 	  ui_print "***************************************************"
-	  ui_print "* [1/13]                                          *"
+	  ui_print "* [1/14]                                          *"
 	  ui_print "*                   Deep Buffer                   *"
 	  ui_print "*                                                 *"
 	  ui_print "*             When you click *Install*,           *"
@@ -1992,7 +2125,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [2/13]                                          *"
+	  ui_print "* [2/14]                                          *"
 	  ui_print "*            Improving volume levels              *"
 	  ui_print "*         and change media volume steps           *"
 	  ui_print "*                                                 *"
@@ -2014,7 +2147,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [3/13]                                          *"
+	  ui_print "* [3/14]                                          *"
 	  ui_print "*         Improving microphones levels            *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2034,7 +2167,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [4/13]                                          *"
+	  ui_print "* [4/14]                                          *"
 	  ui_print "*          Patching audio platform files          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2059,7 +2192,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [5/13]                                          *"
+	  ui_print "* [5/14]                                          *"
 	  ui_print "*             Disabling сompanders                *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2087,7 +2220,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [6/13]                                          *"
+	  ui_print "* [6/14]                                          *"
 	  ui_print "*       Configurating interal audio codec         *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2109,7 +2242,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [7/13]                                          *"
+	  ui_print "* [7/14]                                          *"
 	  ui_print "*         Patching device_features files          *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2139,7 +2272,30 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [9/13]                                          *"
+	  ui_print "* [8/14]                                          *"
+	  ui_print "*                  New dirac                      *"
+	  ui_print "*                                                 *"
+	  ui_print "*            When you click *Install*,            *"
+	  ui_print "*           you will apply the changes.           *"
+	  ui_print "*                                                 *"
+	  ui_print "* This option will add a new dirac to the system  *"
+	  ui_print "*   If you encounter wheezing from the outside    *"
+	  ui_print "*    speaker, first of all when reinstalling      *"
+	  ui_print "*               skip this step.                   *"
+	  ui_print "***************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Install, Vol Down = Skip" 
+	ui_print " "
+	if chooseport 60; then
+		STEP8=true
+		sed -i 's/STEP8=false/STEP8=true/g' $SETTINGS
+	fi
+
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [9/14]                                          *"
 	  ui_print "*         Other patches in mixer_paths            *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2162,7 +2318,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [10/13]                                         *"
+	  ui_print "* [10/14]                                         *"
 	  ui_print "*              Tweaks in prop file                *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2184,7 +2340,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [11/13]                                         *"
+	  ui_print "* [11/14]                                         *"
 	  ui_print "*               Improve Bluetooth                 *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2207,7 +2363,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [12/13]                                         *"
+	  ui_print "* [12/14]                                         *"
 	  ui_print "*              Switch audio output                *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2229,7 +2385,7 @@ install_function() {
 	ui_print " "
 	ui_print " "
 	  ui_print "***************************************************"
-	  ui_print "* [13/13]                                         *"
+	  ui_print "* [13/14]                                         *"
 	  ui_print "*              Turn off useless DRC               *"
 	  ui_print "*                                                 *"
 	  ui_print "*            When you click *Install*,            *"
@@ -2249,7 +2405,29 @@ install_function() {
 	  sed -i 's/STEP13=false/STEP13=true/g' $SETTINGS
 	fi
 
-	clear_screen
+	ui_print " "
+	ui_print " "
+	  ui_print "***************************************************"
+	  ui_print "* [14/14]                                         *"
+	  ui_print "*        Increase media codecs parameters         *"
+	  ui_print "*                                                 *"
+	  ui_print "*            When you click *Install*,            *"
+	  ui_print "*      you change the media codecs settings.      *"
+	  ui_print "*                                                 *"
+	  ui_print "*      Media codec options directly affect        *"
+	  ui_print "*       the processing quality of various         *"
+	  ui_print "*                audio formats                    *"
+	  ui_print "*                                                 *"
+	  ui_print "***************************************************"
+	ui_print "  "
+	sleep 1
+	ui_print "   Vol Up = Install, Vol Down = Skip"
+	ui_print " "
+	if chooseport 60; then
+	  STEP13=true
+	  sed -i 's/STEP14=false/STEP14=true/g' $SETTINGS
+	fi
+
 	ui_print " "
 	ui_print " - Processing. . . . -"
 	ui_print " "
@@ -2279,6 +2457,10 @@ install_function() {
     ui_print " "
     ui_print "   ################======================== 40% done!"
 	
+	if $STEP8; then
+		dirac
+	fi
+	
 	if $STEP10; then
 		prop
 	fi
@@ -2301,6 +2483,10 @@ install_function() {
 	
 	if $STEP13; then
 		audio_policy
+	fi
+
+	if $STEP14; then
+		media_codecs_change
 	fi
 
 	if $STEP4; then
