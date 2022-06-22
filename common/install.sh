@@ -70,6 +70,72 @@ patch_xml() {
   esac
 }
 
+#author - Lord_Of_The_Lost@Telegram
+memes_confxml() {
+case $FILE in
+*.conf) sed -i "/$1 {/,/}/d" $FILE
+sed -i "/$2 {/,/}/d" $FILE
+sed -i "s/^effects {/effects {\n  $1 {\nlibrary $2\nuuid $5\n  }/g" $FILE
+sed -i "s/^libraries {/libraries {\n  $2 {\npath $3\/$4\n  }/g" $FILE;;
+*.xml) sed -i "/$1/d" $FILE
+sed -i "/$2/d" $FILE
+sed -i "/<libraries>/ a\<library name=\"$2\" path=\"$4\"\/>" $FILE
+sed -i "/<effects>/ a\<effect name=\"$1\" library=\"$2\" uuid=\"$5\"\/>" $FILE;;
+esac
+}
+
+libs_checker(){
+ASDK="$(GREP_PROP "ro.build.version.sdk")"
+DYNLIB=true
+[ $ASDK -lt 26 ] && DYNLIB=false
+[ -z $DYNLIB ] && DYNLIB=false
+if $DYNLIB; then 
+DYNLIBPATCH="\/vendor"; 
+else 
+DYNLIBPATCH="\/system"; 
+fi
+}
+
+altmemes_confxml() {
+case $1 in
+*.conf) local SPACES=$(sed -n "/^output_session_processing {/,/^}/ {/^ *music {/p}" $1 | sed -r "s/( *).*/\1/")
+local EFFECTS=$(sed -n "/^output_session_processing {/,/^}/ {/^$SPACES\music {/,/^$SPACES}/p}" $1 | grep -E "^$SPACES +[A-Za-z]+" | sed -r "s/( *.*) .*/\1/g")
+for EFFECT in $EFFECTS; do
+local SPACES=$(sed -n "/^effects {/,/^}/ {/^ *$EFFECT {/p}" $1 | sed -r "s/( *).*/\1/")
+[ "$EFFECT" != "atmos" ] && sed -i "/^effects {/,/^}/ {/^$SPACES$EFFECT {/,/^$SPACES}/ s/^/#/g}" $1
+done;;
+*.xml) local EFFECTS=$(sed -n "/^ *<postprocess>$/,/^ *<\/postprocess>$/ {/^ *<stream type=\"music\">$/,/^ *<\/stream>$/ {/<stream type=\"music\">/d; /<\/stream>/d; s/<apply effect=\"//g; s/\"\/>//g; p}}" $1)
+for EFFECT in $EFFECTS; do
+[ "$EFFECT" != "atmos" ] && sed -ri "s/^( *)<apply effect=\"$EFFECT\"\/>/\1<\!--<apply effect=\"$EFFECT\"\/>-->/" $1
+done;;
+esac
+}
+
+#author - Lord_Of_The_Lost@Telegram
+effects_patching() {
+case $1 in
+-pre) CONF=pre_processing; XML=preprocess;;
+-post) CONF=output_session_processing; XML=postprocess;;
+esac
+case $2 in
+*.conf) if [ ! "$(sed -n "/^$CONF {/,/^}/p" $2)" ]; then
+echo -e "\n$CONF {\n$3 {\n$4 {\n}\n}\n}" >> $2
+elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^}/p}" $2)" ]; then
+sed -i "/^$CONF {/,/^}/ s/$CONF {/$CONF {\n$3 {\n$4 {\n}\n}/" $2
+elif [ ! "$(sed -n "/^$CONF {/,/^}/ {/$3 {/,/^}/ {/$4 {/,/}/p}}" $2)" ]; then
+sed -i "/^$CONF {/,/^}/ {/$3 {/,/^}/ s/$3 {/$3 {\n$4 {\n}/}" $2
+fi;;
+*.xml) if [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/p" $2)" ]; then 
+sed -i "/<\/audio_effects_conf>/i\<$XML>\n   <stream type=\"$3\">\n<apply effect=\"$4\"\/>\n<\/stream>\n<\/$XML>" $2
+elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/p}" $2)" ]; then 
+sed -i "/^ *<$XML>/,/^ *<\/$XML>/ s/<$XML>/<$XML>\n<stream type=\"$3\">\n<apply effect=\"$4\"\/>\n<\/stream>/" $2
+elif [ ! "$(sed -n "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ {/^ *<apply effect=\"$4\"\/>/p}}" $2)" ]; then
+sed -i "/^ *<$XML>/,/^ *<\/$XML>/ {/<stream type=\"$3\">/,/<\/stream>/ s/<stream type=\"$3\">/<stream type=\"$3\">\n<apply effect=\"$4\"\/>/}" $2
+fi;;
+esac
+}
+
+
 if [ -f /system/system/build.prop ]; then 
 SYSTEM="/system/system"; 
 elif [ -f /system_root/system/build.prop ]; then 
@@ -241,13 +307,14 @@ MPATHS="$(find $SYSTEM $VENDOR -type f -name "mixer_paths*.xml")"
 APIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info*.xml")"
 APIIXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_intcodec*.xml")"
 APIEXML="$(find $SYSTEM $VENDOR -type f -name "audio_platform_info_extcodec*.xml")"
-DEVFEA="$(find $SYSTEM $VENDOR -type f -name "$DEVICE*.xml")"; 
+DEVFEA="$(find $SYSTEM $VENDOR -type f -name "$DEVICE.xml")"; 
 IOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_io_policy.conf")"
 AUDIOPOLICY="$(find $SYSTEM $VENDOR -type f -name "audio_policy_configuration.xml")"
 SNDTRGS="$(find $SYSTEM $VENDOR -type f -name "*sound_trigger_mixer_paths*.xml")"
 MCODECS="$(find $SYSTEM $VENDOR -type f -name "media_codecs*audio.xml")"
 
 SETTINGS=$MODPATH/settings.nls
+NEWdirac=$MODPATH/NLSound/newdirac
 
 RESTORE=false
 
@@ -286,53 +353,6 @@ for OACONF in $ACONF; do
 ACONF="$MODPATH$(echo $OACONF | sed "s|^$VENDOR|$SYSTEM/vendor|g")"
 patch_xml -u $ACONF '/configs/property[@name="audio.deep_buffer.media"]' "false"
 done
-}
-
-audio_codec() {
-if find $SYSTEM $VENDOR -type f -name "audio_configs*.xml" >/dev/null; then
-for OACONF in $ACONFS; do
-ACONF="$MODPATH$(echo $OACONF | sed "s|^$VENDOR|$SYSTEM/vendor|g")"
-mkdir -p `dirname $ACONF`
-cp -f $MAGISKMIRROR$OACONF $ACONF
-sed -i 's/\t/  /g' $ACONF
-patch_xml -u $ACONF '/configs/property[@name="audio.offload.disable"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="audio.offload.min.duration.secs"]' "30"
-patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.sva.conc.enabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="persist.vendor.audio.va_concurrency_enabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.av.streaming.offload.enable"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.offload.track.enable"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.offload.multiple.enabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.rec.playback.conc.disabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.conc.fallbackpath"]' ""
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.dsd.playback.conc.disabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.path.for.pcm.voip"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.playback.conc.disabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.record.conc.disabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.voice.voip.conc.disabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="audio_extn_formats_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="audio_extn_hdmi_spk_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="use_xml_audio_policy_conf"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="voice_concurrency"]' "false "
-patch_xml -u $ACONF '/configs/property[@name="afe_proxy_enabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="compress_voip_enabled"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="fm_power_opt"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="record_play_concurrency"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.alac.decoder"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.ape.decoder"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.use.sw.mpegh.decoder"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.flac.sw.decoder.24bit"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vendor.audio.hw.aac.encoder"]' "false"
-patch_xml -u $ACONF '/configs/property[@name="aac_adts_offload_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="alac_offload_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="ape_offload_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="flac_offload_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="pcm_offload_enabled_16"]' "false "
-patch_xml -u $ACONF '/configs/property[@name="pcm_offload_enabled_24"]' "false "
-patch_xml -u $ACONF '/configs/property[@name="qti_flac_decoder"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="vorbis_offload_enabled"]' "true"
-patch_xml -u $ACONF '/configs/property[@name="wma_offload_enabled"]' "true"
-done
-fi
 }
 
 device_features() {
@@ -2187,6 +2207,7 @@ install_function() {
 	  STEP4=true
 	  HIGHBIT=true
 	  sed -i 's/STEP4=false/STEP4=true/g' $SETTINGS
+	  sed -i 's/HIGHBIT=false/HIGHBIT=true/g' $SETTINGS
 	fi
 
 	ui_print " "
@@ -2438,49 +2459,40 @@ install_function() {
 	if $STEP1; then
 		deep_buffer
 	fi
-	
-	if $STEP4; then
-		audio_platform_info
+
+	if $STEP6; then
+		audio_codec
 	fi
 
     ui_print " "
     ui_print "   ########================================ 20% done!"
- 
-	if $STEP6; then
-		audio_codec
-	fi
 	
 	if $STEP7; then
       device_features
 	fi
-	
-    ui_print " "
-    ui_print "   ################======================== 40% done!"
-	
+
 	if $STEP8; then
 		dirac
 	fi
-	
+
+	ui_print " "
+    ui_print "   ################======================== 40% done!"
+
 	if $STEP10; then
 		prop
 	fi
-  
-    ui_print " "
-    ui_print "   ########################================ 60% done!"
-	
-	mixer_modify
-	
+
 	if $STEP11; then
 		improve_bluetooth
 	fi
 	
+	ui_print " "
+    ui_print "   ########################================ 60% done!"
+
 	if $STEP12; then
 		io_policy
 	fi
 
-    ui_print " "
-    ui_print "   ################################======== 80% done!"
-	
 	if $STEP13; then
 		audio_policy
 	fi
@@ -2489,233 +2501,17 @@ install_function() {
 		media_codecs_change
 	fi
 
-	if $STEP4; then
-		addon_settings
-	fi
-}
+	
+    ui_print " "
+    ui_print "   ################################======== 80% done!"
 
-
-addon_settings() {
-	clear_screen
-
-	ui_print " "
-	ui_print " - You have confirmed the setting for 24-bit audio. (STEP4)"
-	ui_print " - Do you want to install an add-on for this item "
-	ui_print " - from a third-party author?"
-	sleep 1
-	ui_print " "
-	ui_print "   Vol Up = Install, Vol Down = Skip"
-	ui_print " "
-	if chooseport 60; then
-	clear_screen
-
-	ui_print " "
-	ui_print " - Running 24-bit addons ..."
-	ui_print " "
-	ui_print " - Credits: Rei Ryuki | https://t.me/androidryukimods "
-	ui_print " "
-
-	sleep 3
-
-	clear_screen
-
-	ui_print " 1. Download TERMINAL app in Play Market"
-	ui_print " 2. Enter su to get superuser rights"
-	ui_print " 3. Enter the commands you need in the terminal."
-	ui_print " ========================================================="
-	sleep 3
-	ui_print "          C O M M A N D S            "
-	ui_print " "
-	ui_print " "
-	ui_print " setprop hires.primary 1                        "
-	ui_print " - Enable Hi-Res to low latency "
-	ui_print " playback (primary) output..."
-	sleep 2
-	ui_print " ---------------------------------------------------------"
-	ui_print " setprop hires.32 1                                "
-	ui_print " - Forcing audio format PCM to "
-	ui_print " 32 bit instead of 24 bit..."
-	sleep 2
-	ui_print " ---------------------------------------------------------"
-	ui_print " setprop hires.float 1                                "
-	ui_print " - Enable audio format PCM float..."
-	sleep 2
-	ui_print " ---------------------------------------------------------"
-	ui_print " setprop speaker.bit 16                                   "
-	ui_print " - Forcing audio format PCM 16 bit "
-	ui_print " to internal speaker..."
-	sleep 2
-	ui_print " ---------------------------------------------------------"
-	ui_print " setprop sample.rate 88                                "
-	ui_print " - Forcing sample rate to 88200.."
-	ui_print " - Possible values: 88, 96, 128, 176, 192, 352, 384"
-	sleep 2
-	ui_print " "
-	ui_print " ========================================================="
-	ui_print " "
-	ui_print " Press the volume key UP as soon "
-	ui_print " as you finish entering commands."
-	ui_print " ========================================================="
-	ui_print " Or press the volume down button if "
-	ui_print " you don't want to install the addon."
-	ui_print " "
-
-	if chooseport 60; then
-	clear_screen
-	ui_print " - Processing . . . Please, wait . . . "
-	ui_print " "
-
-	sed -i 's/addon_install=0/addon_install=1/g' $SETTINGS
-
-	ui_print " "
-
-	# magisk
-	if [ -d /sbin/.magisk ]; then
-	MAGISKTMP=/sbin/.magisk
-	else
-	MAGISKTMP=`find /dev -mindepth 2 -maxdepth 2 -type d -name .magisk`
-	fi
-
-	# sepolicy.rule
-	if [ "$BOOTMODE" != true ]; then
-	mount -o rw -t auto /dev/block/bootdevice/by-name/persist /persist
-	mount -o rw -t auto /dev/block/bootdevice/by-name/metadata /metadata
-	fi
-	FILE=$MODPATH/sepolicy.sh
-	DES=$MODPATH/sepolicy.rule
-	if [ -f $FILE ] && ! getprop | grep -Eq "sepolicy.sh\]: \[1"; then
-	mv -f $FILE $DES
-	sed -i 's/magiskpolicy --live "//g' $DES
-	sed -i 's/"//g' $DES
-	fi
-
-	# .aml.sh
-	mv -f $MODPATH/aml.sh $MODPATH/.aml.sh
-
-	# cleaning
-	ui_print "- Cleaning..."
-	rm -f $MODPATH/LICENSE
-	rm -rf /metadata/magisk/$MODID
-	rm -rf /mnt/vendor/persist/magisk/$MODID
-	rm -rf /persist/magisk/$MODID
-	rm -rf /data/unencrypted/magisk/$MODID
-	rm -rf /cache/magisk/$MODID
-	ui_print " "
-
-	# primary
-	if getprop | grep -Eq "hires.primary\]: \[1"; then
-	ui_print "- Enable Hi-Res to low latency playback (primary) output..."
-	sed -i 's/#p//g' $MODPATH/.aml.sh
-	ui_print " "
-	fi
-
-	# force 32
-	if getprop | grep -Eq "hires.32\]: \[1"; then
-	ui_print "- Forcing audio format PCM to 32 bit instead of 24 bit..."
-	sed -i 's/#32//g' $MODPATH/.aml.sh
-	sed -i 's/#32//g' $MODPATH/service.sh
-	sed -i 's/enforce_mode 24/enforce_mode 32/g' $MODPATH/service.sh
-	ui_print " "
-	fi
-
-	# force float
-	if getprop | grep -Eq "hires.float\]: \[1"; then
-	ui_print "- Enable audio format PCM float..."
-	sed -i 's/#f//g' $MODPATH/.aml.sh
-	ui_print " "
-	fi
-
-	# speaker
-	if getprop | grep -Eq "speaker.bit\]: \[16"; then
-	ui_print "- Forcing audio format PCM 16 bit to internal speaker..."
-	sed -i 's/#s16//g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "hires.32\]: \[1" && getprop | grep -Eq "speaker.bit\]: \[24"; then
-	ui_print "- Forcing audio format PCM 24 bit to internal speaker..."
-	sed -i 's/#s24//g' $MODPATH/.aml.sh
-	ui_print " "
-	fi
-
-	# sampling rates
-	if getprop | grep -Eq "sample.rate\]: \[88"; then
-	ui_print "- Forcing sample rate to 88200..."
-	sed -i 's/|48000/|48000|88200/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[96"; then
-	ui_print "- Forcing sample rate to 96000..."
-	sed -i 's/|48000/|48000|88200|96000/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[128"; then
-	ui_print "- Forcing sample rate to 128000..."
-	sed -i 's/|48000/|48000|88200|96000|128000/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000,128000/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[176"; then
-	ui_print "- Forcing sample rate to 176400..."
-	sed -i 's/|48000/|48000|88200|96000|128000|176400/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000,128000,176400/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[192"; then
-	ui_print "- Forcing sample rate to 192000..."
-	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[352"; then
-	ui_print "- Forcing sample rate to 352800..."
-	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800/g' $MODPATH/.aml.sh
-	ui_print " "
-	elif getprop | grep -Eq "sample.rate\]: \[384"; then
-	ui_print "- Forcing sample rate to 384000..."
-	sed -i 's/|48000/|48000|88200|96000|128000|176400|192000|352800|384000/g' $MODPATH/.aml.sh
-	sed -i 's/,48000/,48000,88200,96000,128000,176400,192000,352800,384000/g' $MODPATH/.aml.sh
-	ui_print " "
-	fi
-
-	# other
-	FILE=$MODPATH/service.sh
-	if getprop | grep -Eq "other.etc\]: \[1"; then
-	ui_print "- Activating other etc files bind mount..."
-	sed -i 's/#p//g' $FILE
-	ui_print " "
-	fi
-
-	# permission
-	ui_print "- Setting permission..."
-	DIR=`find $MODPATH/system/vendor -type d`
-	for DIRS in $DIR; do
-	chown 0.2000 $DIRS
-	done
-	if [ "$API" -ge 26 ]; then
-	magiskpolicy --live "type vendor_file"
-	magiskpolicy --live "type vendor_configs_file"
-	magiskpolicy --live "dontaudit { vendor_file vendor_configs_file } labeledfs filesystem associate"
-	magiskpolicy --live "allow     { vendor_file vendor_configs_file } labeledfs filesystem associate"
-	magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } dir relabelfrom"
-	magiskpolicy --live "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
-	magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
-	magiskpolicy --live "allow     init { vendor_file vendor_configs_file } file relabelfrom"
-	chcon -R u:object_r:vendor_file:s0 $MODPATH/system/vendor
-	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/etc
-	chcon -R u:object_r:vendor_configs_file:s0 $MODPATH/system/vendor/odm/etc
-	fi
-	ui_print " "
-
-	ui_print " "
-	ui_print " - Addon succesfully installed!"
-	sleep 1
-	fi
-	fi
+	mixer_modify
 }
 
 
 if [ "$(getprop ro.hardware 2>/dev/null)" == "qcom" ]; then
 	install_function
-fi
-	SET_PERM_RM
-	
+fi	
 	ui_print " "
     ui_print "   ######################################## 100% done!"
 	
