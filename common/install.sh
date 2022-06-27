@@ -314,7 +314,7 @@ SNDTRGS="$(find $SYSTEM $VENDOR -type f -name "*sound_trigger_mixer_paths*.xml")
 MCODECS="$(find $SYSTEM $VENDOR -type f -name "media_codecs*audio.xml")"
 
 SETTINGS=$MODPATH/settings.nls
-NEWdirac=$MODPATH/NLSound/newdirac
+NEWdirac=$MODPATH/common/NLSound/newdirac
 
 RESTORE=false
 
@@ -2117,8 +2117,6 @@ persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $MODPATH/syst
 }
 
 install_function() {	
-	  ui_print " "
-	  ui_print " - You selected Manual mode - "
 	  ui_print " "
 	  ui_print " - Configurate me, pls >.< - "
 	  ui_print " "
