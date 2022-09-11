@@ -109,7 +109,7 @@ prop_process() {
   ui_print " "
   ui_print "***************************************************"
   ui_print "*                                                 *"
-  ui_print "*               NLSound v3.4 BETA                 *"
+  ui_print "*               NLSound v3.4 STABLE               *"
   ui_print "*                                                 *"
   ui_print "*               special version for               *"
   ui_print "*                                                 *"
@@ -162,9 +162,6 @@ fi
 
 # Debug
 if $DEBUG; then
-  ui_print "- Debug mode"
-  ui_print "  Module install log will include debug info"
-  ui_print "  Be sure to save it after module install"
   set -x
 fi
 
@@ -175,9 +172,8 @@ unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
 
 # Run addons
 if [ "$(ls -A $MODPATH/common/addon/*/install.sh 2>/dev/null)" ]; then
-  ui_print " "; ui_print "- Running Addons -"
+  ui_print "- Running Addons"
   for i in $MODPATH/common/addon/*/install.sh; do
-    ui_print "  Running $(echo $i | sed -r "s|$MODPATH/common/addon/(.*)/install.sh|\1|")..."
     . $i
   done
 fi
