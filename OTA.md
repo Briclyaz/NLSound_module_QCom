@@ -1,4 +1,4 @@
-*v3.3 BETA*
+*v3.4 STABLE*
 
    [Changelog](https://teletype.in/@briclyaz/nlsound-v3-4-beta-changelog)
 
