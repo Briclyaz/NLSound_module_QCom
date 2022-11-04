@@ -8,13 +8,13 @@ COMMIT_HEAD=$(git log --pretty=format:"%s")
 COMMIT_AUTHOR=$(git log --pretty=format:"%an")
 
 # Version code
-CODE="v3.4"
+CODE="v3.5"
 
 # Version build (stable or beta)
-Version="STABLE"
+Version="BETA"
 
 # Version OTA
-OTA="10"
+OTA="11"
 
 #Module.prop
 echo "id=NLSound
@@ -23,14 +23,13 @@ version=$CODE $Version test-${build_number}
 versionCode=$OTA
 author=NLSound Team
 description=This module globally improves audio quality when recording video/audio and listening to audio on your device.
-support=https://t.me/nlsound_support
-updateJson=https://raw.githubusercontent.com/Briclyaz/NLSound_module_QCom/main/update.json" >> module.prop
+support=https://t.me/nlsound_support" >> module.prop
 
 # Set chips platform (Qualcomm/MTK)
 PLATFORM="Qualcomm"
 
 # Zip name 
-ZIPNAME=t-${build_number}.zip
+ZIPNAME=QCOM_t${build_number}.zip
 
 # Push zip in Telegram 
 function push() {

@@ -7,21 +7,24 @@ RESTORE=false
 #Below you can see the decoding of the names of the points, 
 #or trust the numerical values of the points.
 
-#STEP1=Deep Buffer
-#STEP2=Improving volume steps and change media volume steps
+#STEP1=Select volume steps
+#STEP2=Increase media volumes
 #STEP3=Improving microphones levels
-#STEP4=Patching audio platform files
-#STEP5=Disabling companders
-#STEP6=Configurating interal audio codec
-#STEP7=Patching device_features files
-#STEP8=Other patches in mixer_paths
-#STEP9=Tweaks in prop files
-#STEP10=Improve bluetooth
-#STEP11=Switch audio output
-#STEP12=Turn off useless DRC
-#STEP13=
-#STEP14=
-
+#STEP4=Configurating fluence
+#STEP5=Select audio format (16..float)
+#STEP6=Select sampling rates (96..384000)
+#STEP7=Patching audio_platform files
+#STEP8=Disable companders
+#STEP9=Configuration internal audio codes
+#STEP10=Patching device_features files
+#STEP11=Install custom Dirac
+#STEP12=Install patches for mixer_paths files
+#STEP13=Install tweaks in build.prop file
+#STEP14=Install parameters for improve Bluetooth
+#STEP15=Switch audio output (DIRECT -> DIRECT_PCM)
+#STEP16=Install IIRs parameters
+#STEP17=Turn on ignoring all audio effects
+#STEP18=Install experimental tweaks for tinymix
 
 STEP1=false
 STEP2=false
@@ -37,23 +40,17 @@ STEP11=false
 STEP12=false
 STEP13=false
 STEP14=false
+STEP15=false
+STEP16=false
+STEP17=false
+STEP18=false
+STEP19=false
+STEP20=false
 
-
-#U use AUTO install? True = Yes, False = No, i'm using manual unstallation
-AUTO=false
-
-#addons settings
-VOLUMES=false
-MICROPHONES=false
-HIGHBIT=false
-COMPANDERS=false
-LOLMIXER=false
-HIGHBIT_ADDON=false
-
-#24-bit addon settings
-addon_install=0
-hires.primary=0
-hires.32=0
-hires.float=0
-speaker.16=0
-sample.rate=0
+#additional
+VOLSTEPS=skip
+VOLMEDIA=skip
+VOLMIC=skip
+MICMOD=skip
+BITNES=skip
+SAMPLERATE=skip

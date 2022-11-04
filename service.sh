@@ -1,5 +1,73 @@
 #!/system/bin/sh
 
+[ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
+
+RN5PRO=$(grep -E "ro.product.vendor.device=whyred.*" $BUILDS)
+RN6PRO=$(grep -E "ro.product.vendor.device=tulip.*" $BUILDS)
+R7Y3=$(grep -E "ro.product.vendor.device=onclite.*" $BUILDS)
+RN7=$(grep -E "ro.product.vendor.device=lavender.*" $BUILDS)
+RN7PRO=$(grep -E "ro.product.vendor.device=violet.*" $BUILDS)
+RN8=$(grep -E "ro.product.vendor.device=ginkgo.*" $BUILDS)
+RN8T=$(grep -E "ro.product.vendor.device=willow.*" $BUILDS)
+RN9S=$(grep -E "ro.product.vendor.device=curtana.*" $BUILDS)
+RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
+RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
+RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
+R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
+
+RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
+RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
+RK305G=$(grep -E "ro.product.vendor.device=picasso.*" $BUILDS)
+RK304G=$(grep -E "ro.product.vendor.device=phoenix.*" $BUILDS)
+RK30U=$(grep -E "ro.product.vendor.device=cezanne.*" $BUILDS)
+RK30i5G=$(grep -E "ro.product.vendor.device=picasso48m.*" $BUILDS)
+RK40=$(grep -E "ro.product.vendor.device=alioth.*" $BUILDS)
+
+MI9SE=$(grep -E "ro.product.vendor.device=grus.*" $BUILDS)
+MICC9E=$(grep -E "ro.product.vendor.device=laurus.*" $BUILDS)
+MICC9=$(grep -E "ro.product.vendor.device=pyxis.*" $BUILDS)
+MINOTECC9PRO=$(grep -E "ro.product.vendor.device=tucana.*" $BUILDS)
+MINOTE10LITE=$(grep -E "ro.product.vendor.device=toco.*" $BUILDS)
+MINOTE10LITEZOOM=$(grep -E "ro.product.vendor.device=vangogh.*" $BUILDS)
+MI9=$(grep -E "ro.product.vendor.device=cepheus.*" $BUILDS)
+MI9T=$(grep -E "ro.product.vendor.device=davinci.*" $BUILDS)
+MI10=$(grep -E "ro.product.vendor.device=umi.*" $BUILDS)
+MI10Ultra=$(grep -E "ro.product.vendor.device=cas.*" $BUILDS)
+MI10i5GRN95G=$(grep -E "ro.product.vendor.device=gauguin.*" $BUILDS)
+MI10LITE=$(grep -E "ro.product.vendor.device=vangogh.*" $BUILDS)
+MI10T=$(grep -E "ro.product.vendor.device=apollo.*" $BUILDS)
+MI10PRO=$(grep -E "ro.product.vendor.device=cmi.*" $BUILDS)
+MI11=$(grep -E "ro.product.vendor.device=venus.*" $BUILDS)
+MI11Lite5G=$(grep -E "ro.product.vendor.device=renoir.*" $BUILDS)
+MI11Lite4G=$(grep -E "ro.product.vendor.device=courbet.*" $BUILDS)
+K20P=$(grep -E "ro.product.vendor.device=raphael.*|ro.product.vendor.device=raphaelin.*|ro.product.vendor.device=raphaels.*" $BUILDS)
+MI8=$(grep -E "ro.product.vendor.device=dipper.*" $BUILDS)
+MI8P=$(grep -E "ro.product.vendor.device=equuleus.*" $BUILDS)
+MI9P=$(grep -E "ro.product.vendor.device=crux.*" $BUILDS)
+
+MIA2LITE=$(grep -E "ro.product.vendor.device=daisy.*" $BUILDS)
+MIA2=$(grep -E "ro.product.vendor.device=jasmine.*" $BUILDS)
+MIA3=$(grep -E "ro.product.vendor.device=laurel.*" $BUILDS)
+
+POCOF1=$(grep -E "ro.product.vendor.device=beryllium.*" $BUILDS)
+POCOF2P=$(grep -E "ro.product.vendor.device=lmi.*" $BUILDS)
+POCOF3=$(grep -E "ro.product.vendor.device=alioth.*" $BUILDS)
+POCOF3P=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
+POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
+POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
+POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
+POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
+
+ONEPLUS7=$(grep -E "ro.product.vendor.device=guacamoleb.*" $BUILDS)
+ONEPLUS7PRO=$(grep -E "ro.product.vendor.device=guacamole.*" $BUILDS)
+ONEPLUS7TPRO=$(grep -E "ro.product.vendor.device=hotdog.*" $BUILDS)
+ONEPLUS7T=$(grep -E "ro.product.vendor.device=hotdogb.*" $BUILDS)
+ONEPLUS8=$(grep -E "ro.product.vendor.device=instantnoodle.*" $BUILDS)
+ONEPLUS8PRO=$(grep -E "ro.product.vendor.device=instantnoodlep.*" $BUILDS)
+ONEPLUS8T=$(grep -E "ro.product.vendor.device=kebab.*" $BUILDS)
+ONEPLUSNORD=$(grep -E "ro.product.vendor.device=avicii.*" $BUILDS)
+ONEPLUS99PRO9R=$(grep -E "ro.product.vendor.device=lemonade.*" $BUILDS)
+
 # restart
 if [ "$API" -ge 24 ]; then
   killall audioserver
@@ -13,16 +81,6 @@ INFO=/data/adb/modules/.NLSound-files
 MODID=NLSound
 LIBDIR=/system/vendor
 MODPATH=/data/adb/modules/NLSound
-MODDIR=${0%/*}
-INFO=/data/adb/modules/.NLSound-files
-MODID=NLSound
-LIBDIR=/system/vendor
-MODPATH=/data/adb/modules/NLSound
-MODDIR=${0%/*}
-INFO=/data/adb/modules/.NLSound-files
-MODID=NLSound
-LIBDIR=/system/vendor
-MODPATH=/data/adb/modules/NLSound
 
 #AML FIX by reiryuki@GitHub
 DIR=$AML/system/vendor/odm/etc
@@ -30,90 +88,3 @@ if [ -d $DIR ] && [ ! -f $AML/disable ]; then
   chcon -R u:object_r:vendor_configs_file:s0 $DIR
 fi
 
-while :
-do
-  tinymix "HiFi Filter" 1
-  tinymix "ASM Bit Width" 32
-  tinymix "AFE Input Bit Format" S32_LE
-  tinymix "USB_AUDIO_RX Format" S32_LE
-  tinymix "USB_AUDIO_TX Format" S32_LE
-  tinymix "USB_AUDIO_RX SampleRate" KHZ_384
-  tinymix "USB_AUDIO_TX SampleRate" KHZ_384
-  tinymix "RCV Digital PCM Volume" 830
-  tinymix "Digital PCM Volume" 830
-  tinymix "RCV PCM Source" DSP
-  tinymix "PCM Source" DSP
-  tinymix "RCV PCM Soft Ramp" Off
-  tinymix "PCM Soft Ramp" Off
-  tinymix "HDR12 MUX" HDR12
-  tinymix "HDR34 MUX" HDR34
-  tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
-  tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
-  tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
-  tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
-  tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
-  tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
-  tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
-  tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-  tinymix "WSA_CDC_DMA_RX_0 Format" S32_LE
-  tinymix "WSA_CDC_DMA_RX_1 Format" S32_LE
-  tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_384
-  tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_384
-  tinymix "DEC0 MODE" ADC_HIGH_PERF
-  tinymix "DEC1 MODE" ADC_HIGH_PERF
-  tinymix "DEC2 MODE" ADC_HIGH_PERF
-  tinymix "DEC3 MODE" ADC_HIGH_PERF
-  tinymix "DEC4 MODE" ADC_HIGH_PERF
-  tinymix "DEC5 MODE" ADC_HIGH_PERF
-  tinymix "DEC6 MODE" ADC_HIGH_PERF
-  tinymix "DEC7 MODE" ADC_HIGH_PERF
-  tinymix "VA_DEC0 MODE" ADC_HIGH_PERF
-  tinymix "VA_DEC1 MODE" ADC_HIGH_PERF
-  tinymix "VA_DEC2 MODE" ADC_HIGH_PERF
-  tinymix "VA_DEC3 MODE" ADC_HIGH_PERF
-  tinymix "TX0 MODE" ADC_LO_HIF
-  tinymix "TX1 MODE" ADC_LO_HIF
-  tinymix "TX2 MODE" ADC_LO_HIF
-  tinymix "TX3 MODE" ADC_LO_HIF
-  tinymix "Cirrus SP Load Config" Load
-  tinymix "RCV Noise Gate" 0
-  tinymix "Noise Gate" 0
-  tinymix "Display Port1 RX Bit Format" S24_3LE
-  sleep 2
-done
-
-#credits - yzyhk904/audio-misc-settings@GitHub
-function additionalSettings()
-{
-    if [ "`getprop persist.sys.phh.disable_audio_effects`" = "0" ]; then
-        
-        type resetprop 1>/dev/null 2>&1
-        if [ $? -eq 0 ]; then
-            resetprop ro.audio.ignore_effects true
-        else
-            type resetprop_phh 1>/dev/null 2>&1
-            if [ $? -eq 0 ]; then
-                resetprop_phh ro.audio.ignore_effects true
-            else
-                return 1
-            fi
-        fi
-        
-        if [ "`getprop init.svc.audioserver`" = "running" ]; then
-            setprop ctl.restart audioserver
-        fi
-        
-    elif [ "`getprop ro.system.build.version.release`" -ge "12" ]; then
-        
-        local audioHal
-        setprop ctl.restart audioserver
-        audioHal="$(getprop |sed -nE 's/.*init\.svc\.(.*audio-hal[^]]*).*/\1/p')"
-        setprop ctl.restart "$audioHal" 1>"/dev/null" 2>&1
-        setprop ctl.restart vendor.audio-hal-2-0 1>"/dev/null" 2>&1
-        setprop ctl.restart audio-hal-2-0 1>"/dev/null" 2>&1
-        
-    fi
-    settings put system volume_steps_music 100
-}
-
-(((sleep 31; additionalSettings)  0<&- &>"/dev/null" &) &)
