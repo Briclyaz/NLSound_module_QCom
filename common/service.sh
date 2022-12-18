@@ -15,3 +15,6 @@ killall /vendor/bin/hw/android.hardware.audio@2.0-service
 killall vendor.audio-hal-4-0-msd
 
 ) 2>/dev/null
+
+sleep 60
+su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"

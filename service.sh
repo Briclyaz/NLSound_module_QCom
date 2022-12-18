@@ -1,4 +1,29 @@
 #!/system/bin/sh
+resetprop -p --delete persist.vendor.audio_hal.dsp_bit_width_enforce_mode
+resetprop -n persist.vendor.audio_hal.dsp_bit_width_enforce_mode 24
+# restart
+if [ "$API" -ge 24 ]; then
+  killall audioserver 2>/dev/null
+else
+  killall mediaserver 2>/dev/null
+fi
+
+#!/system/bin/sh
+MODDIR=${0%/*}
+INFO=/data/adb/modules/.NLSound-files
+MODID=NLSound
+LIBDIR=/system/vendor
+MODPATH=/data/adb/modules/NLSound
+
+#AML FIX by reiryuki@GitHub
+DIR=$AML/system/vendor/odm/etc
+if [ -d $DIR ] && [ ! -f $AML/disable ]; then
+  chcon -R u:object_r:vendor_configs_file:s0 $DIR
+fi
+
+# notification
+sleep 60
+su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"
 
 [ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
 
@@ -67,24 +92,4 @@ ONEPLUS8PRO=$(grep -E "ro.product.vendor.device=instantnoodlep.*" $BUILDS)
 ONEPLUS8T=$(grep -E "ro.product.vendor.device=kebab.*" $BUILDS)
 ONEPLUSNORD=$(grep -E "ro.product.vendor.device=avicii.*" $BUILDS)
 ONEPLUS99PRO9R=$(grep -E "ro.product.vendor.device=lemonade.*" $BUILDS)
-
-# restart
-if [ "$API" -ge 24 ]; then
-  killall audioserver
-else
-  killall mediaserver
-fi
-
-#!/system/bin/sh
-MODDIR=${0%/*}
-INFO=/data/adb/modules/.NLSound-files
-MODID=NLSound
-LIBDIR=/system/vendor
-MODPATH=/data/adb/modules/NLSound
-
-#AML FIX by reiryuki@GitHub
-DIR=$AML/system/vendor/odm/etc
-if [ -d $DIR ] && [ ! -f $AML/disable ]; then
-  chcon -R u:object_r:vendor_configs_file:s0 $DIR
-fi
 
