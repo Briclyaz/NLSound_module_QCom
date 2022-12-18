@@ -770,7 +770,7 @@ ui_print " - You can minimize Magisk and use the device normally -"
 ui_print " - and then come back here to reboot and apply the changes. -"
 ui_print " "
 
-if [ "$STEP7" == "true" ]; then
+if [ "$STEP6" == "true" ]; then
 if [ "$BITNESINT" != "Skip" ]; then
 if [ "$SAMPLERATEINT" != "Skip" ]; then
 for OAPIXML in ${APIXMLS}; do
@@ -944,7 +944,7 @@ patch_xml -u $ACONF '/configs/flag[@name="use_deep_buffer_as_primary_output"]' "
 done
 fi
 
-if [ "$STEP10" == "true" ]; then
+if [ "$STEP9" == "true" ]; then
 for ODEVFEA in ${DEVFEAS}; do 
 DEVFEA="$MODPATH$(echo $ODEVFEA | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g")"
 cp_ch -f $ORIGDIR$ODEVFEA $DEVFEA
@@ -960,7 +960,7 @@ patch_xml -s $DEVFEA '/features/bool[@name="support_interview_record_param"]' "f
 done
 fi
 
-if [ "$STEP11" == "true" ]; then
+if [ "$STEP10" == "true" ]; then
 for OFILE in ${AECFGS}; do
 FILE="$MODPATH$(echo $OFILE | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g")"
 cp_ch -f $ORIGDIR$OFILE $FILE
@@ -1005,7 +1005,7 @@ persist.audio.dirac.headset=1
 persist.audio.dirac.music.state=1' >> $MODPATH/system.prop
 fi
 
-if [ "$STEP13" == "true" ]; then
+if [ "$STEP12" == "true" ]; then
 echo -e "\n#
 ro.mediacodec.min_sample_rate=7350
 ro.mediacodec.max_sample_rate=2822400
@@ -1333,7 +1333,7 @@ fi
 ui_print " "
 ui_print "   ################======================== 40% done!"
 
-if [ "$STEP14" == "true" ]; then
+if [ "$STEP13" == "true" ]; then
 echo -e "\n# Bluetooth
 
 audio.effect.a2dp.enable=1
@@ -1363,7 +1363,7 @@ persist.vendor.btstack.enable.swbpm=true
 persist.vendor.qcom.bluetooth.enable.swb=true" >> $MODPATH/system.prop
 fi
 
-if [ "$STEP15" == "true" ]; then
+if [ "$STEP14" == "true" ]; then
 for OIOPOLICY in ${IOPOLICYS}; do
 IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g")"
 cp_ch -f $ORIGDIR$OIOPOLICY $IOPOLICY
@@ -1373,7 +1373,7 @@ sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPO
 done
 fi
 
-if [ "$STEP15" == "true" ]; then
+if [ "$STEP14" == "true" ]; then
 for OUTPUTPOLICY in ${OUTPUTPOLICYS}; do
 OUTPUTPOLICY="$MODPATH$(echo $OUTPUTPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g")"
 cp_ch -f $ORIGDIR$OUTPUTPOLICY $OUTPUTPOLICY
@@ -1515,7 +1515,7 @@ echo -e "\nro.config.media_vol_steps=$VOLSTEPSINT" >> $MODPATH/system.prop
 fi
 fi
 
-if [ "$STEP16" == "true" ]; then
+if [ "$STEP15" == "true" ]; then
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="0"]' "268833620"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="1"]' "537398060"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="2"]' "267510580"
@@ -1589,7 +1589,7 @@ patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "$VOLMICINT"
 fi
 fi
 
-if [ "$STEP8" == "true" ]; then
+if [ "$STEP7" == "true" ]; then
 sed -i 's/COMP Switch" value="1"/COMP Switch" value="0"/g' $MIX
 sed -i 's/COMP0 Switch" value="1"/COMP0 Switch" value="0"/g' $MIX
 sed -i 's/COMP1 Switch" value="1"/COMP1 Switch" value="0"/g' $MIX
@@ -1951,7 +1951,7 @@ patch_xml -u $MIX '/mixer/path[@name=headphones-generic]/ctl[@name=HPHR_COMP Swi
 
 fi
 
-if [ "$STEP12" == "true" ]; then
+if [ "$STEP11" == "true" ]; then
 if [ "$HIFI" == "true" ]; then
 patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "CF_NEG_3DB_4HZ"
@@ -2161,7 +2161,7 @@ done
 ui_print " "                 
 ui_print "   ################################======== 80% done!"
 
-if [ "$STEP17" == "true" ]; then
+if [ "$STEP16" == "true" ]; then
 echo -e "\n #Disable all effects
 ro.audio.ignore_effects=true
 ro.vendor.audio.ignore_effects=true
@@ -2520,7 +2520,7 @@ fi
 ui_print " "
 ui_print "   ######################################## 100% done!"
 
-if [ "$STEP18" == "true" ]; then
+if [ "$STEP17" == "true" ]; then
 echo -e '\n# Experimental tweaks
 
 if [ "$POCOF3" ]; then
