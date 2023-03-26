@@ -1,6 +1,6 @@
 {
-  "version": "v3.5 STABLE",
-  "versionCode": 12,
-  "zipUrl": "https://github.com/Briclyaz/NLSound_module_QCom/releases/download/v3.5-STABLE/NLSound.v3.5.STABLE.QCome.Devices.zip",
+  "version": "v3.6 STABLE",
+  "versionCode": 13,
+  "zipUrl": "https://github.com/Briclyaz/NLSound_module_QCom/releases/download/v3.6-STABLE/NLSound.v3.6.STABLE.QCom.Devices.zip",
   "changelog": "https://raw.githubusercontent.com/Briclyaz/NLSound_module_QCom/main/OTA.md"
 }
