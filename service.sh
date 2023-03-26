@@ -8,13 +8,6 @@ else
   killall mediaserver 2>/dev/null
 fi
 
-#!/system/bin/sh
-MODDIR=${0%/*}
-INFO=/data/adb/modules/.NLSound-files
-MODID=NLSound
-LIBDIR=/system/vendor
-MODPATH=/data/adb/modules/NLSound
-
 #AML FIX by reiryuki@GitHub
 DIR=$AML/system/vendor/odm/etc
 if [ -d $DIR ] && [ ! -f $AML/disable ]; then
@@ -22,10 +15,14 @@ if [ -d $DIR ] && [ ! -f $AML/disable ]; then
 fi
 
 # notification
-sleep 60
+sleep 10
 su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"
 
 [ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
+
+#kekw
+A71=$(grep -E "ro.product.vendor.device=A71.*" $BUILDS)
+RMEGTNEO3T=$(grep -E "ro.product.vendor.device=RE54E4L1.*" $BUILDS)
 
 RN5PRO=$(grep -E "ro.product.vendor.device=whyred.*" $BUILDS)
 RN6PRO=$(grep -E "ro.product.vendor.device=tulip.*" $BUILDS)
@@ -39,9 +36,11 @@ RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
 RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
 RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
 R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
-
-RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
+RN10=$(grep -E "ro.product.vendor.device=mojito.*" $BUILDS)
 RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
+RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
+RN11=$(grep -E "ro.product.vendor.device=spes.*" $BUILDS)
+
 RK305G=$(grep -E "ro.product.vendor.device=picasso.*" $BUILDS)
 RK304G=$(grep -E "ro.product.vendor.device=phoenix.*" $BUILDS)
 RK30U=$(grep -E "ro.product.vendor.device=cezanne.*" $BUILDS)
@@ -57,6 +56,7 @@ MINOTE10LITEZOOM=$(grep -E "ro.product.vendor.device=vangogh.*" $BUILDS)
 MI9=$(grep -E "ro.product.vendor.device=cepheus.*" $BUILDS)
 MI9T=$(grep -E "ro.product.vendor.device=davinci.*" $BUILDS)
 MI10=$(grep -E "ro.product.vendor.device=umi.*" $BUILDS)
+MI10s=$(grep -E "ro.product.vendor.device=thyme.*" $BUILDS)
 MI10Ultra=$(grep -E "ro.product.vendor.device=cas.*" $BUILDS)
 MI10i5GRN95G=$(grep -E "ro.product.vendor.device=gauguin.*" $BUILDS)
 MI10LITE=$(grep -E "ro.product.vendor.device=vangogh.*" $BUILDS)
@@ -65,10 +65,16 @@ MI10PRO=$(grep -E "ro.product.vendor.device=cmi.*" $BUILDS)
 MI11=$(grep -E "ro.product.vendor.device=venus.*" $BUILDS)
 MI11Lite5G=$(grep -E "ro.product.vendor.device=renoir.*" $BUILDS)
 MI11Lite4G=$(grep -E "ro.product.vendor.device=courbet.*" $BUILDS)
+MI11U=$(grep -E "ro.product.vendor.device=star.*" $BUILDS)
 K20P=$(grep -E "ro.product.vendor.device=raphael.*|ro.product.vendor.device=raphaelin.*|ro.product.vendor.device=raphaels.*" $BUILDS)
 MI8=$(grep -E "ro.product.vendor.device=dipper.*" $BUILDS)
 MI8P=$(grep -E "ro.product.vendor.device=equuleus.*" $BUILDS)
 MI9P=$(grep -E "ro.product.vendor.device=crux.*" $BUILDS)
+
+MI12Pro=$(grep -E "ro.product.vendor.device=zeus.*" $BUILDS)
+MI12SPro=$(grep -E "ro.product.vendor.device=unicorn.*" $BUILDS)
+MI12SU=$(grep -E "ro.product.vendor.device=thor.*" $BUILDS)
+MIXFOLD2=$(grep -E "ro.product.vendor.device=zizhan.*" $BUILDS)
 
 MIA2LITE=$(grep -E "ro.product.vendor.device=daisy.*" $BUILDS)
 MIA2=$(grep -E "ro.product.vendor.device=jasmine.*" $BUILDS)
@@ -82,14 +88,15 @@ POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
 POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
+POCOF4GT=$(grep -E "ro.product.vendor.device=ingres.*" $BUILDS)
 
-ONEPLUS7=$(grep -E "ro.product.vendor.device=guacamoleb.*" $BUILDS)
-ONEPLUS7PRO=$(grep -E "ro.product.vendor.device=guacamole.*" $BUILDS)
-ONEPLUS7TPRO=$(grep -E "ro.product.vendor.device=hotdog.*" $BUILDS)
-ONEPLUS7T=$(grep -E "ro.product.vendor.device=hotdogb.*" $BUILDS)
-ONEPLUS8=$(grep -E "ro.product.vendor.device=instantnoodle.*" $BUILDS)
-ONEPLUS8PRO=$(grep -E "ro.product.vendor.device=instantnoodlep.*" $BUILDS)
-ONEPLUS8T=$(grep -E "ro.product.vendor.device=kebab.*" $BUILDS)
-ONEPLUSNORD=$(grep -E "ro.product.vendor.device=avicii.*" $BUILDS)
-ONEPLUS99PRO9R=$(grep -E "ro.product.vendor.device=lemonade.*" $BUILDS)
-
+ONEPLUS7F=$(grep -E "ro.product.vendor.device=msmnile.*" $BUILDS)
+ONEPLUS8F=$(grep -E "ro.product.vendor.device=kona.*" $BUILDS)
+ONEPLUSNORD=$(grep -E "ro.product.vendor.device=lito.*" $BUILDS)
+ONEPLUS9ANDPRO=$(grep -E "ro.product.vendor.device=lahaina.*" $BUILDS)
+ONEPLUS9R=$(grep -E "ro.product.vendor.device=OnePlus9R.*" $BUILDS)
+ONEPLUS9RT=$(grep -E "ro.product.vendor.device=OnePlus9RT.*" $BUILDS)
+ONEPLUS9Pro=$(grep -E "ro.product.vendor.device=OnePlus9Pro.*" $BUILDS)
+ONEPLUS10=$(grep -E "ro.product.vendor.device=OnePlusN10.*" $BUILDS)
+ONEPLUSNORDCE=$(grep -E "ro.product.vendor.device=lito.*" $BUILDS)
+ONEPLUS11GLOBAL=$(grep -E "ro.product.vendor.device=OP594DL1.*" $BUILDS)

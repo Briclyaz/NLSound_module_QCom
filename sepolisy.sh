@@ -11,5 +11,3 @@ magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } dir rela
 magiskpolicy --live "allow     init { vendor_file vendor_configs_file } dir relabelfrom"
 magiskpolicy --live "dontaudit init { vendor_file vendor_configs_file } file relabelfrom"
 magiskpolicy --live "allow     init { vendor_file vendor_configs_file } file relabelfrom"
-
-
