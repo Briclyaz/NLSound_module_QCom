@@ -15,14 +15,29 @@ if [ -d $DIR ] && [ ! -f $AML/disable ]; then
 fi
 
 # notification
-sleep 10
+sleep 32
 su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"
 
 [ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
 
 #kekw
 A71=$(grep -E "ro.product.vendor.device=A71.*" $BUILDS)
+S22U=$(grep -E "ro.product.vendor.device=b0q.*" $BUILDS)
 RMEGTNEO3T=$(grep -E "ro.product.vendor.device=RE54E4L1.*" $BUILDS)
+
+PIXEL3a=$(grep -E "ro.product.vendor.device=bonito.*" $BUILDS)
+PIXEL3=$(grep -E "ro.product.vendor.device=blueline.*" $BUILDS)
+PIXEL4a=$(grep -E "ro.product.vendor.device=sunfish.*" $BUILDS)
+PIXEL4a5G=$(grep -E "ro.product.vendor.device=bramble.*" $BUILDS) 
+PIXEL4=$(grep -E "ro.product.vendor.device=flame.*" $BUILDS)
+PIXEL4XL=$(grep -E "ro.product.vendor.device=coral.*" $BUILDS)
+PIXEL5a5G=$(grep -E "ro.product.vendor.device=barbet.*" $BUILDS)
+PIXEL5=$(grep -E "ro.product.vendor.device=redfin.*" $BUILDS)
+PIXEL6a=$(grep -E "ro.product.vendor.device=bluejay.*" $BUILDS)
+PIXEL6=$(grep -E "ro.product.vendor.device=oriel.*" $BUILDS)
+PIXEL6Pro=$(grep -E "ro.product.vendor.device=raven.*" $BUILDS)
+PIXEL7=$(grep -E "ro.product.vendor.device=cheetah.*" $BUILDS)
+PIXEL7Pro=$(grep -E "ro.product.vendor.device=panther.*" $BUILDS)
 
 RN5PRO=$(grep -E "ro.product.vendor.device=whyred.*" $BUILDS)
 RN6PRO=$(grep -E "ro.product.vendor.device=tulip.*" $BUILDS)
@@ -40,12 +55,13 @@ RN10=$(grep -E "ro.product.vendor.device=mojito.*" $BUILDS)
 RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
 RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
 RN11=$(grep -E "ro.product.vendor.device=spes.*" $BUILDS)
+RN124GNFC=$(grep -E "ro.product.vendor.device=topaz.*" $BUILDS)
+RN124G=$(grep -E "ro.product.vendor.device=tapas.*" $BUILDS)
 
 RK305G=$(grep -E "ro.product.vendor.device=picasso.*" $BUILDS)
 RK304G=$(grep -E "ro.product.vendor.device=phoenix.*" $BUILDS)
 RK30U=$(grep -E "ro.product.vendor.device=cezanne.*" $BUILDS)
 RK30i5G=$(grep -E "ro.product.vendor.device=picasso48m.*" $BUILDS)
-RK40=$(grep -E "ro.product.vendor.device=alioth.*" $BUILDS)
 
 MI9SE=$(grep -E "ro.product.vendor.device=grus.*" $BUILDS)
 MICC9E=$(grep -E "ro.product.vendor.device=laurus.*" $BUILDS)
@@ -74,6 +90,11 @@ MI9P=$(grep -E "ro.product.vendor.device=crux.*" $BUILDS)
 MI12Pro=$(grep -E "ro.product.vendor.device=zeus.*" $BUILDS)
 MI12SPro=$(grep -E "ro.product.vendor.device=unicorn.*" $BUILDS)
 MI12SU=$(grep -E "ro.product.vendor.device=thor.*" $BUILDS)
+MI12x=$(grep -E "ro.product.vendor.device=psyche.*" $BUILDS)
+MI13Lite=$(grep -E "ro.product.vendor.device=zuyi.*" $BUILDS)
+MI13=$(grep -E "ro.product.vendor.device=fuxi.*" $BUILDS) #need check
+MI13Pro=$(grep -E "ro.product.vendor.device=nuwa.*" $BUILDS) #need check
+MI13U=$(grep -E "ro.product.vendor.device=mivendor.*" $BUILDS)
 MIXFOLD2=$(grep -E "ro.product.vendor.device=zizhan.*" $BUILDS)
 
 MIA2LITE=$(grep -E "ro.product.vendor.device=daisy.*" $BUILDS)
@@ -83,12 +104,16 @@ MIA3=$(grep -E "ro.product.vendor.device=laurel.*" $BUILDS)
 POCOF1=$(grep -E "ro.product.vendor.device=beryllium.*" $BUILDS)
 POCOF2P=$(grep -E "ro.product.vendor.device=lmi.*" $BUILDS)
 POCOF3=$(grep -E "ro.product.vendor.device=alioth.*" $BUILDS)
-POCOF3P=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
+POCOF4GT=$(grep -E "ro.product.vendor.device=ingres.*" $BUILDS)
+POCOF4=$(grep -E "ro.product.vendor.device=munch.*" $BUILDS)
+POCOF5=$(grep -E "ro.product.vendor.device=marble.*" $BUILDS)
+POCOF5Pro=$(grep -E "ro.product.vendor.device=mondrian.*" $BUILDS)
+POCOX5Pro=$(grep -E "ro.product.vendor.device=redwood.*" $BUILDS) 
 POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
-POCOM3=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
+POCOM3C=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
+POCOM3J=$(grep -E "ro.product.vendor.device=juice.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
-POCOF4GT=$(grep -E "ro.product.vendor.device=ingres.*" $BUILDS)
 
 ONEPLUS7F=$(grep -E "ro.product.vendor.device=msmnile.*" $BUILDS)
 ONEPLUS8F=$(grep -E "ro.product.vendor.device=kona.*" $BUILDS)

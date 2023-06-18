@@ -13,7 +13,7 @@
 # Uncomment DEBUG if you want full debug logs (saved to /sdcard)
 #MINAPI=21
 #MAXAPI=25
-DYNLIB=true
+#DYNLIB=true
 DEBUG=true
 
 ##########################################################################################
@@ -41,8 +41,7 @@ REPLACE="
 ##########################################################################################
 
 set_permissions() {
-  [ -d "$MODPATH/system/bin" ] && set_perm_recursive $MODPATH/system/bin 0 0 0755 0755
-  set_perm_recursive $MODPATH/tools 0 0 0755 0755
+  : # Remove this if adding to this function
 
   # Note that all files/folders in magisk module directory have the $MODPATH prefix - keep this prefix on all of your files/folders
   # Some examples:

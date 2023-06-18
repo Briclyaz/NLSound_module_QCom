@@ -4,16 +4,16 @@
 #
 ##########################################################################################
 
+cleanup() {
+  rm -rf $MODPATH/common 2>/dev/null
+}
+
 abort() {
   ui_print "$1"
   rm -rf $MODPATH 2>/dev/null
   cleanup
   rm -rf $TMPDIR 2>/dev/null
   exit 1
-}
-
-cleanup() {
-  rm -rf $MODPATH/common 2>/dev/null
 }
 
 device_check() {
@@ -106,42 +106,82 @@ prop_process() {
 }
 
 # Credits
-  ui_print " "
-  ui_print "***************************************************"
-  ui_print "*                                                 *"
-  ui_print "*               NLSound v3.6 STABLE               *"
-  ui_print "*                                                 *"
-  ui_print "*               special version for               *"
-  ui_print "*                                                 *"
-  ui_print "*            devices based on Qualcomm            *"
-  ui_print "*                                                 *"
-  ui_print "*      Support - https://t.me/nlsound_support     *"
-  ui_print "*                                                 *"
-  ui_print "*                        or                       *"
-  ui_print "*                                                 *"
-  ui_print "*                 @nlsound_support                *"
-  ui_print "*                                                 *"
-  ui_print "*      Updates - https://t.me/nlsound_updates     *"
-  ui_print "*                                                 *"
-  ui_print "*                        or                       *"
-  ui_print "*                                                 *"
-  ui_print "*                 @nlsound_updates                *"
-  ui_print "*                                                 *"
-  ui_print "***************************************************"
-  ui_print "*         MMT Extended by Zackptg5 @ XDA          *"
-  ui_print "***************************************************"
-  ui_print " "
-  
+ui_print " "
+ui_print "***************************************************"
+ui_print "*                                                 *"
+ui_print "*               NLSound v3.7 STABLE               *"
+ui_print "*                                                 *"
+ui_print "*               special version for               *"
+ui_print "*                                                 *"
+ui_print "*            devices based on Qualcomm            *"
+ui_print "*                                                 *"
+ui_print "*      Support - https://t.me/nlsound_support     *"
+ui_print "*                                                 *"
+ui_print "*                        or                       *"
+ui_print "*                                                 *"
+ui_print "*                 @nlsound_support                *"
+ui_print "*                                                 *"
+ui_print "*      Updates - https://t.me/nlsound_updates     *"
+ui_print "*                                                 *"
+ui_print "*                        or                       *"
+ui_print "*                                                 *"
+ui_print "*                 @nlsound_updates                *"
+ui_print "*                                                 *"
+ui_print "***************************************************"
+ui_print "*         MMT Extended by Zackptg5 @ XDA          *"
+ui_print "***************************************************"
+ui_print " "
+
 # Check for min/max api version
 [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"; }
 [ -z $MAXAPI ] || { [ $API -gt $MAXAPI ] && abort "! Your system API of $API is greater than the maximum api of $MAXAPI! Aborting!"; }
 
 # Set variables
+[ -z $ARCH32 ] && ARCH32="$(echo $ABI32 | cut -c-3)"
 [ $API -lt 26 ] && DYNLIB=false
 [ -z $DYNLIB ] && DYNLIB=false
 [ -z $DEBUG ] && DEBUG=false
 INFO=$NVBASE/modules/.$MODID-files
-ORIGDIR="$MAGISKTMP/mirror"
+if [ "$(echo $MAGISKTMP | awk -F/ '{ print $NF}')" == ".magisk" ]; then
+  ORIGDIR="$MAGISKTMP/mirror"
+else
+  ORIGDIR="$MAGISKTMP/.magisk/mirror"
+fi
+if [ -d $ORIGDIR/system ]; then
+  SYSTEM=`realpath $ORIGDIR/system`
+else
+  SYSTEM=`realpath /system`
+fi
+if [ -d $ORIGDIR/vendor ]; then
+  VENDOR=`realpath $ORIGDIR/vendor`
+else
+  VENDOR=`realpath /vendor`
+fi
+if [ -d $ORIGDIR/system_ext ]; then
+  SYSTEM_EXT=`realpath $ORIGDIR/system_ext`
+else
+  SYSTEM_EXT=`realpath /system_ext`
+fi
+if [ -d $ORIGDIR/mi_ext ]; then
+  MI_EXT=`realpath $ORIGDIR/mi_ext`
+else
+  MI_EXT=`realpath /mi_ext`
+fi
+if [ -d $ORIGDIR/product ]; then
+  PRODUCT=`realpath $ORIGDIR/product`
+else
+  PRODUCT=`realpath /product`
+fi
+if [ -d $ORIGDIR/odm ]; then
+  ODM=`realpath $ORIGDIR/odm`
+else
+  ODM=`realpath /odm`
+fi
+if [ -d $ORIGDIR/my_product ]; then
+  MY_PRODUCT=`realpath $ORIGDIR/my_product`
+else
+  MY_PRODUCT=`realpath /my_product`
+fi
 if $DYNLIB; then
   LIBPATCH="\/vendor"
   LIBDIR=/system/vendor
@@ -162,6 +202,7 @@ fi
 
 # Debug
 if $DEBUG; then
+  ui_print "- Debug mode"
   set -x
 fi
 
@@ -172,8 +213,9 @@ unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
 
 # Run addons
 if [ "$(ls -A $MODPATH/common/addon/*/install.sh 2>/dev/null)" ]; then
-  ui_print "- Running Addons"
+  ui_print " "; ui_print "- Running Addons -"
   for i in $MODPATH/common/addon/*/install.sh; do
+    ui_print "  Running $(echo $i | sed -r "s|$MODPATH/common/addon/(.*)/install.sh|\1|")..."
     . $i
   done
 fi
