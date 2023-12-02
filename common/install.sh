@@ -94,7 +94,7 @@ else
 fi
 }
 
-[ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
+[ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop /my_product/build.prop" || BUILDS="/system/build.prop"
 
 TG2=$(grep "ro.board.platform=gs201" $BUILDS) #tensor g2
 SD660=$(grep "ro.board.platform=sdm660" $BUILDS) #sdm 660
@@ -112,10 +112,11 @@ SD855=$(grep "ro.board.platform=msmnile" $BUILDS) #sdm 855
 SD865=$(grep "ro.board.platform=kona" $BUILDS) #sdm 865
 SD888=$(grep "ro.board.platform=lahaina" $BUILDS) #sdm 888
 SM6375=$(grep "ro.board.platform=holi" $BUILDS) #sdm 695
-SM8450=$(grep "ro.board.platform=taro" $BUILDS) #sdm 8 gen 1
+SM8450=$(grep "ro.board.platform=taro" $BUILDS) #sdm 8 gen 1 & 7 gen 2
 SM8550=$(grep "ro.board.platform=kalama" $BUILDS) #sdm 8+ gen 1 & sd 8 gen 2
+SM8650=$(grep "ro.board.platform=pineapple" $BUILDS) #sdm 8 gen 3
 
-if [ "$TG2" ] || [ "$SD662" ] || [ "$SD665" ] || [ "$SD670" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730G" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ] || [ "$SM6375" ] || [ "$SM8450" ] || [ "$SM8550" ]; then
+if [ "$TG2" ] || [ "$SD662" ] || [ "$SD665" ] || [ "$SD670" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730G" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ] || [ "$SM6375" ] || [ "$SM8450" ] || [ "$SM8550" ] || [ "$SM8650" ]; then
 HIFI=true
 ui_print " "
 ui_print "- Device with support Hi-Fi detected! -"
@@ -129,6 +130,7 @@ fi
 A71=$(grep -E "ro.product.vendor.device=A71.*" $BUILDS)
 S22U=$(grep -E "ro.product.vendor.device=b0q.*" $BUILDS)
 RMEGTNEO3T=$(grep -E "ro.product.vendor.device=RE54E4L1.*" $BUILDS)
+RMEGTNEO2=$(grep -E "ro.product.device=RE5473.*|ro.product.device=RE879AL1.*|ro.product.device=kona." $BUILDS)
 
 #reserved for pixels
 PIXEL3a=$(grep -E "ro.product.vendor.device=bonito.*" $BUILDS)
@@ -156,7 +158,7 @@ RN9S=$(grep -E "ro.product.vendor.device=curtana.*" $BUILDS)
 RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
 RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
 RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
-R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
+R9T=$(grep -E "ro.product.vendor.device=lime.*|ro.product.vendor.device=chime.*|ro.product.vendor.device=juice.*" $BUILDS)
 RN10=$(grep -E "ro.product.vendor.device=mojito.*" $BUILDS)
 RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
 RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
@@ -201,6 +203,9 @@ MI13Lite=$(grep -E "ro.product.vendor.device=zuyi.*" $BUILDS)
 MI13=$(grep -E "ro.product.vendor.device=fuxi.*" $BUILDS) #need check
 MI13Pro=$(grep -E "ro.product.vendor.device=nuwa.*" $BUILDS) #need check
 MI13U=$(grep -E "ro.product.vendor.device=mivendor.*" $BUILDS)
+MI14=$(grep -E "ro.product.vendor.device=houji.*" $BUILDS)
+MI14Pro=$(grep -E "ro.product.vendor.device=shennong.*" $BUILDS)
+
 MIXFOLD2=$(grep -E "ro.product.vendor.device=zizhan.*" $BUILDS)
 
 MIA2LITE=$(grep -E "ro.product.vendor.device=daisy.*" $BUILDS)
@@ -216,8 +221,7 @@ POCOF5=$(grep -E "ro.product.vendor.device=marble.*" $BUILDS)
 POCOF5Pro=$(grep -E "ro.product.vendor.device=mondrian.*" $BUILDS)
 POCOX5Pro=$(grep -E "ro.product.vendor.device=redwood.*" $BUILDS) 
 POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
-POCOM3C=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
-POCOM3J=$(grep -E "ro.product.vendor.device=juice.*" $BUILDS)
+POCOM3=$(grep -E "ro.product.vendor.device=citrus.*|ro.product.vendor.device=chime.*|ro.product.vendor.device=juice.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 
@@ -241,17 +245,20 @@ APIIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -
 APIEXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_extcodec*.xml")"
 APIQRDXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_qrd*.xml")"
 DEVFEAS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "$DEVICE.xml")" 
+DEVFEASNEW="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "DeviceFeatures.xml")" 
 AUDIOPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_policy_configuration.xml")"
 SNDTRGS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "*sound_trigger_mixer_paths*.xml")"
-MCODECS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "media_codecs_c2_audio.xml" -o -name "media_codecs_c2.xml" -o -name "media_codecs_google_audio.xml" -o -name "media_codecs_google_c2_audio.xml")"
+MCODECS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "media_codecs_c2_audio.xml" -o -name "media_codecs_google_audio.xml" -o -name "media_codecs_google_c2_audio.xml")"
 IOPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_io_policy.conf")"
 OUTPUTPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_output_policy.conf")"
+RESOURSES="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "resourcemanager_*.conf")"
 
 VNDK=$(find /system/lib /vendor/lib -type d -iname "*vndk*")
 VNDK64=$(find /system/lib64 /vendor/lib64 -type d -iname "*vndk*")
 VNDKQ=$(find /system/lib /vendor/lib -type d -iname "vndk*-Q")
 
 SETTINGS=$MODPATH/settings.nls
+SERVICE=$MODPATH/service.sh
 
 STEP1=false
 STEP2=false
@@ -297,7 +304,7 @@ ui_print " - Configurate me, pls >.< - "
 ui_print " "
 
 ui_print "***************************************************"
-ui_print "* [1/16]                                          *"
+ui_print "* [1/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*            • SELECT VOLUME STEPS •              *"
 ui_print "*       Lower value - faster volume control       *"
@@ -340,7 +347,7 @@ sed -i 's/VOLSTEPS=skip/VOLSTEPS='$VOLSTEPSINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [2/16]                                          *"
+ui_print "* [2/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*          • SELECT VOLUMES FOR MEDIA •           *"
 ui_print "*      Lower numerical value - lower volume       *"
@@ -391,7 +398,7 @@ sed -i 's/VOLMEDIA=skip/VOLMEDIA='$VOLMEDIASINT'/g' $SETTINGS
 
 ui_print "  "
 ui_print "***************************************************"
-ui_print "* [3/16]                                          *"
+ui_print "* [3/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • SELECT MICROPHONE SENSITIVITY •        *"
 ui_print "*       Lower numerical value - lower volume      *"
@@ -443,7 +450,7 @@ sed -i 's/VOLMIC=skip/VOLMIC='$VOLMICINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [4/16]                                          *"
+ui_print "* [4/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*            • SELECT AUDIO FORMAT •              *"
 ui_print "*                                                 *"
@@ -492,9 +499,9 @@ sed -i 's/BITNES=skip/BITNES='$BITNESINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [5/16]                                          *"
+ui_print "* [5/15]                                          *"
 ui_print "*                                                 *"
-ui_print "*             • SELECT SAMPLING RATE •            *"
+ui_print "*            • SELECT SAMPLING RATE •             *"
 ui_print "*                                                 *"
 ui_print "*     This step configures your audio codec,      *"
 ui_print "*     forcing it to process your audio more       *"
@@ -540,7 +547,7 @@ sed -i 's/SAMPLERATE=skip/SAMPLERATE='$SAMPLERATEINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [6/16]                                          *"
+ui_print "* [6/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • TURN OFF SOUND INTERFERENCE •          *"
 ui_print "*                                                 *"
@@ -560,7 +567,7 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [7/16]                                          *"
+ui_print "* [7/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • CONFIGURE INTERNAL AUDIO CODEC •       *"
 ui_print "*                                                 *"
@@ -581,7 +588,7 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [8/16]                                          *"
+ui_print "* [8/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*       • PATCHING DEVICE_FEATURES FILES •        *"
 ui_print "*                                                 *"
@@ -606,28 +613,7 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [9/16]                                          *"
-ui_print "*                                                 *"
-ui_print "*            • INSTALL CUSTOM DIRAC •             *"
-ui_print "*                                                 *"
-ui_print "*  Dirac is an audio library that superficially   *"
-ui_print "*      processes sound. To put it bluntly,        *"
-ui_print "*         some analogue of Dolby Atmos.           *"
-ui_print "*    We reconfigured it and added the author's    *"
-ui_print "*        equalizer preset with an emphasis        *"
-ui_print "*         on low and mid-low frequencies.         *"
-ui_print "*_________________________________________________*"
-ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
-ui_print "***************************************************"
-ui_print " "
-if chooseport 60; then
-STEP9=true
-sed -i 's/STEP9=false/STEP9=true/g' $SETTINGS
-fi
-
-ui_print " "
-ui_print "***************************************************"
-ui_print "* [10/16]                                         *"
+ui_print "* [9/15]                                          *"
 ui_print "*                                                 *"
 ui_print "*      • OTHER PATCHES IN MIXER_PATHS FILES •     *"
 ui_print "*                                                 *"
@@ -660,13 +646,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP10=true
-sed -i 's/STEP10=false/STEP10=true/g' $SETTINGS
+STEP9=true
+sed -i 's/STEP9=false/STEP9=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [11/16]                                         *"
+ui_print "* [10/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*         • TWEAKS FOR BUILD.PROP FILES •         *"
 ui_print "*                                                 *"
@@ -679,13 +665,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP11=true
-sed -i 's/STEP11=false/STEP11=true/g' $SETTINGS
+STEP10=true
+sed -i 's/STEP10=false/STEP10=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [12/16]                                         *"
+ui_print "* [11/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*             • IMPROVE BLUETOOTH •               *"
 ui_print "*                                                 *"
@@ -697,13 +683,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP12=true
-sed -i 's/STEP12=false/STEP12=true/g' $SETTINGS
+STEP11=true
+sed -i 's/STEP11=false/STEP11=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [13/16]                                         *"
+ui_print "* [12/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*            • SWITCH AUDIO OUTPUT •              *"
 ui_print "*                                                 *"
@@ -716,13 +702,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP13=true
-sed -i's/STEP13=false/STEP13=true/g' $SETTINGS
+STEP12=true
+sed -i's/STEP12=false/STEP12=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [14/16]                                         *"
+ui_print "* [13/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*        • INSTALL CUSTOM PRESET FOR IIR •        *"
 ui_print "*                                                 *"
@@ -736,13 +722,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP14=true
-sed -i 's/STEP14=false/STEP14=true/g' $SETTINGS
+STEP13=true
+sed -i 's/STEP13=false/STEP13=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [15/16]                                         *"
+ui_print "* [14/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*          • IGNORE ALL AUDIO EFFECTS •           *"
 ui_print "*                                                 *"
@@ -754,7 +740,7 @@ ui_print "*            for quality headphones.              *"
 ui_print "*                                                 *"
 ui_print "*                     Note:                       *"
 ui_print "*     If you agree, the sound becomes drier,      *"
-ui_print "*                   "cleaner".                    *"
+ui_print "*                    cleaner.                     *"
 ui_print "*      However, many people are advised to        *"
 ui_print "*               skip this point.                  *"
 ui_print "*_________________________________________________*"
@@ -762,13 +748,13 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP15=true
-sed -i 's/STEP15=false/STEP15=true/g' $SETTINGS
+STEP14=true
+sed -i 's/STEP14=false/STEP14=true/g' $SETTINGS
 fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [16/16]                                         *"
+ui_print "* [15/15]                                         *"
 ui_print "*                                                 *"
 ui_print "*         • INSTALL EXPERIMENTAL TWEAKS •         *"
 ui_print "*                                                 *"
@@ -786,8 +772,8 @@ ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
 ui_print " "
 if chooseport 60; then
-STEP16=true
-sed -i 's/STEP16=false/STEP16=true/g' $SETTINGS
+STEP15=true
+sed -i 's/STEP15=false/STEP15=true/g' $SETTINGS
 fi
 
 ui_print " - YOUR SETTINGS: "
@@ -799,17 +785,15 @@ ui_print " 5. Sample rate configuration: $SAMPLERATEINT"
 ui_print " 6. Turn off sound interference: $STEP6"
 ui_print " 7. Configurating interal audio codec: $STEP7"
 ui_print " 8. Patching device_features files: $STEP8"
-ui_print " 9. Install custom Dirac: $STEP9"
-ui_print " 10. Other patches in mixer_paths files: $STEP10"
-ui_print " 11. Tweaks for build.prop files: $STEP11"
-ui_print " 12. Improve bluetooth: $STEP12"
-ui_print " 13. Switch audio output: $STEP13"
-ui_print " 14. Install custom preset for IIR: $STEP14"
-ui_print " 15. Ignore all audio effects: $STEP15"
-ui_print " 16. Install experimental tweaks: $STEP16"
+ui_print " 9. Other patches in mixer_paths files: $STEP9"
+ui_print " 10. Tweaks for build.prop files: $STEP10"
+ui_print " 11. Improve bluetooth: $STEP11"
+ui_print " 12. Switch audio output: $STEP12"
+ui_print " 13. Install custom preset for IIR: $STEP13"
+ui_print " 14. Ignore all audio effects: $STEP14"
+ui_print " 15. Install experimental tweaks: $STEP15"
 ui_print " "
 
-ui_print " "
 ui_print " - Processing. . . -"
 ui_print " "
 ui_print " - You can minimize Magisk and use the device normally -"
@@ -834,15 +818,28 @@ patch_xml -s $APIXML '/audio_platform_info/bit_width_configs/device[@name="SND_D
 patch_xml -s $APIXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
+
+patch_xml -s $APIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL"]' "acdb_id=$MODID"
+patch_xml -s $APIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_STEREO_DMIC"]' "acdb_id=$MODID"
 if [ ! "$(grep '<app_types>' $APIXML)" ]; then
 sed -i 's/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69936\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69940\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n  <app_types> \n<\/audio_platform_info>/' $APIXML  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIXML)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n\1\2/}' $APIXML
+[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIXML)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/> \n\1\2/}' $APIXML
 done
 fi
 done
 fi
+
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIXML
+
+#try fix bad microphones
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="0"/g' $APIXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="0"/g' $APIXML
+sed -i 's/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="0"/g' $APIXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="0"/g' $APIXML
 fi
 
 if [ "$BITNESINT" != "Skip" ]; then
@@ -863,15 +860,28 @@ patch_xml -s $APIIXML '/audio_platform_info_intcodec/bit_width_configs/device[@n
 patch_xml -s $APIIXML '/audio_platform_info_intcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIIXML '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIIXML '/audio_platform_info_intcodec/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
+
+patch_xml -s $APIIXML '/audio_platform_info_intcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIIXML '/audio_platform_info_intcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL"]' "acdb_id=$MODID"
+patch_xml -s $APIIXML '/audio_platform_info_intcodec/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIIXML '/audio_platform_info_intcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_STEREO_DMIC"]' "acdb_id=$MODID"
 if [ ! "$(grep '<app_types>' $APIIXML)" ]; then
 sed -i 's/<\/audio_platform_info_intcodec>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69936\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69940\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n  <app_types> \n<\/audio_platform_info_intcodec>/' $APIIXML  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info_intcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIIXML)" ] || sed -i '/<audio_platform_info_intcodec>/,/<\/audio_platform_info_intcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n\1\2/}' $APIIXML
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_intcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIIXML)" ] || sed -i '/<audio_platform_info_intcodec>/,/<\/audio_platform_info_intcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/> \n\1\2/}' $APIIXML
 done
 fi
 done
 fi
+
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIIXML
+
+#try fix bad microphones
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="0"/g' $APIIXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="0"/g' $APIIXML
+sed -i 's/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="0"/g' $APIIXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="0"/g' $APIIXML
 fi
 
 if [ "$BITNESINT" != "Skip" ]; then
@@ -892,15 +902,28 @@ patch_xml -s $APIEXML '/audio_platform_info_extcodec/bit_width_configs/device[@n
 patch_xml -s $APIEXML '/audio_platform_info_extcodec/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIEXML '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIEXML '/audio_platform_info_extcodec/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
+
+patch_xml -s $APIEXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIEXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL"]' "acdb_id=$MODID"
+patch_xml -s $APIEXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIEXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_STEREO_DMIC"]' "acdb_id=$MODID"
 if [ ! "$(grep '<app_types>' $APIEXML)" ]; then
 sed -i 's/<\/audio_platform_info_extcodec>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69936\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69940\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n  <app_types> \n<\/audio_platform_info_extcodec>/' $APIEXML  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIEXML)" ] || sed -i '/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n\1\2/}' $APIEXML
+[ "$(xmlstarlet sel -t -m "/audio_platform_info_extcodec/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIEXML)" ] || sed -i '/<audio_platform_info_extcodec>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/> \n\1\2/}' $APIEXML
 done
 fi
 done
 fi
+
+sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIEXML
+
+#try fix bad microphones
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="0"/g' $APIEXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="0"/g' $APIEXML
+sed -i 's/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="0"/g' $APIEXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="0"/g' $APIEXML
 fi
 
 if [ "$BITNESINT" != "Skip" ]; then
@@ -921,37 +944,57 @@ patch_xml -s $APIQRDXML '/audio_platform_info/bit_width_configs/device[@name="SN
 patch_xml -s $APIQRDXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIQRDXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIQRDXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
+
+patch_xml -s $APIQRDXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIQRDXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL"]' "acdb_id=$MODID"
+patch_xml -s $APIQRDXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
+patch_xml -s $APIQRDXML '/audio_platform_info_extcodec/acdb_ids/device[@name="SND_DEVICE_IN_HANDSET_STEREO_DMIC"]' "acdb_id=$MODID"
 if [ ! "$(grep '<app_types>' $APIQRDXML)" ]; then
 sed -i 's/<\/audio_platform_info>/  <app_types> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69936\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n<app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"69940\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n  <app_types> \n<\/audio_platform_info>/' $APIQRDXML  
 else
 for i in 69936 69940; do
-[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIQRDXML)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/\/> \n\1\2/}' $APIQRDXML
+[ "$(xmlstarlet sel -t -m "/audio_platform_info/app_types/app[@uc_type=\"PCM_PLAYBACK\"][@mode=\"default\"][@id=\"$i\"]" -c . $APIQRDXML)" ] || sed -i '/<audio_platform_info>/,/<\/audio_platform_info_extcodec>/ {/<app_types>/,/<\/app_types>/ s/\(^ *\)\(<\/app_types>\)/\1  <app uc_type=\"PCM_PLAYBACK\" mode=\"default\" bit_width=\"'$BITNESINT'\" id=\"$i\" max_rate=\"'$SAMPLERATEINT'\" \/> \n\1\2/}' $APIQRDXML
 done
 fi
 done
-#end step
 fi 
 
-sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIXML
-sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIIXML
-sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIEXML
 sed -i 's/AUDIO_MICROPHONE_CHANNEL_MAPPING_PROCESSED/AUDIO_MICROPHONE_CHANNEL_MAPPING_DIRECT/g' $APIQRDXML
 
-sed -i 's/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id=".*"/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id="41"/g' $APIXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id="41"/g' $APIXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id="41"/g' $APIXML
+#try fix bad microphones
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC" acdb_id="0"/g' $APIQRDXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_MIC_EXTERNAL" acdb_id="0"/g' $APIQRDXML
+sed -i 's/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="NLSound"/name="SND_DEVICE_IN_CAMCORDER_MIC" acdb_id="0"/g' $APIQRDXML
+sed -i 's/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="NLSound"/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="0"/g' $APIQRDXML
 
-sed -i 's/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id=".*"/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id="41"/g' $APIIXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id="41"/g' $APIIXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id="41"/g' $APIIXML
+if [ "$POCOF5" ]; then
+for ORESOURSES in ${RESOUSES}; do
+RESS="$MODPATH$(echo $ORESOURSES | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
+cp_ch -f $ORIGDIR$ORESOURSES $RESS
+sed -i 's/\t/  /g' $RESS
 
-sed -i 's/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id=".*"/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id="41"/g' $APIEXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id="41"/g' $APIEXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id="41"/g' $APIEXML
+sed -i 's/name="hifi_filter" value="false"/name="hifi_filter" value="true"/g' $RESS
 
-sed -i 's/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id=".*"/name="SND_DEVICE_IN_UNPROCESSED_MIC" acdb_id="41"/g' $APIQRDXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_TMIC" acdb_id="41"/g' $APIQRDXML
-sed -i 's/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id=".*"/name="SND_DEVICE_IN_VOICE_REC_MIC" acdb_id="41"/g' $APIQRDXML
+sed -i '/^out-device/a\
+  <id>PAL_DEVICE_OUT_SPEAKER</id>\
+            <back_end_name>CODEC_DMA-LPAIF_WSA-RX-0</back_end_name>\
+            <max_channels>2</max_channels>\
+            <channels>2</channels>\
+            <samplerate>96000</samplerate>\
+            <bit_width>24</bit_width>\
+            <snd_device_name>speaker</snd_device_name>\
+            <speaker_protection_enabled>1</speaker_protection_enabled>\
+            <fractional_sr>0</fractional_sr>\
+            <ext_ec_ref_enabled>0</ext_ec_ref_enabled>\
+            <cps_enabled>0</cps_enabled>\
+            <vbat_enabled>0</vbat_enabled>\
+            <supported_bit_format>PAL_AUDIO_FMT_PCM_S24_LE</supported_bit_format>\
+            <ras_enabled>0</ras_enabled>\' $RESS
+#end pcoc f5 cringe
+done
+fi
+
+#end STEP
 fi
 
 ui_print " "
@@ -1027,68 +1070,36 @@ for ODEVFEA in ${DEVFEAS}; do
 DEVFEA="$MODPATH$(echo $ODEVFEA | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
 cp_ch -f $ORIGDIR$ODEVFEA $DEVFEA
 sed -i 's/\t/  /g' $DEVFEA
-sed -i 's/support_a2dp_latency" value="false"/support_a2dp_latency" value="true"/g' $DEVFEA
-sed -i 's/support_samplerate_48000" value="false"/support_samplerate_48000" value="true"/g' $DEVFEA
-sed -i 's/support_samplerate_96000" value="false"/support_samplerate_96000" value="true"/g' $DEVFEA
-sed -i 's/support_samplerate_192000" value="false"/support_samplerate_192000" value="true"/g' $DEVFEA
-sed -i 's/support_low_latency" value="false"/support_low_latency" value="true"/g' $DEVFEA
-sed -i 's/support_mid_latency" value="true"/support_mid_latency" value="false"/g' $DEVFEA
-sed -i 's/support_high_latency" value="true"/support_high_latency" value="false"/g' $DEVFEA
-sed -i 's/support_interview_record_param" value="true"/support_interview_record_param" value="false"/g' $DEVFEA
-sed -i 's/ext_qdsp_enabled" value="false"/ext_qdsp_enabled" value="true"/g' $DEVFEA
-sed -i 's/ext_qdsp_enabled" value="false"/ext_qdsp_enabled" value="true"/g' $DEVFEA
-sed -i 's/ext_qdsp_enabled" value="false"/ext_qdsp_enabled" value="true"/g' $DEVFEA
-sed -i 's/ext_qdsp_enabled" value="false"/ext_qdsp_enabled" value="true"/g' $DEVFEA
-done
-fi
-
-
-if [ "$STEP9" == "true" ]; then
-for OFILE in ${AECFGS}; do
-FILE="$MODPATH$(echo $OFILE | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
-cp_ch -f $ORIGDIR$OFILE $FILE
-sed -i 's/\t/  /g' $FILE
-altmemes_confxml $FILE
-memes_confxml "dirac_gef" "dirac_gef" "$DYNLIBPATCH\/lib\/soundfx" "libdiraceffect.so" "3799d6d1-22c5-43c3-b3ec-d664cf8d2f0d"
-effects_patching -post "$FILE" "music" "dirac_gef"
+patch_xml -s $DEVFEA '/features/bool[@name="support_powersaving_mode"]' "false"
+patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_48000"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_96000"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_192000"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_352000"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_samplerate_384000"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_low_latency"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_mid_latency"]' "false"
+patch_xml -s $DEVFEA '/features/bool[@name="support_high_latency"]' "false"
+patch_xml -s $DEVFEA '/features/bool[@name="support_playback_device"]' "true"
+patch_xml -s $DEVFEA '/features/bool[@name="support_boost_mode"]' "true"
+sed -i 's/name="support_hifi">false</name="support_hifi">true</g' $DEVFEA
+sed -i 's/name="support_dolby">false</name="support_dolby">true</g' $DEVFEA
+sed -i 's/name="support_hd_record_param">false</name="support_hd_record_param">true</g' $DEVFEA
+sed -i 's/name="support_stereo_record">false</name="support_stereo_record">true</g' $DEVFEA
 done
 
-mkdir -p $MODPATH/system/vendor/etc/dirac $MODPATH/system/vendor/lib/rfsa/adsp $MODPATH/system/vendor/lib/soundfx
-cp_ch $NEWdirac/diracvdd.bin $MODPATH/system/vendor/etc/
-cp_ch $NEWdirac/interfacedb $MODPATH/system/vendor/etc/dirac
-cp_ch $NEWdirac/dirac_resource.dar $MODPATH/system/vendor/lib/rfsa/adsp
-cp_ch $NEWdirac/dirac.so $MODPATH/system/vendor/lib/rfsa/adsp
-cp_ch $NEWdirac/libdirac-capiv2.so $MODPATH/system/vendor/lib/rfsa/adsp
-cp_ch $NEWdirac/libdiraceffect.so $MODPATH/system/vendor/lib/soundfx
 
-echo -e '\n# Dirac configurations by NLSound Team
-persist.dirac.acs.controller=gef
-persist.dirac.gef.oppo.syss=true
-persist.dirac.config=64
-persist.dirac.gef.exs.did=50,50
-persist.dirac.gef.ext.did=150,150,150,150
-persist.dirac.gef.ins.did=50,50,50
-persist.dirac.gef.int.did=150,150,150,150
-persist.dirac.gef.ext.appt=0x00011130,0x00011134,0x00011136
-persist.dirac.gef.exs.appt=0x00011130,0x00011131
-persist.dirac.gef.int.appt=0x00011130,0x00011134,0x00011136
-persist.dirac.gef.ins.appt=0x00011130,0x00011131
-persist.dirac.gef.exs.mid=268512739
-persist.dirac.gef.ext.mid=268512737
-persist.dirac.gef.ins.mid=268512738
-persist.dirac.gef.int.mid=268512736
-persist.dirac.path=/vendor/etc/dirac
-ro.dirac.acs.storeSettings=1
-persist.dirac.acs.ignore_error=1
-ro.audio.soundfx.dirac=true
-ro.vendor.audio.soundfx.type=dirac
-persist.audio.dirac.speaker=true
-persist.audio.dirac.eq=0.0,0.0,0.0,0.0,0.0,0.0,0.0
-persist.audio.dirac.headset=0
-persist.audio.dirac.music.state=1' >> $PROP
+for ODEVFEANEW in ${DEVFEASNEW}; do 
+DEVFEANEW="$MODPATH$(echo $ODEVFEANEW | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
+cp_ch -f $ORIGDIR$ODEVFEANEW $DEVFEANEW
+sed -i 's/\t/  /g' $DEVFEANEW
+sed -i -e '1 s/^/<feature name="android.hardware.audio.pro"/>\n/;' $DEVFEANEW
+sed -i -e '2 s/^/<feature name="android.hardware.broadcastradio"/>\n/;' $DEVFEANEW
+done
+
+#end step8
 fi
 
-if [ "$STEP11" == "true" ]; then
+if [ "$STEP10" == "true" ]; then
 echo -e "\n# Better parameters audio by NLSound Team
 flac.sw.decoder.24bit.support=true
 vendor.audio.flac.sw.decoder.24bit=true
@@ -1166,8 +1177,6 @@ ro.vendor.af.raise_bt_thread_prio=true
 audio.decoder_override_check=true
 vendor.qc2audio.suspend.enabled=false
 vendor.qc2audio.per_frame.flac.dec.enabled=true
-ro.mediacodec.min_sample_rate=48000
-ro.mediacodec.max_sample_rate=384000
 media.stagefright.thumbnail.prefer_hw_codecs=true
 
 vendor.audio.tunnel.encode=true
@@ -1190,7 +1199,6 @@ vendor.audio.feature.external_dsp.enable=true
 vendor.audio.feature.external_speaker.enable=true
 vendor.audio.feature.external_speaker_tfa.enable=true
 vendor.audio.feature.ext_hw_plugin.enable=true
-vendor.audio.feature.keep_alive.enable=true
 vendor.audio.feature.compress_meta_data.enable=false
 vendor.audio.feature.compr_cap.enable=false
 vendor.audio.feature.devicestate_listener.enable=false
@@ -1200,6 +1208,7 @@ vendor.audio.feature.hifi_audio.enable=true
 vendor.audio.feature.keep_alive.enable=true
 vendor.audio.feature.deepbuffer_as_primary.enable=false 
 vendor.audio.feature.dmabuf.cma.memory.enable=true
+vendor.audio.feature.compress_in.enable=false
 vendor.audio.feature.battery_listener.enable=false
 vendor.audio.feature.custom_stereo.enable=true
 vendor.audio.feature.wsa.enable=true
@@ -1210,7 +1219,7 @@ ro.config.hifi_config_state=1
 ro.config.hifi_enhance_support=1
 ro.hardware.hifi.support=true
 persist.audio.hifi=true
-persist.audio.hifi.volume=90
+persist.audio.hifi.volume=1
 persist.audio.hifi.int_codec=true
 persist.audio.hifi_adv_support=1
 persist.audio.hifi_dac=ON
@@ -1263,7 +1272,6 @@ vendor.audio.read.wsatz.type=true
 vendor.audio.powerhal.power.ul=true
 vendor.audio.powerhal.power.dl=true
 vendor.audio.hal.boot.timeout.ms=5000
-vendor.audio.gsl.shmem.dmaheap.uncached=true
 vendor.audio.LL.coeff=100
 vendor.audio.caretaker.at=true
 vendor.audio.matrix.limiter.enable=0
@@ -1276,7 +1284,6 @@ vendor.audio.tfa9874.dsp.enabled=true
 vendor.audio.lowpower=false
 vendor.audio.compress_capture.enabled=false 
 vendor.audio.compress_capture.aac=false
-vendor.audio.spkr_prot.tx.sampling_rate=192000
 vendor.audio.rt.mode=23
 vendor.audio.rt.mode.onlyfast=false 
 vendor.audio.cpu.sched=31
@@ -1293,9 +1300,9 @@ vendor.media.amplayer.audiolimiter=false
 vendor.media.amplayer.videolimiter=false 
 vendor.media.audio.ms12.downmixmode=on
 ro.audio.resampler.psd.enable_at_samplerate=192000
-ro.audio.resampler.psd.halflength=240
-ro.audio.resampler.psd.stopband=20
-ro.audio.resampler.psd.cutoff_percent=100
+ro.audio.resampler.psd.cutoff_percent=110
+ro.audio.resampler.psd.stopband=179
+ro.audio.resampler.psd.halfflength=408
 ro.audio.resampler.psd.tbwcheat=110
 ro.audio.soundtrigger.lowpower=false
 ro.vendor.audio_tunning.dual_spk=2
@@ -1307,7 +1314,6 @@ ro.vendor.audio.ce.compensation.value=5
 ro.vendor.audio.enhance.support=true
 ro.vendor.audio.gain.support=true
 ro.vendor.audio.spk.clean=false
-ro.vendor.audio.3d.audio.support=true
 ro.vendor.audio.pastandby=true
 ro.vendor.audio.dpaudio=true
 ro.vendor.audio.spk.stereo=true
@@ -1332,14 +1338,17 @@ persist.vendor.audio.speaker.stereo=true
 persist.vendor.audio_hal.dsp_bit_width_enforce_mode=24
 
 persist.vendor.audio.ll_playback_bargein=true
-persist.vendor.audio.delta.refresh=true" >> $PROP
+persist.vendor.audio.delta.refresh=true
+
+#test
+alsa.mixer.playback.master=DAC1" >> $PROP
 #exit
 fi
 
 ui_print " "
 ui_print "   ################======================== 40% done!"
 
-if [ "$STEP12" == "true" ]; then
+if [ "$STEP11" == "true" ]; then
 echo -e "\n# Bluetooth parameters by NLSound Team
 config.disable_bluetooth=false
 bluetooth.profile.a2dp.source.enabled=true
@@ -1366,16 +1375,18 @@ persist.vendor.qcom.bluetooth.aac_frm_ctl.enabled=true
 persist.vendor.btstack.enable.twsplussho=true
 persist.vendor.btstack.enable.twsplus=true
 persist.vendor.qcom.bluetooth.twsp_state.enabled=false
-persist.vendor.qcom.bluetooth.scram.enabled=false 
 persist.vendor.bluetooth.prefferedrole=master
 persist.vendor.bluetooth.leaudio_mode=off
-persist.vendor.bluetooth.connection_improve=yes
 persist.bluetooth.a2dp_offload.aidl_flag=aidl
 persist.bluetooth.dualconnection.supported=true
 persist.bluetooth.a2dp_aac_abr.enable=false
 persist.bluetooth.bluetooth_audio_hal.disabled=false
 persist.bluetooth.sbc_hd_higher_bitrate=1
-persist.sys.fflag.override.settings_bluetooth_hearing_aid=true" >> $PROP
+persist.sys.fflag.override.settings_bluetooth_hearing_aid=true
+
+# broken bluetooth on custom roms A13+ 
+# persist.vendor.qcom.bluetooth.scram.enabled=false 
+persist.vendor.bluetooth.connection_improve=yes" >> $PROP
 fi
 
 #patching audio_io_policy file
@@ -1384,7 +1395,7 @@ IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s
 cp_ch -f $ORIGDIR$OIOPOLICY $IOPOLICY
 sed -i 's/\t/  /g' $IOPOLICY
 
-if [ "$STEP13" == "true" ]; then
+if [ "$STEP12" == "true" ]; then
 sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
 sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
 fi
@@ -1449,11 +1460,11 @@ done
 
 #patching audio_output_policy file
 for OOUTPUTPOLICY in ${OUTPUTPOLICYS}; do
-OUTPUTPOLICY="$MODPATH$(echo $OUTPUTPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
+OUTPUTPOLICY="$MODPATH$(echo $OOUTPUTPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
 cp_ch -f $ORIGDIR$OOUTPUTPOLICY $OUTPUTPOLICY
 sed -i 's/\t/  /g' $OUTPUTPOLICY
 
-if [ "$STEP13" == "true" ]; then
+if [ "$STEP12" == "true" ]; then
 sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $OUTPUTPOLICY
 sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $OUTPUTPOLICY
 fi
@@ -1530,7 +1541,6 @@ for OMCODECS in ${MCODECS}; do
 MEDIACODECS="$MODPATH$(echo $OMCODECS | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
 cp_ch -f $ORIGDIR$OMCODECS $MEDIACODECS
 sed -i 's/\t/  /g' $MEDIACODECS
-sed -i 's/<<!--.*-->>//; s/<!--.*-->>//; s/<<!--.*-->//; s/<!--.*-->//; /<!--/,/-->/d; /^ *#/d; /^ *$/d' $MEDIACODECS
 sed -i 's/name="sample-rate" ranges="8000,11025,12000,16000,22050,24000,32000,44100,48000"/name="sample-rate" ranges="1-655350"/g' $MEDIACODECS
 sed -i 's/name="sample-rate" ranges="32000,44100,48000"/name="sample-rate" ranges="1-655350"/g' $MEDIACODECS
 sed -i 's/name="sample-rate" ranges="48000"/name="sample-rate" ranges="1-655350"/g' $MEDIACODECS
@@ -1558,7 +1568,6 @@ sed -i 's/name="bitrate" range="32000-640000"/name="bitrate" range="1-21000000"/
 sed -i 's/name="bitrate" range="32000-6144000"/name="bitrate" range="1-21000000"/g' $MEDIACODECS
 sed -i 's/name="bitrate" range="16000-2688000"/name="bitrate" range="1-21000000"/g' $MEDIACODECS
 sed -i 's/name="bitrate" range="64000"/name="bitrate" range="1-21000000"/g' $MEDIACODECS
-sed -i '/^ *#/d; /^ *$/d' $MEDIACODECS
 done
 
 ui_print " "                 
@@ -1644,7 +1653,7 @@ patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT1 Volume"]' "5"
 patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT2 Volume"]' "5"
 fi
 
-if [ "$STEP14" == "true" ]; then
+if [ "$STEP13" == "true" ]; then
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="0"]' "268833620"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="1"]' "537398060"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Band1"][@id="2"]' "267510580"
@@ -1676,12 +1685,12 @@ patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band2"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band3"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band4"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band5"]' "1"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "90"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "90"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "90"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "90"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "90"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "90"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "84"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX1"
@@ -1714,6 +1723,24 @@ patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC5 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC6 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC7 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC0 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC1 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC2 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC3 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC4 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC5 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC6 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC7 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC8 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC0 Volume"]' "$VOLMICINT"
+#patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC1 Volume"]' "$VOLMICINT" - microphone crackling in the background
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC2 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC3 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC4 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC5 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC6 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC7 Volume"]' "$VOLMICINT"
+patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC8 Volume"]' "$VOLMICINT"
 fi
 
 if [ "$STEP6" == "true" ]; then
@@ -2031,18 +2058,22 @@ patch_xml -u $MIX '/mixer/path[@name=headphones-generic]/ctl[@name=HPHL_COMP Swi
 patch_xml -u $MIX '/mixer/path[@name=headphones-generic]/ctl[@name=HPHR_COMP Switch]' "0"
 fi
 
-if [ "$STEP10" == "true" ]; then
+if [ "$STEP9" == "true" ]; then
 if [ "$HIFI" == "true" ]; then
 patch_xml -s $MIX '/mixer/ctl[@name="RX1 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="RX2 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="RX3 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="RX4 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="RX5 HPF cut off"]' "CF_NEG_3DB_4HZ"
+patch_xml -s $MIX '/mixer/ctl[@name="RX6 HPF cut off"]' "CF_NEG_3DB_4HZ"
+patch_xml -s $MIX '/mixer/ctl[@name="RX7 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="TX1 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="TX2 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="TX3 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="TX4 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -s $MIX '/mixer/ctl[@name="TX5 HPF cut off"]' "CF_NEG_3DB_4HZ"
+patch_xml -s $MIX '/mixer/ctl[@name="TX6 HPF cut off"]' "CF_NEG_3DB_4HZ"
+patch_xml -s $MIX '/mixer/ctl[@name="TX7 HPF cut off"]' "CF_NEG_3DB_4HZ"
 patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_LOHIFI"
 patch_xml -u $MIX '/mixer/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
 patch_xml -u $MIX '/mixer/path[@name="headphones"]/ctl[@name="RX_HPH_PWR_MODE"]' "LOHIFI"
@@ -2099,89 +2130,36 @@ patch_xml -s $MIX '/mixer/ctl[@name="App Type Gain"]' "8192"
 patch_xml -s $MIX '/mixer/ctl[@name="Audiosphere Enable"]' "On"
 patch_xml -s $MIX '/mixer/ctl[@name="MSM ASphere Set Param"]' "1"
 patch_xml -s $MIX '/mixer/ctl[@name="Load acoustic model"]' "1"
+
+if [ "$PIXEL6a" ] || [ "$PIXEL6" ] || [ "$PIXEL6Pro" ] || [ "$PIXEL7" ] || [ "$PIXEL7Pro" ]; then
+patch_xml -s $MIX '/mixer/ctl[@name="AMP PCM Gain"]' "14"
+patch_xml -s $MIX '/mixer/ctl[@name="Digital PCM Volume"]' "865"
+patch_xml -s $MIX '/mixer/ctl[@name="Boost Peak Current Limit"]' "3.50A"
+fi
+
+
 #end STEP7 patching
 fi
 
-if [ "$POCOX3" ]; then
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE LEFT"]' "7"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP LEFT"]' "3"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X RX MODE LEFT"]' "Speaker"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE LEFT"]' "12"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT LEFT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME RIGHT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE RIGHT"]' "7"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP RIGHT"]' "3"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE RIGHT"]' "12"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT RIGHT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF LEFT"]' "DISABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF RIGHT"]' "DISABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256x Profile id"]' "1"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_SMARTPA_ENABLE"]' "ENABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="Amp Output Level"]' "22"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
-fi
+sed -i 's/ctl name="HDR12 MUX" value="NO_HDR12"/ctl name="HDR12 MUX" value="HDR12"/g' $MIX
+sed -i 's/ctl name="HDR34 MUX" value="NO_HDR34"/ctl name="HDR34 MUX" value="HDR34"/g' $MIX
 
-if [ "$POCOX3Pro" ]; then
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME LEFT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE LEFT"]' "7"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP LEFT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP LEFT"]' "3"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X RX MODE LEFT"]' "Speaker"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE LEFT"]' "15"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT LEFT"]' "59"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X PLAYBACK VOLUME RIGHT"]' "56"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM MAX ATTN RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM INFLECTION POINT RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACT RATE RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE RATE RIGHT"]' "7"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM ATTACK STEP RIGHT"]' "0"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X LIM RELEASE STEP RIGHT"]' "3"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST VOLTAGE RIGHT"]' "12"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X BOOST CURRENT RIGHT"]' "55"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF LEFT"]' "DISABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256X VBAT LPF RIGHT"]' "DISABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS256x Profile id"]' "1"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_SMARTPA_ENABLE"]' "ENABLE"
-patch_xml -s $MIX '/mixer/ctl[@name="Amp Output Level"]' "22"
-patch_xml -s $MIX '/mixer/ctl[@name="TAS25XX_ALGO_PROFILE"]' "MUSIC" 
+if [ "$POCOX3" ] || [ "$MI11U" ] || [ "$ONEPLUS11GLOBAL" ] || [ "$MI13U" ] || [ "$POCOM3" ] || [ "$R9T" ] || [ "$RN10" ] || [ "$RN10PRO" ] || [ "$RN10PROMAX" ] || [ "$RN8T" ] || [ "$A71" ] || [ "$RMEGTNEO2" ] || [ "$RMEGTNEO3T" ] || [ "$ONEPLUS9RT" ] || [ "$S22U" ] || [ "$POCOF5" ] || [ "$RN9PRO" ] || [ "$RN9S" ] || [ "$POCOM2P" ]; then
+patch_xml -u $MIX '/mixer/ctl[@name="RX HPH Mode"]' "CLS_H_HIFI"
 fi
-
-if [ "$RN10" ] || [ "$RN10PRO" ] || [ "$RN10PROMAX" ]; then
-patch_xml -s $MIX '/mixer/ctl[@name="aw882_xx_rx_switch"]' "Enable"
-patch_xml -s $MIX '/mixer/ctl[@name="aw882_xx_tx_switch"]' "Enable"
-patch_xml -s $MIX '/mixer/ctl[@name="aw882_copp_switch"]' "Enable"
-patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_0_prof"]' "Receiver"
-patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_0_switch"]' "Enable"
-patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_prof"]' "Receiver"
-patch_xml -s $MIX '/mixer/ctl[@name="aw_dev_1_switch"]' "Enable"
-fi
-
-sed -i 's/"HDR12 MUX" value="NO_HDR12"/"HDR12 MUX" value="HDR12"/g' $MIX
-sed -i 's/"HDR34 MUX" value="NO_HDR34"/"HDR34 MUX" value="HDR34"/g' $MIX
 
 #end mixer patching function
 done
 
 if [ "$VOLSTEPSINT" != "Skip" ]; then
 echo -e "\nro.config.media_vol_steps=$VOLSTEPSINT" >> $PROP
+echo -e "\nsettings put system volume_steps_music $VOLSTEPSINT" >> $SERVICE
 fi
 
 ui_print " "                 
 ui_print "   ################################======== 80% done!"
 
-if [ "$STEP15" == "true" ]; then
+if [ "$STEP14" == "true" ]; then
 echo -e "\n #Disable all effects by NLSound Team
 ro.audio.ignore_effects=true
 ro.vendor.audio.ignore_effects=true
@@ -2212,35 +2190,137 @@ vendor.audio.soundfx.usb=false
 ro.vendor.audio.soundfx.usb=false
 ro.vendor.soundfx.type=none
 ro.vendor.audio.soundfx.type=none
-persist.sys_phh.disable_audio_effects=1" >> $PROP
+persist.sys_phh.disable_audio_effects=1
+
+#add07092023
+persist.sys.phh.disable_soundvolume_effect=1
+ro.audio.spatializer_enabled=false
+
+#add 26102023
+persist.vendor.audio.sfx.hd.eq=0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000
+
+#add 30102023
+persist.audio.fluence.voicecomm=false
+vendor.audio.compress_capture.aac.cut_off_freq=-1
+ro.vendor.audio.gain.support=false
+ro.vendor.audio.soundfx.type=none
+ro.vendor.audio.sfx.earadj=false
+ro.vendor.audio.sfx.scenario=false
+ro.vendor.audio.soundfx.usb=false
+ro.vendor.audio.surround.headphone.only=false" >> $PROP
 fi
 
 ui_print " "
 ui_print "   ######################################## 100% done!"
 
-if [ "$STEP16" == "true" ]; then
+if [ "$STEP15" == "true" ]; then
 echo -e '\n# Experimental tweaks' >> $MODPATH/service.sh
 
-if [ "$POCOF3" ] || [ "$POCOX3Pro" ] || [ "$POCOF4GT" ] || [ "$ONEPLUS9R" ] || [ "$ONEPLUS9Pro" ] || [ "$S23U" ]; then
+if [ "$POCOF3" ] || [ "$POCOF4GT" ] || [ "$ONEPLUS9R" ] || [ "$ONEPLUS9Pro" ]; then
+echo -e '\n
+
+while :
+do
+tinymix "HiFi Filter" 1
+tinymix "ASM Bit Width" 24
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_3LE
+tinymix "USB_AUDIO_TX Format" S24_3LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
+tinymix "RCV PCM Source" DSP
+tinymix "PCM Source" DSP
+tinymix "HDR12 MUX" HDR12
+tinymix "HDR34 MUX" HDR34
+tinymix "TERT_MI2S_RX Format" S24_3LE
+tinymix "TERT_MI2S_TX Format" S24_3LE
+tinymix "TERT_MI2S_RX SampleRate" KHZ_96
+tinymix "TERT_MI2S_TX SampleRate" KHZ_96 
+tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_3 Format" S24_3LE
+tinymix "TX_CDC_DMA_TX_4 Format" S24_3LE
+tinymix "TX_CDC_DMA_TX_3 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_4 SampleRate" KHZ_96
+tinymix "DEC0 MODE" ADC_HIGH_PERF
+tinymix "DEC1 MODE" ADC_HIGH_PERF
+tinymix "DEC2 MODE" ADC_HIGH_PERF
+tinymix "DEC3 MODE" ADC_HIGH_PERF
+tinymix "DEC4 MODE" ADC_HIGH_PERF
+tinymix "DEC5 MODE" ADC_HIGH_PERF
+tinymix "DEC6 MODE" ADC_HIGH_PERF
+tinymix "DEC7 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC0 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC1 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC2 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC3 MODE" ADC_HIGH_PERF
+tinymix "TX0 MODE" ADC_LO_HIF
+tinymix "TX1 MODE" ADC_LO_HIF
+tinymix "TX2 MODE" ADC_LO_HIF
+tinymix "TX3 MODE" ADC_LO_HIF
+tinymix "Cirrus SP Load Config" Load
+tinymix "Cirrus SP Channel Swap Duration" 9600
+tinymix "Display Port RX Bit Format" S24_3LE
+tinymix "Display Port1 RX Bit Format" S24_3LE
+tinymix "BT SampleRate" KHZ_96
+tinymix "BT SampleRate RX" KHZ_96
+tinymix "BT SampleRate TX" KHZ_96
+tinymix "EC Reference Bit Format" S24_LE
+tinymix "EC Reference Channels" Two
+tinymix "Playback 0 Compress" 0
+tinymix "Playback 4 Compress" 0
+tinymix "Playback 9 Compress" 0
+tinymix "Compress Playback 11 Volume" 0
+tinymix "Compress Playback 25 Volume" 0
+tinymix "Compress Playback 26 Volume" 0
+tinymix "Compress Playback 27 Volume" 0
+tinymix "Compress Playback 28 Volume" 0
+tinymix "Compress Playback 37 Volume" 0
+tinymix "Compress Gapless Playback" 0
+tinymix "RX_Softclip Enable" 1
+tinymix "RCV Noise Gate" 16382
+tinymix "Noise Gate" 16382
+tinymix "AUX_HPF Enable" 0
+tinymix "SLIM9_TX ADM Channels" Two
+tinymix "Voip Evrc Min Max Rate Config" 4 4
+sleep 4
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;' >> $MODPATH/service.sh
+fi
+
+if [ "$POCOX3Pro" ]; then
 echo -e '\n
 
 while :
 do
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 32
-tinymix "AFE Input Bit Format" S32_LE
-tinymix "USB_AUDIO_RX Format" S32_LE
-tinymix "USB_AUDIO_TX Format" S32_LE
+tinymix "AFE Input Bit Format" S24_3LE
+tinymix "USB_AUDIO_RX Format" S24_3LE
+tinymix "USB_AUDIO_TX Format" S24_3LE
 tinymix "USB_AUDIO_RX SampleRate" KHZ_384
 tinymix "USB_AUDIO_TX SampleRate" KHZ_192
 tinymix "RCV PCM Source" DSP
 tinymix "PCM Source" DSP
 tinymix "HDR12 MUX" HDR12
 tinymix "HDR34 MUX" HDR34
-tinymix "TERT_TDM_RX_0 Format" S32_LE
-tinymix "TERT_TDM_RX_1 Format" S32_LE
-tinymix "TERT_MI2S_RX Format" S32_LE
-tinymix "TERT_MI2S_TX Format" S32_LE
+tinymix "TERT_TDM_RX_0 Format" S24_3LE
+tinymix "TERT_TDM_RX_1 Format" S24_3LE
+tinymix "TERT_MI2S_RX Format" S24_3LE
+tinymix "TERT_MI2S_TX Format" S24_3LE
 tinymix "TERT_MI2S_RX SampleRate" KHZ_192
 tinymix "TERT_MI2S_TX SampleRate" KHZ_192
 tinymix "TERT MI2S RX Format" NATIVE_DSD_DATA
@@ -2255,15 +2335,15 @@ tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_0 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_1 Format" S32_LE
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_192
 tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_192
 tinymix "SLIM_4_TX Format" DSD_DOP
 tinymix "SLIM_2_RX Format" DSD_DOP
-tinymix "SLIM_5_RX Format" S32_LE
-tinymix "SLIM_6_RX Format" S32_LE
-tinymix "SLIM_0_RX Format" S32_LE
+tinymix "SLIM_5_RX Format" S24_LE
+tinymix "SLIM_6_RX Format" S24_LE
+tinymix "SLIM_0_RX Format" S24_LE
 tinymix "SLIM_0_TX Format" S24_LE
 tinymix "DEC0 MODE" ADC_HIGH_PERF
 tinymix "DEC1 MODE" ADC_HIGH_PERF
@@ -2313,10 +2393,40 @@ tinymix "DSP Set AMBIENT" 16777215
 tinymix "DS2 OnOff" 1
 tinymix "TERT_TDM_TX_0 LSM Function" AUDIO
 tinymix "TERT_MI2S_TX LSM Function" AUDIO
-tinymix "HPHL Volume" 24
-tinymix "HPHR Volume" 24
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
+tinymix "TAS256X PLAYBACK VOLUME LEFT" 56
+tinymix "TAS256X LIM MAX ATTN LEFT" 0
+tinymix "TAS256X LIM INFLECTION POINT LEFT" 0
+tinymix "TAS256X LIM ATTACT RATE LEFT" 0
+tinymix "TAS256X LIM RELEASE RATE LEFT" 7
+tinymix "TAS256X LIM ATTACK STEP LEFT" 0
+tinymix "TAS256X LIM RELEASE STEP LEFT" 3
+tinymix "TAS256X RX MODE LEFT" Speaker
+tinymix "TAS256X BOOST VOLTAGE LEFT" 15
+tinymix "TAS256X BOOST CURRENT LEFT" 59
+tinymix "TAS256X PLAYBACK VOLUME RIGHT" 56
+tinymix "TAS256X LIM MAX ATTN RIGHT" 0
+tinymix "TAS256X LIM INFLECTION POINT RIGHT" 0
+tinymix "TAS256X LIM ATTACT RATE RIGHT" 0
+tinymix "TAS256X LIM RELEASE RATE RIGHT" 7
+tinymix "TAS256X LIM ATTACK STEP RIGHT" 0
+tinymix "TAS256X LIM RELEASE STEP RIGHT" 3
+tinymix "TAS256X BOOST VOLTAGE RIGHT" 12
+tinymix "TAS256X BOOST CURRENT RIGHT" 55
+tinymix "TAS256X VBAT LPF LEFT" DISABLE
+tinymix "TAS256X VBAT LPF RIGHT" DISABLE
+tinymix "TAS256x Profile id" 1
+tinymix "TAS25XX_SMARTPA_ENABLE" ENABLE
+tinymix "Amp Output Level" 22
+tinymix "TAS25XX_ALGO_PROFILE" MUSIC
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
 if [ "$MI11U" ] || [ "$ONEPLUS11GLOBAL" ] || [ "$MI13U" ]; then
@@ -2324,21 +2434,22 @@ echo -e '\n
 
 while :
 do
+tinymix "RX HPH Mode" CLS_H_HIFI
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 32
-tinymix "AFE Input Bit Format" S32_LE
-tinymix "USB_AUDIO_RX Format" S32_LE
-tinymix "USB_AUDIO_TX Format" S32_LE
-tinymix "USB_AUDIO_RX SampleRate" KHZ_384
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_3LE
+tinymix "USB_AUDIO_TX Format" S24_3LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_192
 tinymix "USB_AUDIO_TX SampleRate" KHZ_192
 tinymix "RCV PCM Source" DSP
 tinymix "PCM Source" DSP
 tinymix "HDR12 MUX" HDR12
 tinymix "HDR34 MUX" HDR34
-tinymix "TERT_TDM_RX_0 Format" S32_LE
-tinymix "TERT_TDM_RX_1 Format" S32_LE
-tinymix "TERT_MI2S_RX Format" S32_LE
-tinymix "TERT_MI2S_TX Format" S32_LE
+tinymix "TERT_TDM_RX_0 Format" S24_3LE
+tinymix "TERT_TDM_RX_1 Format" S24_3LE
+tinymix "TERT_MI2S_RX Format" S24_3LE
+tinymix "TERT_MI2S_TX Format" S24_3LE
 tinymix "TERT_MI2S_RX SampleRate" KHZ_192
 tinymix "TERT_MI2S_TX SampleRate" KHZ_192
 tinymix "TERT MI2S RX Format" NATIVE_DSD_DATA
@@ -2353,16 +2464,16 @@ tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
 tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_0 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_1 Format" S32_LE
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_192
 tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_192
 tinymix "SLIM_4_TX Format" DSD_DOP
 tinymix "SLIM_2_RX Format" DSD_DOP
-tinymix "SLIM_5_RX Format" S32_LE
-tinymix "SLIM_6_RX Format" S32_LE
-tinymix "SLIM_0_RX Format" S32_LE
-tinymix "SLIM_0_TX Format" S24_LE
+tinymix "SLIM_5_RX Format" S24_3LE
+tinymix "SLIM_6_RX Format" S24_3LE
+tinymix "SLIM_0_RX Format" S24_3LE
+tinymix "SLIM_0_TX Format" S24_3LE
 tinymix "DEC0 MODE" ADC_HIGH_PERF
 tinymix "DEC1 MODE" ADC_HIGH_PERF
 tinymix "DEC2 MODE" ADC_HIGH_PERF
@@ -2387,37 +2498,50 @@ tinymix "RX_Softclip Enable" 1
 tinymix "RCV Noise Gate" 16383
 tinymix "Noise Gate" 16383
 tinymix "DS2 OnOff" 1
-tinymix "HPHL Volume" 24
-tinymix "HPHR Volume" 24
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
-if [ "$POCOM3C" ] || [ "$POCOM3J" ] || [ "$R9T" ]; then
+if [ "$POCOM3" ] || [ "$R9T" ]; then
 echo -e '\n
 
 while :
 do
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 24
-tinymix "AFE Input Bit Format" S24_3LE
-tinymix "USB_AUDIO_RX Format" S32_LE
-tinymix "USB_AUDIO_TX Format" S32_LE
-tinymix "USB_AUDIO_RX SampleRate" KHZ_384
-tinymix "USB_AUDIO_TX SampleRate" KHZ_192
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_LE
+tinymix "USB_AUDIO_TX Format" S24_LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
 tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
-tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_3 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_3 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_3 Format" S24_3LE
+tinymix "TX_CDC_DMA_TX_4 Format" S24_3LE
+tinymix "TX_CDC_DMA_TX_3 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_4 SampleRate" KHZ_96
+tinymix "DEC0 MODE" ADC_HIGH_PERF
+tinymix "DEC1 MODE" ADC_HIGH_PERF
+tinymix "DEC2 MODE" ADC_HIGH_PERF
+tinymix "DEC3 MODE" ADC_HIGH_PERF
+tinymix "LPI Enable" 0
 tinymix "Playback 0 Compress" 0
 tinymix "Playback 4 Compress" 0
 tinymix "Playback 9 Compress" 0
+tinymix "Compress Playback 11 Volume" 0
 tinymix "Compress Playback 25 Volume" 0
 tinymix "Compress Playback 26 Volume" 0
 tinymix "Compress Playback 27 Volume" 0
@@ -2427,14 +2551,24 @@ tinymix "Compress Gapless Playback" 0
 tinymix "BT SampleRate" KHZ_96
 tinymix "BT SampleRate RX" KHZ_96
 tinymix "BT SampleRate TX" KHZ_96
-tinymix "EC Reference Bit Format" S24_LE
 tinymix "EC Reference Channels" Two
+tinymix "EC Reference Bit Format" S24_LE
+tinymix "RX INT0 DEM MUX" CLSH_DSM_OUT
+tinymix "RX INT1 DEM MUX" CLSH_DSM_OUT
+tinymix "RX_HPH_PWR_MODE" LOHIFI
+tinymix "RX HPH Mode" CLS_H_HIFI
+tinymix "RX_HPH HD2 Mode" ON
 tinymix "RX_Softclip Enable" 1
 tinymix "DS2 OnOff" 1
-tinymix "HPHL Volume" 20
-tinymix "HPHR Volume" 20
+tinymix "HPH Idle Detect" ON
+tinymix "Set Custom Stereo OnOff" 1
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
 
@@ -2443,27 +2577,28 @@ echo -e '\n
 
 while :
 do
+tinymix "RX HPH Mode" CLS_H_HIFI
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 24
-tinymix "AFE Input Bit Format" S24_3LE
+tinymix "AFE Input Bit Format" S24_LE
 tinymix "USB_AUDIO_RX Format" S24_3LE
 tinymix "USB_AUDIO_TX Format" S24_3LE
-tinymix "USB_AUDIO_RX SampleRate" KHZ_192
-tinymix "USB_AUDIO_TX SampleRate" KHZ_192
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
 tinymix "TERT_TDM_RX_0 Format" S24_3LE
 tinymix "TERT_TDM_RX_1 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
-tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
 tinymix "WSA_CDC_DMA_RX_0 Format" S24_3LE
 tinymix "WSA_CDC_DMA_RX_1 Format" S24_3LE
-tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_192
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
 tinymix "Playback 0 Compress" 0
 tinymix "Playback 1 Compress" 0
 tinymix "Playback 4 Compress" 0
@@ -2493,47 +2628,78 @@ tinymix "EC Reference Bit Format" S24_LE
 tinymix "EC Reference Channels" Two
 tinymix "RX_Softclip Enable" 1
 tinymix "DS2 OnOff" 1
-tinymix "HPHL Volume" 24
-tinymix "HPHR Volume" 24
+tinymix "HPHL Volume" 18
+tinymix "HPHR Volume" 18
+tinymix "TAS256X PLAYBACK VOLUME LEFT" 56
+tinymix "TAS256X LIM MAX ATTN LEFT" 0
+tinymix "TAS256X LIM INFLECTION POINT LEFT" 0
+tinymix "TAS256X LIM ATTACT RATE LEFT" 0
+tinymix "TAS256X LIM RELEASE RATE LEFT" 0
+tinymix "TAS256X LIM ATTACK STEP LEFT" 0
+tinymix "TAS256X LIM RELEASE STEP LEFT" 3
+tinymix "TAS256X RX MODE LEFT" Speaker
+tinymix "TAS256X BOOST VOLTAGE LEFT" 12
+tinymix "TAS256X BOOST CURRENT LEFT" 56
+tinymix "TAS256X PLAYBACK VOLUME RIGHT" 56
+tinymix "TAS256X LIM MAX ATTN RIGHT" 0
+tinymix "TAS256X LIM INFLECTION POINT RIGHT" 0
+tinymix "TAS256X LIM ATTACT RATE RIGHT" 0
+tinymix "TAS256X LIM RELEASE RATE RIGHT" 7
+tinymix "TAS256X LIM ATTACK STEP RIGHT" 
+tinymix "TAS256X LIM RELEASE STEP RIGHT" 3
+tinymix "TAS256X BOOST VOLTAGE RIGHT" 12
+tinymix "TAS256X BOOST CURRENT RIGHT" 56
+tinymix "TAS256X VBAT LPF LEFT" DISABLE
+tinymix "TAS256X VBAT LPF RIGHT" DISABLE
+tinymix "TAS256x Profile id" 1
+tinymix "TAS25XX_SMARTPA_ENABLE" ENABLE
+tinymix "Amp Output Level" 22
+tinymix "TAS25XX_ALGO_PROFILE" MUSIC
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
-if [ "$RN10PRO" ] || [ "$RN10PROMAX" ] || [ "$RN8T" ] || [ "$A71" ] || [ "$RMEGTNEO3T" ] || [ "$ONEPLUS9RT" ]; then
+if [ "$RN10" ] || [ "$RN10PRO" ] || [ "$RN10PROMAX" ] || [ "$RN8T" ] || [ "$A71" ] || [ "$RMEGTNEO3T" ] || [ "$ONEPLUS9RT" ]; then 
 echo -e '\n
 
 while :
 do
+tinymix "RX HPH Mode" CLS_H_HIFI
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 24
-tinymix "AFE Input Bit Format" S32_LE
+tinymix "AFE Input Bit Format" S24_LE
 tinymix "USB_AUDIO_RX Format" S32_LE
 tinymix "USB_AUDIO_TX Format" S32_LE
-tinymix "USB_AUDIO_RX SampleRate" KHZ_384
-tinymix "USB_AUDIO_TX SampleRate" KHZ_192
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
 tinymix "RCV PCM Source" DSP
 tinymix "PCM Source" DSP
 tinymix "HDR12 MUX" HDR12
 tinymix "HDR34 MUX" HDR34
-tinymix "TERT_TDM_RX_0 Format" S32_LE
-tinymix "TERT_TDM_RX_1 Format" S32_LE
+tinymix "TERT_TDM_RX_0 Format" S24_LE
+tinymix "TERT_TDM_RX_1 Format" S24_LE
 tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
-tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_0 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_1 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_192
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
 tinymix "SLIM_4_TX Format" DSD_DOP
 tinymix "SLIM_2_RX Format" DSD_DOP
-tinymix "SLIM_5_RX Format" S32_LE
-tinymix "SLIM_6_RX Format" S32_LE
-tinymix "SLIM_0_RX Format" S32_LE
+tinymix "SLIM_5_RX Format" S24_LE
+tinymix "SLIM_6_RX Format" S24_LE
+tinymix "SLIM_0_RX Format" S24_LE
 tinymix "SLIM_0_TX Format" S24_LE
 tinymix "DEC0 MODE" ADC_HIGH_PERF
 tinymix "DEC1 MODE" ADC_HIGH_PERF
@@ -2583,10 +2749,116 @@ tinymix "RX_Softclip Enable" 1
 tinymix "RCV Noise Gate" 16383
 tinymix "Noise Gate" 16383
 tinymix "DS2 OnOff" 1
-tinymix "HPHL Volume" 24
-tinymix "HPHR Volume" 24
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
+tinymix "aw882_xx_rx_switch" Enable
+tinymix "aw882_xx_tx_switch" Enable
+tinymix "aw882_copp_switch" Enable
+tinymix "aw_dev_0_prof" Receiver
+tinymix "aw_dev_0_switch" Enable
+tinymix "aw_dev_1_prof" Receiver
+tinymix "aw_dev_1_switch" Enable
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
+fi
+
+if [ "$RMEGTNEO2" ]; then 
+echo -e '\n
+
+while :
+do
+tinymix "RX HPH Mode" CLS_H_HIFI
+tinymix "HiFi Filter" 1
+tinymix "ASM Bit Width" 24
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_LE
+tinymix "USB_AUDIO_TX Format" S24_LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
+tinymix "RCV PCM Source" DSP
+tinymix "PCM Source" DSP
+tinymix "HDR12 MUX" HDR12
+tinymix "HDR34 MUX" HDR34
+tinymix "TERT_TDM_RX_0 Format" S24_LE
+tinymix "TERT_TDM_RX_1 Format" S24_LE
+tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "SLIM_4_TX Format" DSD_DOP
+tinymix "SLIM_2_RX Format" DSD_DOP
+tinymix "SLIM_5_RX Format" S24_LE
+tinymix "SLIM_6_RX Format" S24_LE
+tinymix "SLIM_0_RX Format" S24_LE
+tinymix "SLIM_0_TX Format" S24_LE
+tinymix "DEC0 MODE" ADC_HIGH_PERF
+tinymix "DEC1 MODE" ADC_HIGH_PERF
+tinymix "DEC2 MODE" ADC_HIGH_PERF
+tinymix "DEC3 MODE" ADC_HIGH_PERF
+tinymix "DEC4 MODE" ADC_HIGH_PERF
+tinymix "DEC5 MODE" ADC_HIGH_PERF
+tinymix "DEC6 MODE" ADC_HIGH_PERF
+tinymix "DEC7 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC0 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC1 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC2 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC3 MODE" ADC_HIGH_PERF
+tinymix "TX0 MODE" ADC_LO_HIF
+tinymix "TX1 MODE" ADC_LO_HIF
+tinymix "TX2 MODE" ADC_LO_HIF
+tinymix "TX3 MODE" ADC_LO_HIF
+tinymix "Playback 0 Compress" 0
+tinymix "Playback 4 Compress" 0
+tinymix "Playback 9 Compress" 0
+tinymix "Compress Playback 11 Volume" 0
+tinymix "Compress Playback 25 Volume" 0
+tinymix "Compress Playback 26 Volume" 0
+tinymix "Compress Playback 27 Volume" 0
+tinymix "Compress Playback 28 Volume" 0
+tinymix "Compress Playback 37 Volume" 0
+tinymix "Cirrus SP Load Config" Load
+tinymix "Display Port RX Bit Format" S24_3LE
+tinymix "Display Port1 RX Bit Format" S24_3LE
+tinymix "TERT_TDM_RX_0 Header Type" Entertainment 
+tinymix "TERT_TDM_RX_1 Header Type" Entertainment 
+tinymix "BT SampleRate" KHZ_96
+tinymix "BT SampleRate RX" KHZ_96
+tinymix "BT SampleRate TX" KHZ_96
+tinymix "EC Reference Bit Format" S24_LE
+tinymix "EC Reference Channels" Two
+tinymix "RX_Softclip Enable" 1
+tinymix "RCV Noise Gate" 16383
+tinymix "Noise Gate" 16383
+tinymix "DS2 OnOff" 1
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
+tinymix "aw882_xx_rx_switch" Enable
+tinymix "aw882_xx_tx_switch" Enable
+tinymix "aw882_copp_switch" Enable
+tinymix "aw_dev_0_prof" Receiver
+tinymix "aw_dev_0_switch" Enable
+tinymix "aw_dev_1_prof" Receiver
+tinymix "aw_dev_1_switch" Enable
+sleep 4
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
 if [ "$S22U" ]; then
@@ -2594,23 +2866,24 @@ echo -e '\n
 
 while :
 do
+tinymix "RX HPH Mode" CLS_H_HIFI
 tinymix "HiFi Filter" 1
 tinymix "ASM Bit Width" 32
-tinymix "AFE Input Bit Format" S32_LE
-tinymix "USB_AUDIO_RX Format" S32_LE
-tinymix "USB_AUDIO_TX Format" S32_LE
-tinymix "USB_AUDIO_RX SampleRate" KHZ_384
-tinymix "USB_AUDIO_TX SampleRate" KHZ_192
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_LE
+tinymix "USB_AUDIO_TX Format" S24_LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
 tinymix "RCV PCM Source" DSP
 tinymix "PCM Source" DSP
 tinymix "HDR12 MUX" HDR12
 tinymix "HDR34 MUX" HDR34
-tinymix "TERT_TDM_RX_0 Format" S32_LE
-tinymix "TERT_TDM_RX_1 Format" S32_LE
-tinymix "TERT_MI2S_RX Format" S32_LE
-tinymix "TERT_MI2S_TX Format" S32_LE
-tinymix "TERT_MI2S_RX SampleRate" KHZ_192
-tinymix "TERT_MI2S_TX SampleRate" KHZ_192
+tinymix "TERT_TDM_RX_0 Format" S24_3LE
+tinymix "TERT_TDM_RX_1 Format" S24_3LE
+tinymix "TERT_MI2S_RX Format" S24_3LE
+tinymix "TERT_MI2S_TX Format" S24_3LE
+tinymix "TERT_MI2S_RX SampleRate" KHZ_96
+tinymix "TERT_MI2S_TX SampleRate" KHZ_96
 tinymix "TERT MI2S RX Format" NATIVE_DSD_DATA
 tinymix "TERT MI2S TX Format" NATIVE_DSD_DATA
 tinymix "TERT_TDM_RX_0 Header Type" Entertainment 
@@ -2619,19 +2892,19 @@ tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
 tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
-tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_192
-tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_0 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_1 Format" S32_LE
-tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_192
-tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_192
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_3LE
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
 tinymix "SLIM_4_TX Format" DSD_DOP
 tinymix "SLIM_2_RX Format" DSD_DOP
-tinymix "SLIM_5_RX Format" S32_LE
-tinymix "SLIM_6_RX Format" S32_LE
-tinymix "SLIM_0_RX Format" S32_LE
+tinymix "SLIM_5_RX Format" S24_3LE
+tinymix "SLIM_6_RX Format" S24_3LE
+tinymix "SLIM_0_RX Format" S24_3LE
 tinymix "SLIM_0_TX Format" S24_LE
 tinymix "DEC0 MODE" ADC_HIGH_PERF
 tinymix "DEC1 MODE" ADC_HIGH_PERF
@@ -2677,15 +2950,196 @@ tinymix "A2H Tuning" 5
 tinymix "LPI Enable" 0
 tinymix "DMIC_RATE OVERRIDE" CLK_2P4MHZ
 tinymix "DS2 OnOff" 1
-tinymix "HPHL Volume" 24
-tinymix "HPHR Volume" 24
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
 sleep 4
-done' >> $MODPATH/service.sh
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
 fi
 
-echo ' ' >> $MODPATH/service.sh
+if [ "$POCOF5" ]; then
+echo -e '\n
 
-echo -e '\n resetprop -p --delete media.resolution.limit.16bit
+while :
+do
+tinymix "RX HPH Mode" CLS_H_HIFI
+tinymix "DEC0 MODE" ADC_HIGH_PERF
+tinymix "DEC1 MODE" ADC_HIGH_PERF
+tinymix "DEC2 MODE" ADC_HIGH_PERF
+tinymix "DEC3 MODE" ADC_HIGH_PERF
+tinymix "DEC4 MODE" ADC_HIGH_PERF
+tinymix "DEC5 MODE" ADC_HIGH_PERF
+tinymix "DEC6 MODE" ADC_HIGH_PERF
+tinymix "DEC7 MODE" ADC_HIGH_PERF
+tinymix "RX INT0 DEM MUX" CLSH_DSM_OUT
+tinymix "RX INT1 DEM MUX" CLSH_DSM_OUT
+tinymix "RX_HPH HD2 Mode" ON
+tinymix "RX_HPH_PWR_MODE" LOHIFI
+tinymix "RX_Softclip Enable" 1
+tinymix "VA_DEC0 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC1 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC2 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC3 MODE" ADC_HIGH_PERF
+tinymix "RX HPH Mode" CLS_H_LOHIFI
+tinymix "TX0 MODE" ADC_HIFI
+tinymix "TX1 MODE" ADC_HIFI
+tinymix "TX2 MODE" ADC_HIFI
+tinymix "TX3 MODE" ADC_HIFI
+tinymix "HPH Idle Detect" ON
+tinymix "HPHL Volume" 20
+tinymix "HPHR Volume" 20
+tinymix "HDR12 MUX" HDR12
+tinymix "HDR34 MUX" HDR34
+tinymix "AUX_HPF Enable" 0
+sleep 4
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
+fi
+
+if [ "$RN9PRO" ] || [ "$RN9S" ] || [ "$POCOM2P" ]; then
+echo -e '\n
+
+while :
+do
+tinymix "RX HPH Mode" CLS_H_HIFI
+tinymix "Amp Output Level" 22
+tinymix "TAS25XX_SMARTPA_ENABLE" DISABLE
+tinymix "TAS25XX_ALGO_BYPASS" TRUE
+tinymix "TAS25XX_ALGO_PROFILE" MUSIC
+tinymix "TAS2562 IVSENSE ENABLE" On
+tinymix "HiFi Filter" 1
+tinymix "ASM Bit Width" 24
+tinymix "AFE Input Bit Format" S24_LE
+tinymix "USB_AUDIO_RX Format" S24_LE
+tinymix "USB_AUDIO_TX Format" S24_LE
+tinymix "USB_AUDIO_RX SampleRate" KHZ_96
+tinymix "USB_AUDIO_TX SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_1 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_2 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_3 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_5 Format" S24_3LE
+tinymix "RX_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_3 SampleRate" KHZ_96
+tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_0 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_1 Format" S24_LE
+tinymix "WSA_CDC_DMA_RX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_RX_1 SampleRate" KHZ_96
+tinymix "DEC0 MODE" ADC_HIGH_PERF
+tinymix "DEC1 MODE" ADC_HIGH_PERF
+tinymix "DEC2 MODE" ADC_HIGH_PERF
+tinymix "DEC3 MODE" ADC_HIGH_PERF
+tinymix "DEC4 MODE" ADC_HIGH_PERF
+tinymix "DEC5 MODE" ADC_HIGH_PERF
+tinymix "DEC6 MODE" ADC_HIGH_PERF
+tinymix "DEC7 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC0 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC1 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC2 MODE" ADC_HIGH_PERF
+tinymix "VA_DEC3 MODE" ADC_HIGH_PERF
+tinymix "Playback 0 Compress" 0
+tinymix "Playback 4 Compress" 0
+tinymix "Playback 9 Compress" 0
+tinymix "Display Port RX Bit Format" S24_3LE
+tinymix "Display Port1 RX Bit Format" S24_3LE
+tinymix "BT SampleRate" KHZ_96
+tinymix "BT SampleRate RX" KHZ_96
+tinymix "BT SampleRate TX" KHZ_96
+tinymix "EC Reference Bit Format" S24_LE
+tinymix "EC Reference Channels" Two
+tinymix "TERT_MI2S_RX Format" S24_LE
+tinymix "TERT_MI2S_TX Format" S24_LE
+tinymix "TERT_MI2S_RX SampleRate" KHZ_96
+tinymix "TERT_MI2S_TX SampleRate" KHZ_96
+tinymix "Compress Playback 11 Volume" 0
+tinymix "Compress Playback 25 Volume" 0
+tinymix "Compress Playback 26 Volume" 0
+tinymix "Compress Playback 27 Volume" 0
+tinymix "Compress Playback 28 Volume" 0
+tinymix "Compress Playback 37 Volume" 0
+tinymix "Compress Gapless Playback" 0
+tinymix "RX_HPH HD2 Mode" ON
+tinymix "RX_HPH_PWR_MODE" LOHIFI
+tinymix "RX INT0 DEM MUX" CLSH_DSM_OUT
+tinymix "RX INT1 DEM MUX" CLSH_DSM_OUT
+tinymix "RX_Softclip Enable" 1
+tinymix "SEN_MI2S_TX Format" S24_LE
+tinymix "QUIN_MI2S_TX Format" S24_LE
+tinymix "QUAT_MI2S_TX Format" S24_LE
+tinymix "SEC_MI2S_TX Format" S24_LE
+tinymix "PRIM_MI2S_TX Format" S24_LE
+tinymix "SEN_MI2S_RX Format" S24_LE
+tinymix "QUIN_MI2S_RX Format" S24_LE
+tinymix "QUAT_MI2S_RX Format" S24_LE
+tinymix "SEC_MI2S_RX Format" S24_LE
+tinymix "PRIM_MI2S_RX Format" S24_LE
+tinymix "SEN_MI2S_TX SampleRate" KHZ_96
+tinymix "QUIN_MI2S_TX SampleRate" KHZ_96
+tinymix "QUAT_MI2S_TX SampleRate" KHZ_96
+tinymix "SEC_MI2S_TX SampleRate" KHZ_96
+tinymix "PRIM_MI2S_TX SampleRate" KHZ_96
+tinymix "SEN_MI2S_RX SampleRate" KHZ_96
+tinymix "QUIN_MI2S_RX SampleRate" KHZ_96
+tinymix "QUAT_MI2S_RX SampleRate" KHZ_96
+tinymix "SEC_MI2S_RX SampleRate" KHZ_96
+tinymix "PRIM_MI2S_RX SampleRate" KHZ_96
+tinymix "VA_CDC_DMA_TX_2 SampleRate" KHZ_96
+tinymix "VA_CDC_DMA_TX_1 SampleRate" KHZ_96
+tinymix "VA_CDC_DMA_TX_0 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_4 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_3 SampleRate" KHZ_96
+tinymix "TX_CDC_DMA_TX_0 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_TX_2 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_TX_1 SampleRate" KHZ_96
+tinymix "WSA_CDC_DMA_TX_0 SampleRate" KHZ_96
+tinymix "VA_CDC_DMA_TX_2 Format" S24_LE
+tinymix "VA_CDC_DMA_TX_1 Format" S24_LE
+tinymix "VA_CDC_DMA_TX_0 Format" S24_LE
+tinymix "TX_CDC_DMA_TX_4 Format" S24_LE
+tinymix "TX_CDC_DMA_TX_3 Format" S24_LE
+tinymix "TX_CDC_DMA_TX_0 Format" S24_LE
+tinymix "WSA_CDC_DMA_TX_2 Format" S24_LE
+tinymix "WSA_CDC_DMA_TX_1 Format" S24_LE
+tinymix "AUX_HPF Enable" 0
+sleep 4
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
+fi
+
+if [ "$PIXEL6a" ] || [ "$PIXEL6" ] || [ "$PIXEL6Pro" ] || [ "$PIXEL7" ] || [ "$PIXEL7Pro" ]; then
+echo -e '\n
+
+while :
+do
+tinymix "AMP PCM Gain" 14
+tinymix "Digital PCM Volume" 865
+tinymix "Boost Peak Current Limit" 3.50A
+sleep 4
+done
+
+if [ "$(pidof audioserver)" ]; then
+  kill $(pidof audioserver)
+fi;
+' >> $MODPATH/service.sh
+fi
+
+echo -e '\n 
+resetprop -p --delete media.resolution.limit.16bit
 resetprop -p --delete media.resolution.limit.24bit
 resetprop -p --delete media.resolution.limit.32bit
 

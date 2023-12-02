@@ -1,7 +1,6 @@
 id=NLSound
 name=NLSound
-version=v3.7 STABLE
-versionCode=13
+version=v3.8 BETA
+versionCode=798
 author=NLSound Team
 description=This module globally improves audio quality when recording video/audio and listening to audio on your device. Support: @nlsound_support | Channel: @nlsound_updates
-updateJson=https://raw.githubusercontent.com/Briclyaz/NLSound_module_QCom/main/update.json

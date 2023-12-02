@@ -1,19 +1,5 @@
 #!/system/bin/sh
-resetprop -p --delete persist.vendor.audio_hal.dsp_bit_width_enforce_mode
-resetprop -n persist.vendor.audio_hal.dsp_bit_width_enforce_mode 24
-# restart
-if [ "$API" -ge 24 ]; then
-  killall audioserver 2>/dev/null
-else
-  killall mediaserver 2>/dev/null
-fi
-
-#AML FIX by reiryuki@GitHub
-DIR=$AML/system/vendor/odm/etc
-if [ -d $DIR ] && [ ! -f $AML/disable ]; then
-  chcon -R u:object_r:vendor_configs_file:s0 $DIR
-fi
-
+[ -d $MODDIR/tools/tinymix ] && alias tinymix="$MODDIR/tools/tinymix"
 # notification
 sleep 32
 su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"
@@ -24,7 +10,9 @@ su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag'
 A71=$(grep -E "ro.product.vendor.device=A71.*" $BUILDS)
 S22U=$(grep -E "ro.product.vendor.device=b0q.*" $BUILDS)
 RMEGTNEO3T=$(grep -E "ro.product.vendor.device=RE54E4L1.*" $BUILDS)
+RMEGTNEO2=$(grep -E "ro.product.vendor.device=RE5473.*|ro.product.vendor.device=RE879AL1.*" $BUILDS)
 
+#reserved for pixels
 PIXEL3a=$(grep -E "ro.product.vendor.device=bonito.*" $BUILDS)
 PIXEL3=$(grep -E "ro.product.vendor.device=blueline.*" $BUILDS)
 PIXEL4a=$(grep -E "ro.product.vendor.device=sunfish.*" $BUILDS)
@@ -50,7 +38,7 @@ RN9S=$(grep -E "ro.product.vendor.device=curtana.*" $BUILDS)
 RN9PRO=$(grep -E "ro.product.vendor.device=joyeuse.*" $BUILDS)
 RN95G=$(grep -E "ro.product.vendor.device=cannon.*" $BUILDS)
 RN9T=$(grep -E "ro.product.vendor.device=cannong.*" $BUILDS)
-R9T=$(grep -E "ro.product.vendor.device=lime.*" $BUILDS)
+R9T=$(grep -E "ro.product.vendor.device=lime.*|ro.product.vendor.device=chime.*|ro.product.vendor.device=juice.*" $BUILDS)
 RN10=$(grep -E "ro.product.vendor.device=mojito.*" $BUILDS)
 RN10PRO=$(grep -E "ro.product.vendor.device=sweet.*" $BUILDS)
 RN10PROMAX=$(grep -E "ro.product.vendor.device=sweetin.*" $BUILDS)
@@ -110,8 +98,7 @@ POCOF5=$(grep -E "ro.product.vendor.device=marble.*" $BUILDS)
 POCOF5Pro=$(grep -E "ro.product.vendor.device=mondrian.*" $BUILDS)
 POCOX5Pro=$(grep -E "ro.product.vendor.device=redwood.*" $BUILDS) 
 POCOM2P=$(grep -E "ro.product.vendor.device=gram.*" $BUILDS)
-POCOM3C=$(grep -E "ro.product.vendor.device=citrus.*" $BUILDS)
-POCOM3J=$(grep -E "ro.product.vendor.device=juice.*" $BUILDS)
+POCOM3=$(grep -E "ro.product.vendor.device=citrus.*|ro.product.vendor.device=chime.*|ro.product.vendor.device=juice.*" $BUILDS)
 POCOX3=$(grep -E "ro.product.vendor.device=surya.*" $BUILDS)
 POCOX3Pro=$(grep -E "ro.product.vendor.device=vayu.*" $BUILDS)
 
@@ -125,3 +112,4 @@ ONEPLUS9Pro=$(grep -E "ro.product.vendor.device=OnePlus9Pro.*" $BUILDS)
 ONEPLUS10=$(grep -E "ro.product.vendor.device=OnePlusN10.*" $BUILDS)
 ONEPLUSNORDCE=$(grep -E "ro.product.vendor.device=lito.*" $BUILDS)
 ONEPLUS11GLOBAL=$(grep -E "ro.product.vendor.device=OP594DL1.*" $BUILDS)
+
