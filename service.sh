@@ -1,8 +1,5 @@
 #!/system/bin/sh
 [ -d $MODDIR/tools/tinymix ] && alias tinymix="$MODDIR/tools/tinymix"
-# notification
-sleep 32
-su -lp 2000 -c "cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'NLSound modification works, enjoy listening'"
 
 [ -f /system/vendor/build.prop ] && BUILDS="/system/build.prop /system/vendor/build.prop" || BUILDS="/system/build.prop"
 

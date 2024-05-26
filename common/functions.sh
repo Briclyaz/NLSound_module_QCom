@@ -17,11 +17,11 @@ umount_mirrors() {
     umount -l $i 2>/dev/null
   done
   rm -rf $ORIGDIR 2>/dev/null
-  mount -o ro,remount $MAGISKTMP
+  $KSU && mount -o ro,remount $MAGISKTMP
 }
 
 cleanup() {
-  $KSU && umount_mirrors
+  if $KSU || [ $MAGISK_VER_CODE -ge 27000 ]; then umount_mirrors; fi
   rm -rf $MODPATH/common $MODPATH/install.zip 2>/dev/null
 }
 
@@ -116,6 +116,7 @@ install_script() {
   done
   case $1 in
     "$MODPATH/post-fs-data.sh"|"$MODPATH/service.sh"|"$MODPATH/uninstall.sh") sed -i "s|^MODPATH=.*|MODPATH=\$MODDIR|" $1;; # MODPATH=MODDIR for these scripts (located in module directory)
+    "$MODPATH/boot-completed.sh") $KSU && sed -i "s|^MODPATH=.*|MODPATH=\$MODDIR|" $1 || { cp_ch -n $1 $INPATH/$MODID-$(basename $1) 0755; rm -f $MODPATH/boot-completed.sh; };;
     *) cp_ch -n $1 $INPATH/$(basename $1) 0755;;
   esac
 }
@@ -129,7 +130,7 @@ prop_process() {
 }
 
 mount_mirrors() {
-  mount -o rw,remount $MAGISKTMP
+  $KSU && mount -o rw,remount $MAGISKTMP
   mkdir -p $ORIGDIR/system
   if $SYSTEM_ROOT; then
     mkdir -p $ORIGDIR/system_root
@@ -149,7 +150,7 @@ mount_mirrors() {
 ui_print " "
 ui_print "***************************************************"
 ui_print "*                                                 *"
-ui_print "*               NLSound v3.8 STABLE               *"
+ui_print "*                NLSound v3.9 BETA                *"
 ui_print "*                                                 *"
 ui_print "*               special version for               *"
 ui_print "*                                                 *"
@@ -167,7 +168,6 @@ ui_print "*                        or                       *"
 ui_print "*                                                 *"
 ui_print "*          @nlsound_support in Telegram           *"
 ui_print "*                                                 *"
-ui_print " "
 ui_print "***************************************************"
 ui_print "*         MMT Extended by Zackptg5 @ XDA          *"
 ui_print "***************************************************"
@@ -180,6 +180,9 @@ ui_print " "
 # Min KSU v0.6.6
 [ -z $KSU ] && KSU=false
 $KSU && { [ $KSU_VER_CODE -lt 11184 ] && require_new_ksu; }
+# APatch is fork of KSU, treat same
+[ -z $APATCH ] && APATCH=false
+[ "$APATCH" == "true" ] && KSU=true
 
 # Start debug
 set -x
@@ -198,7 +201,15 @@ if $KSU; then
   ORIGDIR="$MAGISKTMP/mirror"
   mount_mirrors
 elif [ "$(magisk --path 2>/dev/null)" ]; then
-  ORIGDIR="$(magisk --path 2>/dev/null)/.magisk/mirror"
+  if [ $MAGISK_VER_CODE -ge 27000 ]; then # Atomic Mount
+    if [ -z $MAGISKTMP ]; then
+      [ -d /sbin ] && MAGISKTMP=/sbin || MAGISKTMP=/debug_ramdisk
+    fi
+    ORIGDIR="$MAGISKTMP/mirror"
+    mount_mirrors
+  else
+    ORIGDIR="$(magisk --path 2>/dev/null)/.magisk/mirror"
+  fi
 elif [ "$(echo $MAGISKTMP | awk -F/ '{ print $NF}')" == ".magisk" ]; then
   ORIGDIR="$MAGISKTMP/mirror"
 else
@@ -211,9 +222,9 @@ else
   LIBPATCH="\/system"
   LIBDIR=/system
 fi
-# Detect extra partition compatibility (KernelSU or Magisk Delta)
+# Detect extra partition compatibility (KernelSU or Magisk Delta/Kitsune)
 EXTRAPART=false
-if $KSU || [ "$(echo $MAGISK_VER | awk -F- '{ print $NF}')" == "delta" ]; then
+if $KSU || [ "$(echo $MAGISK_VER | awk -F- '{ print $NF}')" == "delta" ] || [ "$(echo $MAGISK_VER | awk -F- '{ print $NF}')" == "kitsune" ]; then
   EXTRAPART=true
 elif ! $PARTOVER; then
   unset PARTITIONS
@@ -274,6 +285,7 @@ ui_print "   Installing for $ARCH SDK $API device..."
 for i in $(find $MODPATH -type f -name "*.sh" -o -name "*.prop" -o -name "*.rule"); do
   [ -f $i ] && { sed -i -e "/^#/d" -e "/^ *$/d" $i; [ "$(tail -1 $i)" ] && echo "" >> $i; } || continue
   case $i in
+    "$MODPATH/boot-completed.sh") install_script -b $i;;
     "$MODPATH/service.sh") install_script -l $i;;
     "$MODPATH/post-fs-data.sh") install_script -p $i;;
     "$MODPATH/uninstall.sh") if [ -s $INFO ] || [ "$(head -n1 $MODPATH/uninstall.sh)" != "# Don't modify anything after this" ]; then                          

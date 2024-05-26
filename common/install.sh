@@ -119,7 +119,7 @@ SM8650=$(grep "ro.board.platform=pineapple" $BUILDS) #sdm 8 gen 3
 if [ "$TG2" ] || [ "$SD662" ] || [ "$SD665" ] || [ "$SD670" ] || [ "$SD710" ] || [ "$SD720G" ] || [ "$SD730G" ] || [ "$SD765G" ] || [ "$SD820" ] || [ "$SD835" ] || [ "$SD845" ] || [ "$SD855" ] || [ "$SD865" ] || [ "$SD888" ] || [ "$SM6375" ] || [ "$SM8450" ] || [ "$SM8550" ] || [ "$SM8650" ]; then
 HIFI=true
 ui_print " "
-ui_print "- Device with support Hi-Fi detected! -"
+ui_print " - Device with support Hi-Fi detected! -"
 else
 HIFI=false
 ui_print " "
@@ -205,6 +205,7 @@ MI13Pro=$(grep -E "ro.product.vendor.device=nuwa.*" $BUILDS) #need check
 MI13U=$(grep -E "ro.product.vendor.device=mivendor.*" $BUILDS)
 MI14=$(grep -E "ro.product.vendor.device=houji.*" $BUILDS)
 MI14Pro=$(grep -E "ro.product.vendor.device=shennong.*" $BUILDS)
+MI14U=$(grep -E "ro.product.vendor.device=mivendor.*" $BUILDS) #wtf ximi why duplicate codename? XD
 
 MIXFOLD2=$(grep -E "ro.product.vendor.device=zizhan.*" $BUILDS)
 
@@ -236,14 +237,31 @@ ONEPLUS10=$(grep -E "ro.product.vendor.device=OnePlusN10.*" $BUILDS)
 ONEPLUSNORDCE=$(grep -E "ro.product.vendor.device=lito.*" $BUILDS)
 ONEPLUS11GLOBAL=$(grep -E "ro.product.vendor.device=OP594DL1.*" $BUILDS)
 
+AUDIOCARD=$(echo "$(cat /proc/asound/cards)" | awk -F'[- ]' '{print $5}')
+if [[ $AUDIOCARD =~ ^...$ ]]; then
+    AUDIOCARD=$(echo "$(cat /proc/asound/cards)" | awk -F'[- ]' '{print $4}')
+fi
+
 DEVICE=$(getprop ro.product.vendor.device)
+LANG=$(settings get system system_locales)
+# notification with auto-translate
+if [[ "$LANG" =~ "en-RU" ]] || [[ "$LANG" =~ "ru-" ]]; then
+echo -e '\n' >> "$MODPATH/service.sh"
+echo "sleep 32" >> "$MODPATH/service.sh"
+echo "su -lp 2000 -c \"cmd notification post -S bigtext -t 'Уведомление от NLSound' 'Tag' 'Модификация загружена и работает, приятного прослушивания! Свайпните чтобы закрыть это уведомление :)'\"" >> "$MODPATH/service.sh"
+else
+echo -e '\n' >> "$MODPATH/service.sh"
+echo "sleep 32" >> "$MODPATH/service.sh"
+echo "su -lp 2000 -c \"cmd notification post -S bigtext -t 'NLSound Notification' 'Tag' 'Modification load and works, enjoy listening! Swipe for close this notification :)'\"" >> "$MODPATH/service.sh"
+fi
+
 ACONFS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_configs*.xml")"
 AECFGS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "*audio_effects*.conf" -o -name "*audio_effects*.xml")"
-MPATHS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "mixer_paths*.xml")"
-APIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info.xml")"
-APIIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_intcodec.xml")"
-APIEXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_extcodec.xml")"
-APIQRDXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_qrd.xml")"
+#MPATHS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "mixer_paths*.xml")"
+#APIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info.xml")"
+#APIIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_intcodec.xml")"
+#APIEXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_extcodec.xml")"
+#APIQRDXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_qrd.xml")"
 DEVFEAS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "$DEVICE.xml")" 
 DEVFEASNEW="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "DeviceFeatures.xml")" 
 AUDIOPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_policy_configuration.xml")"
@@ -251,7 +269,8 @@ SNDTRGS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -t
 MCODECS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "media_codecs_c2_audio.xml" -o -name "media_codecs_google_audio.xml" -o -name "media_codecs_google_c2_audio.xml")"
 IOPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_io_policy.conf")"
 OUTPUTPOLICYS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_output_policy.conf")"
-RESOURCES="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "resourcemanager_*.conf" -o -name "resourcemanager_*.xml")"
+RESOURCES="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "resourcemanager_${AUDIOCARD}_*.xml")"
+DAXES="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "dax-*.xml")"
 
 VNDK=$(find /system/lib /vendor/lib -type d -iname "*vndk*")
 VNDK64=$(find /system/lib64 /vendor/lib64 -type d -iname "*vndk*")
@@ -259,6 +278,31 @@ VNDKQ=$(find /system/lib /vendor/lib -type d -iname "vndk*-Q")
 
 SETTINGS=$MODPATH/settings.nls
 SERVICE=$MODPATH/service.sh
+
+RAPIDMIX=$(find /vendor/etc/audio -type f -name "mixer_paths*.xml")
+if [[ -z "$RAPIDMIX" ]]; then
+    MPATHS=$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "mixer_paths*.xml")
+else
+    DPATHS=$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "mixer_paths_${AUDIOCARD}_*.xml")
+    OMPATHS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "mixer_paths_overlay*.xml")
+    MPATHS="$DPATHS $OMPATHS"
+    if [[ -z "$DPATHS" ]]; then
+        MPATHS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "mixer_paths*.xml")
+    fi
+fi
+
+RAPIDPLAT=$(find /vendor/etc/audio -type f -name "audio_platform_*.xml")
+if [[ -z "$RAPIDPLAT" ]]; then
+    APIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info.xml")"
+    APIIXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_intcodec.xml")"
+    APIEXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_extcodec.xml")"
+    APIQRDXMLS="$(find /system /vendor /system_ext /mi_ext /product /odm /my_product -type f -name "audio_platform_info_qrd.xml")"
+else
+    APIXMLS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "audio_platform_info.xml")
+    APIIXMLS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "audio_platform_info_intcodec.xml")
+    APIEXMLS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "audio_platform_info_extcodec.xml")
+    APIQRDXMLS=$(find /vendor/etc/audio/*${AUDIOCARD}* -type f -name "audio_platform_info_qrd.xml")
+fi
 
 STEP1=false
 STEP2=false
@@ -292,27 +336,542 @@ VOLMICINT=Skip
 BITNESINT=Skip
 SAMPLERATEINT=Skip
 
-NEWdirac=$MODPATH/common/NLSound/newdirac
-CUSTLIBS=$MODPATH/common/NLSound/custlibs
 PROP=$MODPATH/system.prop
 
 mkdir -p $MODPATH/tools
 cp_ch $MODPATH/common/addon/External-Tools/tools/$ARCH32/\* $MODPATH/tools/.
+
+#auto-translate for configurator
+if [[ "$LANG" =~ "en-RU" ]] || [[ "$LANG" =~ "ru-" ]]; then
+ui_print " "
+ui_print " - Текущий язык системы: Русский. "
+sleep 1
+
+ui_print " "
+ui_print " - Настрой меня, пожалуйста! >.< - "
+ui_print " "
+
+ui_print "***************************************************"
+ui_print "* [1/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*     • ВЫБЕРИТЕ КОЛИЧЕСТВО ШАГОВ ГРОМКОСТИ •     *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт изменит количество шагов громкости  *"
+ui_print "*  для музыки в вашей системе. Для аудио-вызовов  *"
+ui_print "*  и иных сценариев шаги останутся прежними.      *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Выбор | [VOL-] - Принять        *"
+ui_print "***************************************************"
+sleep 1
+ui_print " "
+ui_print "   1. Пропустить (Без каких-либо изменений)"
+ui_print "   2. 30 ( ~ 1.1 - 2.0 dB каждый шаг)"
+ui_print "   3. 50 ( ~ 0.8 - 1.4 dB каждый шаг)"
+ui_print "   4. 100 ( ~ 0.4 - 0.7 dB каждый шаг)"
+ui_print " "
+VOLSTEPS=1
+while true; do
+ui_print " - $VOLSTEPS"
+"$VKSEL" && VOLSTEPS="$((VOLSTEPS + 1))" || break
+[[ "$VOLSTEPS" -gt "4" ]] && VOLSTEPS=1
+done
+
+case "$VOLSTEPS" in
+"1") VOLSTEPSINT="Skip";;
+"2") VOLSTEPSINT="30";;
+"3") VOLSTEPSINT="50";;
+"4") VOLSTEPSINT="100";;
+esac
+
+ui_print " - [*] Выбрано: $VOLSTEPSINT"
+ui_print ""
+
+STEP1=true
+sed -i 's/STEP1=false/STEP1=true/g' $SETTINGS
+sed -i 's/VOLSTEPS=skip/VOLSTEPS='$VOLSTEPSINT'/g' $SETTINGS
+
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [2/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*      • ВЫБЕРИТЕ УРОВЕНЬ ГРОМКОСТИ МУЗЫКИ •      *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт изменит максимальный порог          *"
+ui_print "*  громкости музыки в вашей системе. Чем больше   *"
+ui_print "*  числовое значение, тем выше максимальная       *"
+ui_print "*  громкость.                                     *"
+ui_print "*                                                 *"
+ui_print "*   ЗАМЕТКА: не оказывает эффекта на Bluetooth    *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Выбор | [VOL-] - Принять        *"
+ui_print "***************************************************"
+sleep 1
+ui_print " "
+ui_print "   1. Пропустить (Без каких-либо изменений)"
+ui_print "   2. 84"
+ui_print "   3. 86"
+ui_print "   4. 88"
+ui_print "   5. 90"
+ui_print "   6. 92"
+ui_print "   7. 94"
+ui_print " "
+VOLMEDIA=1
+while true; do
+ui_print " - $VOLMEDIA"
+"$VKSEL" && VOLMEDIA="$((VOLMEDIA + 1))" || break
+[[ "$VOLMEDIA" -gt "7" ]] && VOLMEDIA=1
+done
+
+case "$VOLMEDIA" in
+"1") VOLMEDIASINT="Skip";;
+"2") VOLMEDIASINT="84";;
+"3") VOLMEDIASINT="86";;
+"4") VOLMEDIASINT="88";;
+"5") VOLMEDIASINT="90";;
+"6") VOLMEDIASINT="92";;
+"7") VOLMEDIASINT="94";;
+esac
+
+ui_print " - [*] Выбрано: $VOLMEDIASINT"
+ui_print ""
+
+STEP2=true
+sed -i 's/STEP2=false/STEP2=true/g' $SETTINGS
+sed -i 's/VOLMEDIA=skip/VOLMEDIA='$VOLMEDIASINT'/g' $SETTINGS
+
+ui_print "  "
+ui_print "***************************************************"
+ui_print "* [3/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*     • ВЫБРАТЬ УРОВЕНЬ ГРОМКОСТИ МИКРОФОНА •     *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт изменит уровень громкости           *"
+ui_print "*  микрофонов в вашей системе. Чем больше         *"
+ui_print "*  числовое значение, тем выше максимальная       *"
+ui_print "*  громкость микрофона.                           *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Выбор | [VOL-] - Принять        *"
+ui_print "***************************************************"
+sleep 1
+ui_print " "
+ui_print "   1. Пропустить (Без каких-либо изменений)"
+ui_print "   2. 84"
+ui_print "   3. 86"
+ui_print "   4. 88"
+ui_print "   5. 90"
+ui_print "   6. 92"
+ui_print "   7. 94"
+ui_print " "
+VOLMIC=1
+while true; do
+ui_print " - $VOLMIC"
+"$VKSEL" && VOLMIC="$((VOLMIC + 1))" || break
+[[ "$VOLMIC" -gt "7" ]] && VOLMIC=1
+done
+
+case "$VOLMIC" in
+"1") VOLMICINT="Skip";;
+"2") VOLMICINT="84";;
+"3") VOLMICINT="86";;
+"4") VOLMICINT="88";;
+"5") VOLMICINT="90";;
+"6") VOLMICINT="92";;
+"7") VOLMICINT="94";;
+esac
+
+ui_print " - [*] Выбрано: $VOLMICINT"
+ui_print ""
+
+STEP3=true
+sed -i 's/STEP3=false/STEP3=true/g' $SETTINGS
+sed -i 's/VOLMIC=skip/VOLMIC='$VOLMICINT'/g' $SETTINGS
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [4/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*            • ВЫБРАТЬ АУДИО ФОРМАТ •             *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт настроит аудио кодек вашего         *"
+ui_print "*  устройства, заставляя его обрабатывать звук в  *"
+ui_print "*  соответствии с выбранными параметрами. После   *"
+ui_print "*  установки этого пункта вы не увидите *-бит в   *"
+ui_print "*  логах, модуль не будет вводить вас в           *"
+ui_print "*  заблуждение выдуманными цифрами. Однако, вы    *"
+ui_print "*  услышите положительные изменения в звуке.      *"
+ui_print "*                                                 *"
+ui_print "*   ЗАМЕТКА: не оказывает эффекта на Bluetooth    *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Выбор | [VOL-] - Принять        *"
+ui_print "***************************************************"
+sleep 1
+ui_print " "
+ui_print "   1. Пропустить (Без каких-либо изменений)"
+ui_print "   2. 24-бит"
+ui_print "   3. 32-бит (только для SD870 и выше)"
+ui_print "   4. Флоат (формат данных с плавающей точкой)"
+ui_print " "
+BITNES=1
+while true; do
+ui_print " - $BITNES"
+"$VKSEL" && BITNES="$((BITNES + 1))" || break
+[[ "$BITNES" -gt "4" ]] && BITNES=1
+done
+
+case "$BITNES" in
+"1") BITNESINT="Skip";;
+"2") BITNESINT="24";;
+"3") BITNESINT="32";;
+"4") BITNESINT="float";;
+esac
+
+ui_print " - [*] Выбрано: $BITNESINT"
+ui_print ""
+
+STEP4=true
+sed -i 's/STEP4=false/STEP4=true/g' $SETTINGS
+sed -i 's/BITNES=skip/BITNES='$BITNESINT'/g' $SETTINGS
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [5/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*        • ВЫБРАТЬ ЧАСТОТУ ДИСКРЕТИЗАЦИИ •        *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт настроит аудио кодек вашего         *"
+ui_print "*  устройства, заставляя его обрабатывать звук в  *"
+ui_print "*  соответствии с выбранными параметрами. После   *"
+ui_print "*  установки этого пункта вы не увидите *-Гц в    *"
+ui_print "*  логах, модуль не будет вводить вас в           *"
+ui_print "*  заблуждение выдуманными цифрами. Однако, вы    *"
+ui_print "*  услышите положительные изменения в звуке.      *"
+ui_print "*                                                 *"
+ui_print "*   ЗАМЕТКА: не оказывает эффекта на Bluetooth    *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Выбор | [VOL-] - Принять        *"
+ui_print "***************************************************"
+sleep 1
+ui_print " "
+ui_print "   1. Пропустить (Без каких-либо изменений)"
+ui_print "   2. 96000 Гц"
+ui_print "   3. 192000 Гц"
+ui_print "   4. 384000 Гц (только для SD870 и выше)"
+ui_print " "
+SAMPLERATE=1
+while true; do
+ui_print "  - $SAMPLERATE"
+"$VKSEL" && SAMPLERATE="$((SAMPLERATE + 1))" || break
+[[ "$SAMPLERATE" -gt "4" ]] && SAMPLERATE=1
+done
+
+case "$SAMPLERATE" in
+"1") SAMPLERATEINT="Skip";;
+"2") SAMPLERATEINT="96000";;
+"3") SAMPLERATEINT="192000";;
+"4") SAMPLERATEINT="384000";;
+esac
+
+ui_print " - [*] Выбрано: $SAMPLERATEINT"
+ui_print ""
+
+STEP5=true
+sed -i 's/STEP5=false/STEP5=true/g' $SETTINGS
+sed -i 's/SAMPLERATE=skip/SAMPLERATE='$SAMPLERATEINT'/g' $SETTINGS
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [6/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*       • ОТКЛЮЧИТЬ ЗВУКОВЫЕ ВМЕШАТЕЛЬСТВА •      *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт отключит различные системные        *"
+ui_print "*  оптимизации звука, такие как компрессоры и     *"
+ui_print "*  прочие бессмысленные механизмы, которые        *"
+ui_print "*  мешают нормальной передаче аудио.              *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP6=true
+sed -i 's/STEP6=false/STEP6=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [7/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*      • НАСТРОИТЬ ВСТРОЕННЫЙ АУДИО КОДЕК •       *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт настроит аудио кодек вашего         *"
+ui_print "*  устройства. Он постарается отключить глубокий  *"
+ui_print "*  буфер, позволяя вашему DSP чипу обрабатывать   *"
+ui_print "*  аудио с более хорошим качеством.               *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP7=true
+sed -i 's/STEP7=false/STEP7=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [8/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*       • ПАТЧИНГ DEVICE_FEATURES ФАЙЛА(-ОВ) •    *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт сделает следующее:                  *"
+ui_print "*  - Разблокирует частоты дискретизации аудио     *"
+ui_print "*    вплоть до 192000 Гц;                         *"
+ui_print "*  - Включит HD запись аудио в камере;            *"
+ui_print "*  - Улучшит качество записи VoIP;                *"
+ui_print "*  - Включит поддержку HD записи вашего голоса    *"
+ui_print "*    в приложениях;                               *"
+ui_print "*  - Включит поддержку Hi-Fi на поддерживаемых    *"
+ui_print "*    устройствах.                                 *"
+ui_print "*                                                 *"
+ui_print "*  И многое другое...                             *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP8=true
+sed -i 's/STEP8=false/STEP8=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [9/16]                                          *"
+ui_print "*                                                 *"
+ui_print "*   • ДРУГИЕ ПАТЧИ ДЛЯ MIXER_PATHS ФАЙЛА (-ОВ) •  *"
+ui_print "*                                                 *"
+ui_print "*  Эта опция изменит роуты аудио, удалит всё      *"
+ui_print "*  лишнее и постарается изменить конфигурацию     *"
+ui_print "*  аудио потока таким образом, чтобы аудио        *"
+ui_print "*  обрабатывалось наикратчайшим образом по пути   *"
+ui_print "*  к аудио кодеку вашего устройства. Также она    *"
+ui_print "*  отключит различные частотные отсечки и         *"
+ui_print "*  обрезки, которые якобы находятся вне предела   *"
+ui_print "*  слышимости человека.                           *"
+ui_print "*                                                 *"
+ui_print "*  Содержит АВТОРСКИЕ настройки аудио кодека для  *"
+ui_print "*  для поддерживаемых устройств, например:        *"
+ui_print "*  - Poco X3 NFC (surya);                         *"
+ui_print "*  - Poco X3 Pro (vayu);                          *"
+ui_print "*  - Redmi Note 10 Pro (sweet);                   *"
+ui_print "*  - Redmi Note 10 Pro Max (sweetin);             *"
+ui_print "*  - Mi 11 Ultra (star).                          *"
+ui_print "*                                                 *"
+ui_print "*  Эти параметры значительным образом улучшают    *"
+ui_print "*  качество стерео вашего устройства, общий       *"
+ui_print "*  объём, музыкальность, стерео сцену, исправлют  *"
+ui_print "*  баланс громкости в динамиках.                  *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP9=true
+sed -i 's/STEP9=false/STEP9=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [10/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*      • ТВИКИ ДЛЯ BUILD.PROP ФАЙЛА (-ОВ) •       *"
+ui_print "*                                                 *"
+ui_print "*  Содержит огромное количество глобальных        *"
+ui_print "*  настроек, которые значительно изменят          *"
+ui_print "*  качество аудио к лучшему. Не сомневайтесь,     *"
+ui_print "*  соглашайтесь на установку.                     *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP10=true
+sed -i 's/STEP10=false/STEP10=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [11/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*             • УЛУЧШИТЬ BLUETOOTH •              *"
+ui_print "*                                                 *"
+ui_print "*  Эта опция постарается по максимуму улучшить    *"
+ui_print "*  качество аудио в Bluetooth, а также исправит   *"
+ui_print "*  проблему самопроизвольного переключения AAC    *"
+ui_print "*  кодека в положение ВЫКЛЮЧЕНО.                  *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP11=true
+sed -i 's/STEP11=false/STEP11=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [12/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*            • ИЗМЕНИТЬ АУДИО ВЫХОД •             *"
+ui_print "*                                                 *"
+ui_print "*  Эта опция переключит DIRECT на DIRECT_PCM,     *"
+ui_print "*  обладающий большей детальностью и качеством.   *"
+ui_print "*  Может привести к отсутствию звука в таких      *"
+ui_print "*  приложениях как: TikTok, YouTube, а также в    *"
+ui_print "*  различных мобильных играх.                     *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************" 
+ui_print " "
+if chooseport 60; then
+STEP12=true
+sed -i 's/STEP12=false/STEP12=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [13/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*      • УСТАНОВИТЬ КАСТОМНЫЙ ПРЕСЕТ IIR •        *"
+ui_print "*                                                 *"
+ui_print "*  IIR влияет на итоговую кривую частотной        *"
+ui_print "*  характеристики. По умолчанию установлены       *"
+ui_print "*  параметры с акцентом на детальность низких     *"
+ui_print "*  частот. После применения этого пункта вы       *"
+ui_print "*  услышите положительные изменения в             *"
+ui_print "*  детальности аудио.                             *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP13=true
+sed -i 's/STEP13=false/STEP13=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [14/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*       • ИГНОРИРОВАТЬ ВСЕ АУДИО ЭФФЕКТЫ •        *"
+ui_print "*                                                 *"
+ui_print "*  Этот пункт отключит все аудио эффекты на       *"
+ui_print "*  системном урвоне. Это сломает XiaomiParts,     *"
+ui_print "*  Dirac, Dolby и прочие эквалайзеры.             *"
+ui_print "*  Значительно повышает качество аудио для        *"
+ui_print "*  качественных наушников.                        *"
+ui_print "*                                                 *"
+ui_print "*   ЗАМЕТКА:                                      *"
+ui_print "*  Если вы согласитесь, звук станет более сухим,  *"
+ui_print "*  чистым, плоским. Большинству рекомендуется     *"
+ui_print "*  просто пропустить данный пункт.                *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP14=true
+sed -i 's/STEP14=false/STEP14=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [15/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*      • УСТАНОВИТЬ ЭКСПЕРИМЕНТАЛЬНЫЕ ТВИКИ •     *"
+ui_print "*                                                 *"
+ui_print "*  Эта опция дополнительно настроит аудио кодек   *"
+ui_print "*  вашего устройства при помощи tinymix функции.  *"
+ui_print "*  Она значительно улучшит качество аудио, но     *"
+ui_print "*  совместима только с ограниченным количеством   *"
+ui_print "*  устройств.                                     *"
+ui_print "*                                                 *"
+ui_print "*   ПРЕДУПРЕЖДЕНИЕ:                               *"
+ui_print "*  Эти параметры могут привести к разным          *"
+ui_print "*  проблемам вплоть до полного bootloop вашего    *"
+ui_print "*  устройства. Используйте на свой страх и риск!  *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP15=true
+sed -i 's/STEP15=false/STEP15=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [16/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*           • НАСТРОИТЬ DOLBY ATMOS •             *"
+ui_print "*                                                 *"
+ui_print "*  Эта опция доп-но настроит ваш Dolby, если он   *"
+ui_print "*  имеется в системе (как системный, так и        *"
+ui_print "*  несистемный/кастомный), для лучшего качества   *"
+ui_print "*  звучания путём отключения различных мусорных   *"
+ui_print "*  функций и механизмов, например компрессоров,   *"
+ui_print "*  аудио-регуляторов и так далее.                 *"
+ui_print "*_________________________________________________*"
+ui_print "*    [VOL+] - Установить | [VOL-] - Пропустить    *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP16=true
+sed -i 's/STEP16=false/STEP16=true/g' $SETTINGS
+fi
+
+ui_print " - ВАШИ НАСТРОЙКИ: "
+ui_print " 1. Количество шагов громкости: $VOLSTEPSINT"
+ui_print " 2. Максимальный уровень громкости: $VOLMEDIASINT"
+ui_print " 3. Установленная громкость микрофонов: $VOLMICINT"
+ui_print " 4. Выбранный аудио формат: $BITNESINT"
+ui_print " 5. Выбранная частота дискретизации: $SAMPLERATEINT"
+ui_print " 6. Отключить звуковые вмешательства: $STEP6"
+ui_print " 7. Настроить встроенный аудио кодек: $STEP7"
+ui_print " 8. Патчинг device_features файла (-ов): $STEP8"
+ui_print " 9. Другие патчи для mixer_paths файла (-ов): $STEP9"
+ui_print " 10. Твики для build.prop файла (-ов): $STEP10"
+ui_print " 11. Улучшить bluetooth: $STEP11"
+ui_print " 12. Изменить аудио выход: $STEP12"
+ui_print " 13. Установить кастомный пресет для IIR: $STEP13"
+ui_print " 14. Игнорировать все аудио эффекты: $STEP14"
+ui_print " 15. Установить экспериментальные твики: $STEP15"
+ui_print " 16. Настроить Dolby Atmos: $STEP16"
+ui_print " "
+
+ui_print " - Установка начата, пожалуйста подождите... -"
+ui_print " "
+ui_print " - Вы можете свернуть Magisk/KSU и вернуться -"
+ui_print " - сюда позже для перезагрузки устройства. -"
+ui_print " "
+# continue auto-translate, else not ru-RU or ru-BY then
+else
+ui_print " "
+ui_print " - Current system language: English (or other). "
+sleep 1
 
 ui_print " "
 ui_print " - Configurate me, pls >.< - "
 ui_print " "
 
 ui_print "***************************************************"
-ui_print "* [1/15]                                          *"
+ui_print "* [1/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*            • SELECT VOLUME STEPS •              *"
-ui_print "*       Lower value - faster volume control       *"
 ui_print "*                                                 *"
-ui_print "*      This step determines the total number      *"
-ui_print "*  of volume steps for the music in your system.  *"
-ui_print "*   For calls and other scenarios, the volume     *"
-ui_print "*           steps will remain current.            *"
+ui_print "*  This item will change the number of volume     *"
+ui_print "*  steps for music in your system. For audio      *"
+ui_print "*  calls and other scenarios, the steps will      *"
+ui_print "*  remain the same.                               *"
 ui_print "*_________________________________________________*"
 ui_print "*       [VOL+] - select | [VOL-] - confirm        *"
 ui_print "***************************************************"
@@ -347,25 +906,23 @@ sed -i 's/VOLSTEPS=skip/VOLSTEPS='$VOLSTEPSINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [2/15]                                          *"
+ui_print "* [2/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*          • SELECT VOLUMES FOR MEDIA •           *"
-ui_print "*      Lower numerical value - lower volume       *"
 ui_print "*                                                 *"
-ui_print "*        This item determines the overall         *"
-ui_print "*    maximum volume threshold for the media.      *"
-ui_print "*   The higher the numerical value you select,    *"
-ui_print "*        the higher the maximum volume.           *"
+ui_print "*  This item will change the maximum threshold    *"
+ui_print "*  of music volume in your system. The greater    *"
+ui_print "*  the numeric value, the higher the maximum      *"
+ui_print "*  volume.                                        *"
 ui_print "*                                                 *"
-ui_print "*        NOTE: does not affect Bluetooth          *"
-ui_print "*                                                 *"
+ui_print "*   NOTE: does not affect Bluetooth.              *"
 ui_print "*_________________________________________________*"
 ui_print "*       [VOL+] - select | [VOL-] - confirm        *"
 ui_print "***************************************************"
 sleep 1
 ui_print " "
 ui_print "   1. Skip (No changes will be made)"
-ui_print "   2. 84 "
+ui_print "   2. 84"
 ui_print "   3. 86"
 ui_print "   4. 88"
 ui_print "   5. 90"
@@ -398,23 +955,18 @@ sed -i 's/VOLMEDIA=skip/VOLMEDIA='$VOLMEDIASINT'/g' $SETTINGS
 
 ui_print "  "
 ui_print "***************************************************"
-ui_print "* [3/15]                                          *"
+ui_print "* [3/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • SELECT MICROPHONE SENSITIVITY •        *"
-ui_print "*       Lower numerical value - lower volume      *"
 ui_print "*                                                 *"
-ui_print "*    This item determines the overall maximum     *"
-ui_print "*    volume threshold for the your microphones.   *"
-ui_print "*    The higher the numerical value you select,   *"
-ui_print "*       the louder your microphones will be.      *"
-ui_print "*                                                 *"
-ui_print "*        NOTE: does not affect Bluetooth          *"
-ui_print "*                                                 *"
+ui_print "*  This item will change the volume level         *"
+ui_print "*  of microphones in your system. The greater     *"
+ui_print "*  the numeric value, the higher the maximum      *"
+ui_print "*  microphone volume.                             *"
 ui_print "*_________________________________________________*"
 ui_print "*       [VOL+] - select | [VOL-] - confirm        *"
 ui_print "***************************************************"
 sleep 1
-VOLMIC=1
 ui_print " "
 ui_print "   1. Skip (No changes will be made)"
 ui_print "   2. 84"
@@ -450,26 +1002,23 @@ sed -i 's/VOLMIC=skip/VOLMIC='$VOLMICINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [4/15]                                          *"
+ui_print "* [4/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*            • SELECT AUDIO FORMAT •              *"
 ui_print "*                                                 *"
-ui_print "*     This step configures your audio codec,      *"
-ui_print "*     forcing it to process your audio more       *"
-ui_print "*   thoroughly at the quality you select here.    *"
-ui_print "*    You will not see *-bit in the logs after     *"
-ui_print "*      setting this item, the module does         *"
-ui_print "*     not mislead you with made-up numbers        *"
-ui_print "*    Nevertheless, you will hear a positive       *"
-ui_print "*              change in the sound.               *"
+ui_print "*  This item will configure the audio codec of    *"
+ui_print "*  your device, forcing it to process sound       *"
+ui_print "*  according to the selected parameters. After    *"
+ui_print "*  installation, you will not see *-bit in the    *"
+ui_print "*  logs, the module will not deceive you with     *"
+ui_print "*  fictitious figures. However, you will hear     *"
+ui_print "*  positive changes in the sound.                 *"
 ui_print "*                                                 *"
-ui_print "*         NOTE: does not affect Bluetooth         *"
-ui_print "*                                                 *"
+ui_print "*   NOTE: does not affect Bluetooth.              *"
 ui_print "*_________________________________________________*"
 ui_print "*       [VOL+] - select | [VOL-] - confirm        *"
 ui_print "***************************************************"
 sleep 1
-BITNES=1
 ui_print " "
 ui_print "   1. Skip (No changes will be made)"
 ui_print "   2. 24-bit"
@@ -499,29 +1048,27 @@ sed -i 's/BITNES=skip/BITNES='$BITNESINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [5/15]                                          *"
+ui_print "* [5/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*            • SELECT SAMPLING RATE •             *"
 ui_print "*                                                 *"
-ui_print "*     This step configures your audio codec,      *"
-ui_print "*     forcing it to process your audio more       *"
-ui_print "*   thoroughly at the quality you select here.    *"
-ui_print "*    You will not see *-Hz in the logs after      *"
-ui_print "*      setting this item, the module does         *"
-ui_print "*     not mislead you with made-up numbers        *"
-ui_print "*    Nevertheless, you will hear a positive       *"
-ui_print "*              change in the sound.               *"
+ui_print "*  This item will configure the audio codec of    *"
+ui_print "*  your device, forcing it to process sound       *"
+ui_print "*  according to the selected parameters. After    *"
+ui_print "*  installation, you will not see *-Hz in the     *"
+ui_print "*  logs, the module will not deceive you with     *"
+ui_print "*  fictitious figures. However, you will hear     *"
+ui_print "*  positive changes in the sound.                 *"
 ui_print "*                                                 *"
-ui_print "*         NOTE: does not affect Bluetooth         *"
-ui_print "*                                                 *"
+ui_print "*   NOTE: does not affect Bluetooth.              *"
 ui_print "*_________________________________________________*"
 ui_print "*       [VOL+] - select | [VOL-] - confirm        *"
 ui_print "***************************************************"
 sleep 1
 ui_print " "
 ui_print "   1. Skip (No changes will be made)"
-ui_print "   2. 96000 Hz "
-ui_print "   3. 192000 Hz "
+ui_print "   2. 96000 Hz"
+ui_print "   3. 192000 Hz"
 ui_print "   4. 384000 Hz (only for SD870 and higher)"
 ui_print " "
 SAMPLERATE=1
@@ -547,15 +1094,14 @@ sed -i 's/SAMPLERATE=skip/SAMPLERATE='$SAMPLERATEINT'/g' $SETTINGS
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [6/15]                                          *"
+ui_print "* [6/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • TURN OFF SOUND INTERFERENCE •          *"
 ui_print "*                                                 *"
-ui_print "*     This step will disable various system       *"
-ui_print "*   optimizations of sound, such as compressors,  *"
-ui_print "*    limiters and other unnecessary mechanisms    *"
-ui_print "*         that interfere with the normal          *"
-ui_print "*              perception of audio.               *"
+ui_print "*  This step will disable various system audio    *"
+ui_print "*  optimizations, such as compressors, limiters,  *"
+ui_print "*  and other unnecessary mechanisms that          *"
+ui_print "*  interfere with normal audio perception.        *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -567,16 +1113,16 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [7/15]                                          *"
+ui_print "* [7/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*        • CONFIGURE INTERNAL AUDIO CODEC •       *"
 ui_print "*                                                 *"
-ui_print "*           This option will configure            *"
-ui_print "*       your device's internal audio codec.       *"
-ui_print "*       For example, it will try to disable       *"
-ui_print "*    the deep buffer a bit, allow the external    *"
-ui_print "*       DSP chip to process audio and many        *"
-ui_print "*           more useful little things.            *"
+ui_print "*  This option will configure your device's       *"
+ui_print "*  internal audio codec. For example, it will     *"
+ui_print "*  try to disable the deep buffer slightly,       *"
+ui_print "*  allowing the external DSP chip to process      *"
+ui_print "*  audio with higher quality and many more        *"
+ui_print "*  useful little things.                          *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -588,20 +1134,18 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [8/15]                                          *"
+ui_print "* [8/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*       • PATCHING DEVICE_FEATURES FILES •        *"
 ui_print "*                                                 *"
-ui_print "*        This step will do the following:         *"
-ui_print "*        - Unlocks the sampling frequency         *"
-ui_print "*          of the audio up to 192000 Hz;          *"
-ui_print "*        - Enable HD record in camcorder;         *"
-ui_print "*        - Increase VoIP record quality;          *"
-ui_print "*        - Enable support for hd voice            *"
-ui_print "*          recording quality;                     *"
-ui_print "*        - Enable Hi-Fi support (on some devices) *"
+ui_print "*  This item will do the following:               *"
+ui_print "*  - Unlock audio sampling rates up to 192000 Hz; *"
+ui_print "*  - Enable HD audio recording in the camcorder;  *"
+ui_print "*  - Improve VoIP recording quality;              *"
+ui_print "*  - Enable HD voice recording support in apps;   *"
+ui_print "*  - Enable Hi-Fi support on supported devices.   *"
 ui_print "*                                                 *"
-ui_print "*  And much more . . .                            *"
+ui_print "*  And much more...                               *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -613,34 +1157,31 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [9/15]                                          *"
+ui_print "* [9/16]                                          *"
 ui_print "*                                                 *"
 ui_print "*      • OTHER PATCHES IN MIXER_PATHS FILES •     *"
 ui_print "*                                                 *"
-ui_print "*         This option reroutes the audio,         *"
-ui_print "*   removing anything superfluous and trying to   *"
-ui_print "*     reconfigure the stream so that the audio    *"
-ui_print "*         takes the shortest path from the        *"
-ui_print "*        device's codec to your headphones.       *"
-ui_print "*        Additionally, it disables various        *"
-ui_print "*     low-frequency cutoffs that are supposedly   *"
-ui_print "*            out of human hearing range.          *"
-ui_print "*       Contains AUTHOR'S sound settings for      *"
-ui_print "*          the speakers of some devices,          *"
-ui_print "*        for example (list to be updated):        *"
+ui_print "*  This option will change the audio routing,     *"
+ui_print "*  remove anything superfluous, and try to alter  *"
+ui_print "*  the audio stream configuration so that the     *"
+ui_print "*  audio is processed in the shortest path to     *"
+ui_print "*  the device's audio codec. It will disable      *"
+ui_print "*  various frequency cut-offs and limits that     *"
+ui_print "*  are supposedly beyond human hearing.           *"
 ui_print "*                                                 *"
-ui_print "*            - Poco X3 NFC (surya);               *"
-ui_print "*            - Poco X3 Pro (vayu);                *"
-ui_print "*            - Redmi Note 10 (mojito);            *"
-ui_print "*            - Redmi Note 10 Pro (sweet);         *"
-ui_print "*            - Redmi Note 10 Pro Max (sweetin);   *"
-ui_print "*            - Mi 11 Ultra (star).                *"
+ui_print "*  Contains AUTHOR'S audio codec settings for     *"
+ui_print "*  supported devices, for instance:               *"
+ui_print "*  - Poco X3 NFC (surya);                         *"
+ui_print "*  - Poco X3 Pro (vayu);                          *"
+ui_print "*  - Redmi Note 10 (mojito);                      *"
+ui_print "*  - Redmi Note 10 Pro (sweet);                   *"
+ui_print "*  - Redmi Note 10 Pro Max (sweetin);             *"
+ui_print "*  - Mi 11 Ultra (star).                          *"
 ui_print "*                                                 *"
-ui_print "*        These customizations significantly       *"
-ui_print "*       improve stereo sound quality of these     *"
-ui_print "*   devices, correct volume balance by channels   *"
-ui_print "*           and improve the overall volume        *"
-ui_print "*                 and sound scene.                *"
+ui_print "*  These settings significantly improve the       *"
+ui_print "*  stereo quality of your device, the overall     *"
+ui_print "*  volume, musicality, the stereo scene, and      *"
+ui_print "*  corrects the balance of volume in speakers.    *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -652,14 +1193,14 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [10/15]                                         *"
+ui_print "* [10/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*         • TWEAKS FOR BUILD.PROP FILES •         *"
 ui_print "*                                                 *"
-ui_print "*     A huge number of global settings that       *"
-ui_print "*      greatly change the quality of audio        *"
-ui_print "*   for the better. Don't hesitate and just go    *"
-ui_print "*         along with the installation.            *"
+ui_print "*  Contains a huge amount of global settings      *"
+ui_print "*  that will significantly change audio quality   *"
+ui_print "*  for the better. Do not hesitate to agree to    *"
+ui_print "*  the installation.                              *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -671,13 +1212,14 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [11/15]                                         *"
+ui_print "* [11/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*             • IMPROVE BLUETOOTH •               *"
 ui_print "*                                                 *"
-ui_print "*   This option will improve the audio quality    *"
-ui_print "*    in Bluetooth, as well as fix the problem     *"
-ui_print "*      of disappearing the AAC codec switch       *"
+ui_print "*  This option will try to maximize the           *"
+ui_print "*  improvement of audio quality in Bluetooth,     *"
+ui_print "*  as well as fix the problem of spontaneous      *"
+ui_print "*  AAC codec switching to OFF position.           *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -689,14 +1231,14 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [12/15]                                         *"
+ui_print "* [12/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*            • SWITCH AUDIO OUTPUT •              *"
 ui_print "*                                                 *"
 ui_print "*  This option will switch DIRECT to DIRECT_PCM,  *"
-ui_print "*      which will improve the sound detail.       *"
-ui_print "*   Can cause no sound in applications such as    *"
-ui_print "*       TikTok, YouTube, and many games           *"
+ui_print "*  which has more detail and quality. This may    *"
+ui_print "*  lead to no sound in apps such as TikTok,       *"
+ui_print "*  YouTube, as well as various mobile games.      *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -708,15 +1250,15 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [13/15]                                         *"
+ui_print "* [13/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*        • INSTALL CUSTOM PRESET FOR IIR •        *"
 ui_print "*                                                 *"
-ui_print "* IIR affects the final frequency response curve. *"
-ui_print "*   headphones. The default setting is with an    *"
-ui_print "* emphasis on the upper limit of low frequencies  *"
-ui_print "* and the lower bound of the midrange frequencies *"
-ui_print "*Once applied, these boundaries will be reinforced*"
+ui_print "*  IIR affects the final frequency curve          *"
+ui_print "*  characteristic. By default, the settings       *"
+ui_print "*  are tuned towards the clarity of the low       *"
+ui_print "*  frequencies. After applying this item, you     *"
+ui_print "*  will hear positive changes in audio detail.    *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -728,21 +1270,20 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [14/15]                                         *"
+ui_print "* [14/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*          • IGNORE ALL AUDIO EFFECTS •           *"
 ui_print "*                                                 *"
-ui_print "*      This item disables any audio effects       *"
-ui_print "*   at the system level. It breaks XiaomiParts,   *"
-ui_print "*      Dirac, Dolby, and other equalizers.        *"
-ui_print "*   Significantly increases the sound quality     *"
-ui_print "*            for quality headphones.              *"
+ui_print "*  This item will disable all audio effects on    *"
+ui_print "*  the system level. This will break XiaomiParts, *"
+ui_print "*  Dirac, Dolby, and other equalizers. It greatly *"
+ui_print "*  enhances audio quality for high-quality        *"
+ui_print "*  headphones.                                    *"
 ui_print "*                                                 *"
-ui_print "*                     Note:                       *"
-ui_print "*     If you agree, the sound becomes drier,      *"
-ui_print "*                    cleaner.                     *"
-ui_print "*      However, many people are advised to        *"
-ui_print "*               skip this point.                  *"
+ui_print "*   NOTE:                                         *"
+ui_print "*  If you agree, the sound will become drier,     *"
+ui_print "*  cleaner, flatter. Most users are recommended   *"
+ui_print "*  to skip this item.                             *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -754,19 +1295,20 @@ fi
 
 ui_print " "
 ui_print "***************************************************"
-ui_print "* [15/15]                                         *"
+ui_print "* [15/16]                                         *"
 ui_print "*                                                 *"
 ui_print "*         • INSTALL EXPERIMENTAL TWEAKS •         *"
 ui_print "*                                                 *"
-ui_print "*   This option configures the audio codecs of    *"
-ui_print "*     your device via the tinymix function.       *"
-ui_print "*  WARNING These settings can lead to all sorts   *"
-ui_print "*       of problems, up to and including          *"
-ui_print "*   device malfunction (so called bootloop).      *"
+ui_print "*  This option will further adjust your device's  *"
+ui_print "*  audio codec using the tinymix function. It     *"
+ui_print "*  will significantly improve audio quality, but  *"
+ui_print "*  is only compatible with a limited number of    *"
+ui_print "*  devices.                                       *"
 ui_print "*                                                 *"
-ui_print "*      These settings significantly improve       *"
-ui_print "*      audio quality, but are not compatible      *"
-ui_print "*  with most devices. Use only at your own risk!  *"
+ui_print "*   WARNING:                                      *"
+ui_print "*  These parameters can lead to various issues    *"
+ui_print "*  up to a complete bootloop of your device.      *"
+ui_print "*  Use at your own risk!                          *"
 ui_print "*_________________________________________________*"
 ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
 ui_print "***************************************************"
@@ -774,6 +1316,27 @@ ui_print " "
 if chooseport 60; then
 STEP15=true
 sed -i 's/STEP15=false/STEP15=true/g' $SETTINGS
+fi
+
+ui_print " "
+ui_print "***************************************************"
+ui_print "* [16/16]                                         *"
+ui_print "*                                                 *"
+ui_print "*           • CONFIGURE DOLBY ATMOS •             *"
+ui_print "*                                                 *"
+ui_print "*  This option will additionally configure your   *"
+ui_print "*  Dolby if it is available in the system (both   *"
+ui_print "*  system and non-system/custom), for better      *"
+ui_print "*  sound quality by disabling various unnecessary *"
+ui_print "*  features and mechanisms, such as compressors,  *"
+ui_print "*  audio regulators, and so on.                   *"
+ui_print "*_________________________________________________*"
+ui_print "*        [VOL+] - Install | [VOL-] - skip         *"
+ui_print "***************************************************"
+ui_print " "
+if chooseport 60; then
+STEP16=true
+sed -i 's/STEP16=false/STEP16=true/g' $SETTINGS
 fi
 
 ui_print " - YOUR SETTINGS: "
@@ -792,13 +1355,23 @@ ui_print " 12. Switch audio output: $STEP12"
 ui_print " 13. Install custom preset for IIR: $STEP13"
 ui_print " 14. Ignore all audio effects: $STEP14"
 ui_print " 15. Install experimental tweaks: $STEP15"
+ui_print " 16. Configure Dolby Atmos: $STEP16"
 ui_print " "
 
-ui_print " - Processing. . . -"
+ui_print " - Installation started, please wait... -"
 ui_print " "
 ui_print " - You can minimize Magisk/KSU and use the device normally -"
 ui_print " - and then come back here to reboot and apply the changes. -"
 ui_print " "
+
+#exit auto-translate
+fi
+
+
+#Creating variables to calculate the installation percentages
+percentage="0"
+number_of_mixers=$(echo "$MPATHS" | grep -o 'mixer_paths' | wc -l)
+mixer_percentage=$(echo "scale=0; 100 / ($number_of_mixers + 1)" | bc)
 
 if [ "$BITNESINT" != "Skip" ]; then
 if [ "$SAMPLERATEINT" != "Skip" ]; then
@@ -817,7 +1390,6 @@ patch_xml -s $APIXML '/audio_platform_info/bit_width_configs/device[@name="SND_D
 patch_xml -s $APIXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
-patch_xml -s $APIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
 sed -i '/^ *#/d; /^ *$/d' $APIXML
 done
 fi
@@ -848,7 +1420,6 @@ patch_xml -s $APIIXML '/audio_platform_info/bit_width_configs/device[@name="SND_
 patch_xml -s $APIIXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIIXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIIXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
-patch_xml -s $APIIXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
 sed -i '/^ *#/d; /^ *$/d' $APIIXML
 done
 fi
@@ -879,7 +1450,6 @@ patch_xml -s $APIEXML '/audio_platform_info/bit_width_configs/device[@name="SND_
 patch_xml -s $APIEXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIEXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIEXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
-patch_xml -s $APIEXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
 sed -i '/^ *#/d; /^ *$/d' $APIEXML
 done
 fi
@@ -910,7 +1480,6 @@ patch_xml -s $APIQRDXML '/audio_platform_info/bit_width_configs/device[@name="SN
 patch_xml -s $APIQRDXML '/audio_platform_info/bit_width_configs/device[@name="SND_DEVICE_OUT_BT_A2DP"]' "bit_width=$BITNESINT"
 patch_xml -s $APIQRDXML '/audio_platform_info/app_types/app[@mode="default"]' "bit_width=$BITNESINT"
 patch_xml -s $APIQRDXML '/audio_platform_info/app_types/app[@mode="default"]' "max_rate=$SAMPLERATEINT"
-patch_xml -s $APIQRDXML '/audio_platform_info/acdb_ids/device[@name="SND_DEVICE_IN_CAMCORDER_MIC"]' "acdb_id=$MODID"
 sed -i '/^ *#/d; /^ *$/d' $APIQRDXML
 done
 fi 
@@ -925,9 +1494,6 @@ sed -i 's/name="SND_DEVICE_IN_HANDSET_STEREO_DMIC" acdb_id="NLSound"/name="SND_D
 
 #end STEP
 fi
-
-ui_print " "
-ui_print "   ########================================ 20% done!"
 
 #patch audio_configs.xml
 if [ "$STEP7" == "true" ]; then
@@ -1028,6 +1594,7 @@ done
 #end step8
 fi
 
+
 if [ "$STEP10" == "true" ]; then
 echo -e "\n# Better parameters audio by NLSound Team
 flac.sw.decoder.24bit.support=true
@@ -1127,7 +1694,7 @@ vendor.audio.feature.thermal_listener.enable=false
 vendor.audio.feature.power_mode.enable=true
 vendor.audio.feature.hifi_audio.enable=true
 vendor.audio.feature.keep_alive.enable=true
-vendor.audio.feature.deepbuffer_as_primary.enable=false 
+vendor.audio.feature.deepbuffer_as_primary.enable=false
 vendor.audio.feature.dmabuf.cma.memory.enable=true
 vendor.audio.feature.compress_in.enable=false
 vendor.audio.feature.battery_listener.enable=false
@@ -1160,12 +1727,10 @@ persist.vendor.audio.ambisonic.auto.profile=true
 audio.record.delay=0
 vendor.voice.dsd.playback.conc.disabled=false
 vendor.audio.3daudio.record.enable=true
-vendor.audio.hdr.spf.record.enable=true
 vendor.audio.hdr.record.enable=true
-vendor.audio.chk.cal.us=1
 ro.vendor.audio.recording.hd=true
-ro.vendor.audio.sdk.ssr=false 
-ro.qc.sdk.audio.ssr=false 
+ro.vendor.audio.sdk.ssr=false
+ro.qc.sdk.audio.ssr=false
 persist.audio.lowlatency.rec=true
 persist.vendor.audio.endcall.delay=0
 persist.vendor.audio.record.ull.support=true
@@ -1186,13 +1751,13 @@ vendor.audio.capture.enforce_legacy_copp_sr=true
 vendor.audio.hal.output.suspend.supported=false
 vendor.audio.snd_card.open.retries=50
 vendor.audio.volume.headset.gain.depcal=true
-vendor.audio.camera.unsupport_low_latency=false 
+vendor.audio.camera.unsupport_low_latency=false
 vendor.audio.tfa9874.dsp.enabled=true
 vendor.audio.lowpower=false
-vendor.audio.compress_capture.enabled=false 
+vendor.audio.compress_capture.enabled=false
 vendor.audio.compress_capture.aac=false
 vendor.audio.rt.mode=23
-vendor.audio.rt.mode.onlyfast=false 
+vendor.audio.rt.mode.onlyfast=false
 vendor.audio.cpu.sched=31
 vendor.audio.cpu.sched.cpuset=248
 vendor.audio.cpu.sched.cpuset.binder=255
@@ -1202,9 +1767,9 @@ vendor.audio.cpu.sched.cpuset.hb=248
 vendor.audio.cpu.sched.cpuset.hso=248
 vendor.audio.cpu.sched.cpuset.he=248
 vendor.audio.cpu.sched.cpus=8
-vendor.audio.cpu.sched.onlyfast=false 
-vendor.media.amplayer.audiolimiter=false 
-vendor.media.amplayer.videolimiter=false 
+vendor.audio.cpu.sched.onlyfast=false
+vendor.media.amplayer.audiolimiter=false
+vendor.media.amplayer.videolimiter=false
 vendor.media.audio.ms12.downmixmode=on
 ro.audio.resampler.psd.enable_at_samplerate=192000
 ro.audio.resampler.psd.cutoff_percent=110
@@ -1244,19 +1809,20 @@ persist.vendor.audio.format.24bit=true
 persist.vendor.audio.speaker.stereo=true
 persist.vendor.audio_hal.dsp_bit_width_enforce_mode=24
 persist.vendor.audio.ll_playback_bargein=true
-persist.vendor.audio.delta.refresh=true" >> $PROP
+persist.vendor.audio.delta.refresh=true
+audio.force_resampler=false
+media.r_submix_quality=3
+media.encoder.bitrate=320
+media.decoder.bitrate=320" >> $PROP
 #exit
 fi
-
-ui_print " "
-ui_print "   ################======================== 40% done!"
 
 if [ "$STEP11" == "true" ]; then
 echo -e "\n# Bluetooth parameters by NLSound Team
 config.disable_bluetooth=false
 bluetooth.profile.a2dp.source.enabled=true
 vendor.audio.effect.a2dp.enable=1
-vendor.bluetooth.ldac.abr=false 
+vendor.bluetooth.ldac.abr=false
 vendor.media.audiohal.btwbs=true
 qcom.hw.aac.encoder=true
 qcom.hw.aac.decoder=true
@@ -1266,7 +1832,7 @@ ro.vendor.bluetooth.csip_qti=true
 persist.service.btui.use_aptx=1
 persist.bt.a2dp.aac_disable=false
 persist.bt.sbc_hd_enabled=1
-persist.bt.power.down=false 
+persist.bt.power.down=false
 persist.vendor.audio.sys.a2h_delay_for_a2dp=50
 persist.vendor.btstack.enable.lpa=false
 persist.vendor.bt.a2dp.aac_whitelist=false
@@ -1295,65 +1861,34 @@ IOPOLICY="$MODPATH$(echo $OIOPOLICY | sed "s|^/vendor|/system/vendor|g" | sed "s
 cp_ch -f $ORIGDIR$OIOPOLICY $IOPOLICY
 
 if [ "$STEP12" == "true" ]; then
-sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
-sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $IOPOLICY
+#start patching direct_pcm 24 and 32 bit routes, ignore 16-bit route
+sed -i '/direct_pcm_24/,/compress_passthrough/s/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/' $IOPOLICY
+sed -i '/compress_offload_24/,/inputs/s/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/' $IOPOLICY
+#end patching direct_pcm routes for 24 and 32 bit
 fi
 
 if [ "$BITNESINT" == "24" ]; then
-sed -i '/deep_buffer/,+6d' $IOPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width 24\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width 24\
-    app_type 69940\
-  }' $IOPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/formats AUDIO_FORMAT_PCM_24_BIT_PACKED/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width 24/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $IOPOLICY
+#end patching deep_buffer
 fi
 
 if [ "$BITNESINT" == "32" ]; then
-sed -i '/deep_buffer/,+6d' $IOPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_32_BIT\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width 32\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_32_BIT\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width 32\
-    app_type 69940\
-  }' $IOPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/formats AUDIO_FORMAT_PCM_32_BIT/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width 32/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $IOPOLICY
+#end patching deep_buffer
 fi
 
 if [ "$BITNESINT" == "float" ]; then
-sed -i '/deep_buffer/,+6d' $IOPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_FLOAT\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width float\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_FLOAT\
-    sampling_rates '$SAMPLERATEINT'\
-    bit_width float\
-    app_type 69940\
-  }' $IOPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/AUDIO_FORMAT_PCM_FLOAT/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width float/' $IOPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $IOPOLICY
+#end patching deep_buffer
 fi
 sed -i '/^ *#/d; /^ *$/d' $IOPOLICY
 done
@@ -1364,65 +1899,34 @@ OUTPUTPOLICY="$MODPATH$(echo $OOUTPUTPOLICY | sed "s|^/vendor|/system/vendor|g" 
 cp_ch -f $ORIGDIR$OOUTPUTPOLICY $OUTPUTPOLICY
 
 if [ "$STEP12" == "true" ]; then
-sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $OUTPUTPOLICY
-sed -i 's/AUDIO_OUTPUT_FLAG_DIRECT_PCM_PCM/AUDIO_OUTPUT_FLAG_DIRECT_PCM/g' $OUTPUTPOLICY
+#start patching direct_pcm 24 and 32 bit routes, ignore 16-bit route
+sed -i '/direct_pcm_24/,/compress_passthrough/s/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/' $OUTPUTPOLICY
+sed -i '/compress_offload_24/,/inputs/s/AUDIO_OUTPUT_FLAG_DIRECT/AUDIO_OUTPUT_FLAG_DIRECT_PCM/' $OUTPUTPOLICY
+#end patching direct_pcm routes for 24 and 32 bit
 fi
 
 if [ "$BITNESINT" == "24" ]; then
-sed -i '/deep_buffer/,+6d' $OUTPUTPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
-    sampling_rates $SAMPLERATEINT\
-    bit_width 24\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_24_BIT_PACKED\
-    sampling_rates $SAMPLERATEINT\
-    bit_width 24\
-    app_type 69937\
-  }' $OUTPUTPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/formats AUDIO_FORMAT_PCM_24_BIT_PACKED/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width 24/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $OUTPUTPOLICY
+#end patching deep_buffer
 fi
 
 if [ "$BITNESINT" == "32" ]; then
-sed -i '/deep_buffer/,+6d' $OUTPUTPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_32_BIT\
-    sampling_rates $SAMPLERATEINT\
-    bit_width 32\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_32_BIT\
-    sampling_rates $SAMPLERATEINT\
-    bit_width 32\
-    app_type 69937\
-  }' $OUTPUTPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/formats AUDIO_FORMAT_PCM_32_BIT/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width 32/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $OUTPUTPOLICY
+#end patching deep_buffer
 fi
 
 if [ "$BITNESINT" == "float" ]; then
-sed -i '/deep_buffer/,+6d' $OUTPUTPOLICY
-sed -i '/^outputs/a\
-  deep_buffer {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_FLOAT\
-    sampling_rates $SAMPLERATEINT\
-    bit_width float\
-    app_type 69936\
-  }\
-  deep_buffer_24 {\
-    flags AUDIO_OUTPUT_FLAG_DEEP_BUFFER\
-    formats AUDIO_FORMAT_PCM_FLOAT\
-    sampling_rates $SAMPLERATEINT\
-    bit_width float\
-    app_type 69937\
-  }' $OUTPUTPOLICY
+#start patching deep_buffer
+sed -i '/deep_buffer/,/direct_pcm_16/s/formats .*/AUDIO_FORMAT_PCM_FLOAT/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/bit_width .*/bit_width float/' $OUTPUTPOLICY
+sed -i '/deep_buffer/,/direct_pcm_16/s/sampling_rates .*/sampling_rates 44100|48000|88200|96000|176400|192000|352800|384000/' $OUTPUTPOLICY
+#end patching deep_buffer
 fi
 sed -i '/^ *#/d; /^ *$/d' $OUTPUTPOLICY
 done
@@ -1521,8 +2025,6 @@ sed -i 's/name="bitrate" range="64000"/name="bitrate" range="1-21000000"/g' $MED
 sed -i '/^ *#/d; /^ *$/d' $MEDIACODECS
 done
 
-ui_print " "                 
-ui_print "   ########################================ 60% done!"
 
 for OMIX in ${MPATHS}; do
 MIX="$MODPATH$(echo $OMIX | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
@@ -1599,8 +2101,75 @@ patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_RX0 Digi
 patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_RX1 Digital Volume"]' "$VOLMEDIASINT"
 patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_RX2 Digital Volume"]' "$VOLMEDIASINT"
 patch_xml -u $MIX '/mixer/path[@name="headphones-no-ce"]/ctl[@name="WSA_RX3 Digital Volume"]' "$VOLMEDIASINT"
-patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT1 Volume"]' "5"
-patch_xml -u $MIX '/mixer/ctl[@name="LINEOUT2 Volume"]' "5"
+#new
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX4 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX5 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX6 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX7 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX8 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=WSA_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=WSA_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=WSA_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=WSA_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker]/ctl[@name=RX_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX4 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX5 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX6 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX7 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX8 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=WSA_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=WSA_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=WSA_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=WSA_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=speaker-and-headphones]/ctl[@name=RX_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX4 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX5 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX6 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX7 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX8 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=WSA_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=WSA_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=WSA_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=WSA_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=RX_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX4 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX5 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX6 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX7 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX8 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=WSA_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=WSA_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=WSA_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=WSA_RX3 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX_RX0 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX_RX1 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX_RX2 Digital Volume]' "$VOLMEDIASINT"
+patch_xml -u $MIX '/mixer/path[@name=headphones-dsd]/ctl[@name=RX_RX3 Digital Volume]' "$VOLMEDIASINT"
 fi
 
 if [ "$STEP13" == "true" ]; then
@@ -1635,12 +2204,12 @@ patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band2"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band3"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band4"]' "1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 Enable Band5"]' "1"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "84"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "84"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "84"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "84"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "84"
-patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "84"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP0 Volume"]' "54"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 Volume"]' "54"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 Volume"]' "54"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 Volume"]' "54"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP4 Volume"]' "54"
+patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP5 Volume"]' "54"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP1 MUX"]' "RX1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP2 MUX"]' "RX1"
 patch_xml -u $MIX '/mixer/ctl[@name="IIR0 INP3 MUX"]' "RX1"
@@ -1673,25 +2242,13 @@ patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC5 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC6 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC7 Volume"]' "$VOLMICINT"
 patch_xml -u $MIX '/mixer/ctl[@name="TX_DEC8 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC0 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC1 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC2 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC3 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC4 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC5 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC6 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC7 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="DEC8 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC0 Volume"]' "$VOLMICINT"
-#patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC1 Volume"]' "$VOLMICINT" - microphone crackling in the background
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC2 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC3 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC4 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC5 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC6 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC7 Volume"]' "$VOLMICINT"
-patch_xml -u $MIX '/mixer/path[@name="handset-mic"]/ctl[@name="TX_DEC8 Volume"]' "$VOLMICINT"
 fi
+
+#Display of installation percentages
+$((percentage += $mixer_percentage))
+num_lattice=$(seq 1 $(($percentage * 40 / 100)))
+num_equals=$(seq 1 $((40 - ($percentage * 40 / 100))))
+echo " - $(printf '#%.0s' $num_lattice)$(printf '=%.0s' $num_equals) - $percentage%"
 
 if [ "$STEP6" == "true" ]; then
 sed -i 's/COMP Switch" value="1"/COMP Switch" value="0"/g' $MIX
@@ -1722,6 +2279,8 @@ sed -i 's/RX_COMP7 Switch" value="1"/RX_COMP1 Switch" value="0"/g' $MIX
 sed -i 's/RX_COMP8 Switch" value="1"/RX_COMP1 Switch" value="0"/g' $MIX
 sed -i 's/HPHL_COMP Switch" value="1"/HPHL_COMP Switch" value="0"/g' $MIX
 sed -i 's/HPHR_COMP Switch" value="1"/HPHR_COMP Switch" value="0"/g' $MIX
+sed -i 's/HPHL Compander" value="1"/HPHL Compander" value="0"/g' $MIX
+sed -i 's/HPHR Compander" value="1"/HPHR Compander" value="0"/g' $MIX
 sed -i 's/Softclip0 Enable" value="0"/Softclip0 Enable" value="1"/g' $MIX
 sed -i 's/Softclip1 Enable" value="0"/Softclip1 Enable" value="1"/g' $MIX
 sed -i 's/Softclip2 Enable" value="0"/Softclip2 Enable" value="1"/g' $MIX
@@ -1878,72 +2437,6 @@ patch_xml -u $MIX '/mixer/path[@name=headphones]/ctl[@name=COMP0 RX1 Switch]' "0
 patch_xml -u $MIX '/mixer/path[@name=headphones]/ctl[@name=COMP0 RX2 Switch]' "0"
 patch_xml -u $MIX '/mixer/path[@name=headphones]/ctl[@name=HPHL_COMP Switch]' "0"
 patch_xml -u $MIX '/mixer/path[@name=headphones]/ctl[@name=HPHR_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP3 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP4 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP5 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP6 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP7 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP8 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP0 RX1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP0 RX2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=SpkrLeft COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=SpkrRight COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=WSA_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=WSA_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=RX_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=RX_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP0 RX1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=COMP0 RX2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=HPHL_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-ce]/ctl[@name=HPHR_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP3 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP4 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP5 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP6 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP7 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP8 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP0 RX1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP0 RX2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=SpkrLeft COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=SpkrRight COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=WSA_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=WSA_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=RX_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=RX_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP0 RX1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=COMP0 RX2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=HPHL_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-no-ce]/ctl[@name=HPHR_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP3 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP4 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP5 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP6 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP7 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP8 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP0 RX1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP0 RX2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP1]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP2]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=SpkrLeft COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=SpkrRight COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=WSA_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=WSA_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=RX_COMP1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=RX_COMP2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP0 RX1 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=COMP0 RX2 Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=HPHL_COMP Switch]' "0"
-patch_xml -u $MIX '/mixer/path[@name=headphones-karaoke]/ctl[@name=HPHR_COMP Switch]' "0"
 patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=COMP1 Switch]' "0"
 patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=COMP2 Switch]' "0"
 patch_xml -u $MIX '/mixer/path[@name=headphones-44.1]/ctl[@name=COMP3 Switch]' "0"
@@ -2100,24 +2593,21 @@ sed -i '/^ *#/d; /^ *$/d' $MIX
 #end mixer patching function
 done
 
+for OARESOURCES in ${RESOURCES}; do
+RES="$MODPATH$(echo $OARESOURCES | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
+cp_ch -f $ORIGDIR$OARESOURCES $RES
+sed -i 's/<param key="hifi_filter" value="false"/<param key="hifi_filter" value="true"/g' $RES
+sed -i 's/<speaker_protection_enabled>1/<speaker_protection_enabled>0/g' $RES
+# bootloop issue sed -i '/_HEADPHONE<\/id>/,/        -->/{/        <!--HIFI Filter Headphones-Uncomment this when param key hifi_filter is true/d; /        -->/d}' $RES
+done
+
 if [ "$VOLSTEPSINT" != "Skip" ]; then
 echo -e "\nro.config.media_vol_steps=$VOLSTEPSINT" >> $PROP
-echo -e "\nsettings put system volume_steps_music $VOLSTEPSINT" >> $SERVICE
 fi
-
-ui_print " "                 
-ui_print "   ################################======== 80% done!"
 
 if [ "$STEP14" == "true" ]; then
 echo -e "\n #Disable all effects by NLSound Team
 ro.audio.ignore_effects=true
-ro.vendor.audio.ignore_effects=true
-vendor.audio.ignore_effects=true
-persist.audio.ignore_effects=true
-persis.vendor.audio.ignore_effects=true
-persist.sys.phh.disable_audio_effects=1
-ro.audio.disable_audio_effects=1
-vendor.audio.disable_audio_effects=1
 low.pass.filter=Off
 midle.pass.filter=Off
 high.pass.filter=Off
@@ -2126,41 +2616,25 @@ LPF=Off
 MPF=Off
 HPF=Off
 BPF=Off
-persist.audio.uhqa=1
-persist.vendor.audio.uhqa=1
-ro.platform.disable.audiorawout=true
-ro.vendor.platform.disable.audiorawout=true
-ro.vendor.audio.sfx.speaker=false
-ro.vendor.audio.sfx.earadj=false
-ro.vendor.audio.sfx.scenario=false
-ro.vendor.audio.sfx.audiovisual=false
-ro.vendor.audio.sfx.independentequalizer=false
-vendor.audio.soundfx.usb=false
-ro.vendor.audio.soundfx.usb=false
-ro.vendor.soundfx.type=none
-ro.vendor.audio.soundfx.type=none
-persist.sys_phh.disable_audio_effects=1
-persist.sys.phh.disable_soundvolume_effect=1
-ro.audio.spatializer_enabled=false
-persist.vendor.audio.sfx.hd.eq=0.000000,0.000000,0.000000,0.000000,0.000000,0.000000,0.000000
-persist.audio.fluence.voicecomm=false
-vendor.audio.compress_capture.aac.cut_off_freq=0
-ro.vendor.audio.gain.support=false
-ro.vendor.audio.soundfx.type=none
-ro.vendor.audio.sfx.earadj=false
-ro.vendor.audio.sfx.scenario=false
-ro.vendor.audio.soundfx.usb=false
-ro.vendor.audio.surround.headphone.only=false
-
-" >> $PROP
+audio.fx.disable=false
+audio.effects.enable=false" >> $PROP
 fi
 
-ui_print " "
-ui_print "   ######################################## 100% done!"
-
 if [ "$STEP15" == "true" ]; then
+
+echo -e '\n 
+resetprop -p --delete media.resolution.limit.16bit
+resetprop -p --delete media.resolution.limit.24bit
+resetprop -p --delete media.resolution.limit.32bit
+
+resetprop -p --delete audio.resolution.limit.16bit
+resetprop -p --delete audio.resolution.limit.24bit
+resetprop -p --delete audio.resolution.limit.32bit ' >> $MODPATH/service.sh
+fi
+
 if [ "$POCOF3" ] || [ "$POCOF4GT" ] || [ "$ONEPLUS9R" ] || [ "$ONEPLUS9Pro" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2239,17 +2713,18 @@ tinymix "Noise Gate" 16382
 tinymix "AUX_HPF Enable" 0
 tinymix "SLIM9_TX ADM Channels" Two
 tinymix "Voip Evrc Min Max Rate Config" 4 4
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$POCOX3Pro" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2368,17 +2843,18 @@ tinymix "TAS256x Profile id" 1
 tinymix "TAS25XX_SMARTPA_ENABLE" ENABLE
 tinymix "Amp Output Level" 22
 tinymix "TAS25XX_ALGO_PROFILE" MUSIC
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$MI11U" ] || [ "$ONEPLUS11GLOBAL" ] || [ "$MI13U" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2450,31 +2926,26 @@ tinymix "Noise Gate" 16383
 tinymix "DS2 OnOff" 1
 tinymix "HPHL Volume" 20
 tinymix "HPHR Volume" 20
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$POCOM3" ] || [ "$R9T" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
 tinymix "HiFi Filter" 1
-tinymix "RX_Softclip Enable" 1
-tinymix "BT SampleRate" KHZ_96
-tinymix "BT SampleRate RX" KHZ_96
-tinymix "BT SampleRate TX" KHZ_96
-tinymix "HPHL Volume" 20
-tinymix "HPHR Volume" 20
 tinymix "ASM Bit Width" 24
-tinymix "AFE Input Bit Format" S24_LE
-tinymix "USB_AUDIO_RX Format" S24_LE
-tinymix "USB_AUDIO_TX Format" S24_LE
+tinymix "AFE Input Bit Format" S32_LE
+tinymix "USB_AUDIO_RX Format" S32_LE
+tinymix "USB_AUDIO_TX Format" S32_LE
 tinymix "USB_AUDIO_RX SampleRate" KHZ_96
 tinymix "USB_AUDIO_TX SampleRate" KHZ_96
 tinymix "RX_CDC_DMA_RX_0 Format" S24_3LE
@@ -2486,7 +2957,7 @@ tinymix "RX_CDC_DMA_RX_1 SampleRate" KHZ_96
 tinymix "RX_CDC_DMA_RX_2 SampleRate" KHZ_96
 tinymix "RX_CDC_DMA_RX_5 SampleRate" KHZ_96
 tinymix "TX_CDC_DMA_TX_3 Format" S24_3LE
-tinymix "TX_CDC_DMA_TX_4 Format" S24_3LE
+tinymix "TX_CDC_DMA_TX_4 Format" S32_LE
 tinymix "TX_CDC_DMA_TX_3 SampleRate" KHZ_96
 tinymix "TX_CDC_DMA_TX_4 SampleRate" KHZ_96
 tinymix "DEC0 MODE" ADC_HIGH_PERF
@@ -2504,6 +2975,9 @@ tinymix "Compress Playback 27 Volume" 0
 tinymix "Compress Playback 28 Volume" 0
 tinymix "Compress Playback 36 Volume" 0
 tinymix "Compress Gapless Playback" 0
+tinymix "BT SampleRate" KHZ_96
+tinymix "BT SampleRate RX" KHZ_96
+tinymix "BT SampleRate TX" KHZ_96
 tinymix "EC Reference Channels" Two
 tinymix "EC Reference Bit Format" S24_LE
 tinymix "RX INT0 DEM MUX" CLSH_DSM_OUT
@@ -2514,18 +2988,20 @@ tinymix "RX_Softclip Enable" 1
 tinymix "DS2 OnOff" 1
 tinymix "HPH Idle Detect" ON
 tinymix "Set Custom Stereo OnOff" 1
+tinymix "AUX_HPF Enable" 0
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 
 if [ "$POCOX3" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2598,17 +3074,18 @@ tinymix "TAS256x Profile id" 1
 tinymix "TAS25XX_SMARTPA_ENABLE" ENABLE
 tinymix "Amp Output Level" 22
 tinymix "TAS25XX_ALGO_PROFILE" MUSIC
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$RN10" ] || [ "$RN10PRO" ] || [ "$RN10PROMAX" ] || [ "$RN8T" ] || [ "$A71" ] || [ "$RMEGTNEO3T" ] || [ "$ONEPLUS9RT" ]; then 
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2702,17 +3179,18 @@ tinymix "aw_dev_0_prof" Receiver
 tinymix "aw_dev_0_switch" Enable
 tinymix "aw_dev_1_prof" Receiver
 tinymix "aw_dev_1_switch" Enable
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$RMEGTNEO2" ]; then 
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2796,17 +3274,18 @@ tinymix "aw_dev_0_prof" Receiver
 tinymix "aw_dev_0_switch" Enable
 tinymix "aw_dev_1_prof" Receiver
 tinymix "aw_dev_1_switch" Enable
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$S22U" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -2896,25 +3375,22 @@ tinymix "A2H Tuning" 5
 tinymix "LPI Enable" 0
 tinymix "DMIC_RATE OVERRIDE" CLK_2P4MHZ
 tinymix "DS2 OnOff" 1
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$POCOF5" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
-tinymix "HiFi Filter" 1
 tinymix "RX_Softclip Enable" 1
-tinymix "BT SampleRate" KHZ_96
-tinymix "BT SampleRate RX" KHZ_96
-tinymix "BT SampleRate TX" KHZ_96
 tinymix "HPHL Volume" 20
 tinymix "HPHR Volume" 20
 tinymix "RX HPH Mode" CLS_H_LOHIFI
@@ -2942,17 +3418,18 @@ tinymix "HPH Idle Detect" ON
 tinymix "HDR12 MUX" HDR12
 tinymix "HDR34 MUX" HDR34
 tinymix "AUX_HPF Enable" 0
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$RN9PRO" ] || [ "$RN9S" ] || [ "$POCOM2P" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -3060,17 +3537,18 @@ tinymix "TX_CDC_DMA_TX_0 Format" S24_LE
 tinymix "WSA_CDC_DMA_TX_2 Format" S24_LE
 tinymix "WSA_CDC_DMA_TX_1 Format" S24_LE
 tinymix "AUX_HPF Enable" 0
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
 if [ "$PIXEL6a" ] || [ "$PIXEL6" ] || [ "$PIXEL6Pro" ] || [ "$PIXEL7" ] || [ "$PIXEL7Pro" ]; then
 echo -e '\n
+audioserver=false
 
 while :
 do
@@ -3085,25 +3563,49 @@ tinymix "RX HPH Mode" CLS_H_HIFI
 tinymix "AMP PCM Gain" 14
 tinymix "Digital PCM Volume" 865
 tinymix "Boost Peak Current Limit" 3.50A
+if [ "$audioserver" == "false" ]; then
+  kill $(pidof audioserver)
+  audioserver=true
+fi;
 sleep 4
 done
-
-if [ "$(pidof audioserver)" ]; then
-  kill $(pidof audioserver)
-fi;
 ' >> $MODPATH/service.sh
 fi
 
-echo -e '\n 
-resetprop -p --delete media.resolution.limit.16bit
-resetprop -p --delete media.resolution.limit.24bit
-resetprop -p --delete media.resolution.limit.32bit
-
-resetprop -p --delete audio.resolution.limit.16bit
-resetprop -p --delete audio.resolution.limit.24bit
-resetprop -p --delete audio.resolution.limit.32bit ' >> $MODPATH/service.sh
+#patching dolby anus
+if [ "$STEP16" == "true" ]; then
+for OADAXES in ${DAXES}; do
+DAX="$MODPATH$(echo $OADAXES | sed "s|^/vendor|/system/vendor|g" | sed "s|^/system_ext|/system/system_ext|g" | sed "s|^/product|/system/product|g" | sed "s|^/my_product|/system/my_product|g" | sed "s|^/odm|/system/vendor/odm|g" | sed "s|^/mi_ext|/system/mi_ext|g")"
+cp_ch -f $ORIGDIR$OADAXES $DAX
+sed -i 's/<mi-dv-leveler-steering-enable value="true"/<mi-dv-leveler-steering-enable value="false"/g' $DAX
+sed -i 's/<mi-ieq-steering-enable value="true"/<mi-ieq-steering-enable value="false"/g' $DAX
+sed -i 's/<mi-surround-compressor-steering-enable value="true"/<mi-surround-compressor-steering-enable value="false"/g' $DAX
+sed -i 's/<mi-adaptive-virtualizer-steering-enable value="true"/<mi-adaptive-virtualizer-steering-enable value="false"/g' $DAX
+sed -i 's/<reverb-suppression-enable value="true"/<reverb-suppression-enable value="false"/g' $DAX
+sed -i 's/<mi-dialog-enhancer-steering-enable value="true"/<mi-dialog-enhancer-steering-enable value="false"/g' $DAX
+sed -i 's/<dialog-enhancer-enable value="true"/<dialog-enhancer-enable value="false"/g' $DAX
+sed -i 's/<mi-virtualizer-binaural-steering-enable value="true"/<mi-virtualizer-binaural-steering-enable value="false"/g' $DAX
+sed -i 's/<peak-value value=".*"/<peak-value value="256"/g' $DAX
+sed -i 's/<surround-decoder-enable value="true"/<surround-decoder-enable value="false"/g' $DAX
+sed -i 's/<hearing-protection-enable value="true"/<hearing-protection-enable value="false"/g' $DAX
+sed -i 's/<volume-leveler-enable value="true"/<volume-leveler-enable value="false"/g' $DAX
+sed -i 's/<height-filter-mode value=".*"/<height-filter-mode value="0"/g' $DAX
+sed -i 's/<volume-leveler-compressor-enable value="true"/<volume-leveler-compressor-enable value="false"/g' $DAX
+sed -i 's/<complex-equalizer-enable value="true"/<complex-equalizer-enable value="false"/g' $DAX
+sed -i 's/<regulator-enable value="true"/<volume-leveler-enable value="false"/g' $DAX
+sed -i 's/<regulator-speaker-dist-enable value="true"/<regulator-speaker-dist-enable value="false"/g' $DAX
+sed -i 's/<regulator-sibilance-suppress-enable value="true"/<regulator-sibilance-suppress-enable value="false"/g' $DAX
+sed -i 's/bass-mbdrc-enable value="true"/bass-mbdrc-enable value="false"/g' $DAX
+sed -i 's/threshold_low=".*" threshold_high=".*"/threshold_low="0" threshold_high="0"/g' $DAX
+sed -i 's/isolated_band="true"/isolated_band="false"/g' $DAX
+sed -i '/endpoint_type="headphone"/,/<\/tuning>/s/<audio-optimizer-enable value="true"/<audio-optimizer-enable value="false"/g' $DAX
+sed -i '/<output-mode>/,/<\/output-mode>' $DAX
+sed -i '/<mix_matrix>/,/</output-mode>' $DAX
+done
 fi
 
+#Display of installation percentages
+echo " - $(printf '#%.0s' $(seq 1 40)) - 100%"
 
 ui_print " "
 ui_print " - All done! With love, NLSound Team. - "

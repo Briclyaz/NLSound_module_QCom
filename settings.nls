@@ -19,6 +19,7 @@ MODPATH=${0%/*}
 #STEP13=Install custom preset for iir
 #STEP14=Ignore all audio effects
 #STEP15=Install experimental tweaks for tinymix
+#STEP16=Configure Dolby Atmos
 
 SAMPLERATE=skip
 BITNES=skip
