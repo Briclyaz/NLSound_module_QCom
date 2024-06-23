@@ -21,17 +21,11 @@ MODPATH=${0%/*}
 #STEP15=Install experimental tweaks for tinymix
 #STEP16=Configure Dolby Atmos
 
-SAMPLERATE=skip
-BITNES=skip
-VOLMIC=skip
-VOLMEDIA=skip
 VOLSTEPS=skip
-
-STEP1=false
-STEP2=false
-STEP3=false
-STEP4=false
-STEP5=false
+VOLMEDIA=skip
+VOLMIC=skip
+BITNES=skip
+SAMPLERATE=skip
 STEP6=false
 STEP7=false
 STEP8=false

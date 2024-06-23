@@ -150,7 +150,7 @@ mount_mirrors() {
 ui_print " "
 ui_print "***************************************************"
 ui_print "*                                                 *"
-ui_print "*                NLSound v3.9 BETA                *"
+ui_print "*               NLSound v3.9 STABLE               *"
 ui_print "*                                                 *"
 ui_print "*               special version for               *"
 ui_print "*                                                 *"
