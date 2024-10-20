@@ -1,6 +1,6 @@
 id=NLSound
 name=NLSound
-version=v4.0 STABLE
-versionCode=990
+version=v4.1 BETA
+versionCode=1145
 author=NLSound Team
 description=This module globally improves audio quality when recording video/audio and listening to audio on your device. Support: @nlsound_support | Channel: @nlsound_updates

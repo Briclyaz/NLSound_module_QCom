@@ -150,7 +150,7 @@ mount_mirrors() {
 ui_print " "
 ui_print "***************************************************"
 ui_print "*                                                 *"
-ui_print "*               NLSound v4.0 STABLE               *"
+ui_print "*                NLSound v4.1 BETA                *"
 ui_print "*                                                 *"
 ui_print "*               special version for               *"
 ui_print "*                                                 *"
@@ -173,9 +173,10 @@ ui_print "*         MMT Extended by Zackptg5 @ XDA          *"
 ui_print "***************************************************"
 ui_print " "
 
+# delete bcs useless
 # Check for min/max api version
-[ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"; }
-[ -z $MAXAPI ] || { [ $API -gt $MAXAPI ] && abort "! Your system API of $API is greater than the maximum api of $MAXAPI! Aborting!"; }
+# [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"; }
+# [ -z $MAXAPI ] || { [ $API -gt $MAXAPI ] && abort "! Your system API of $API is greater than the maximum api of $MAXAPI! Aborting!"; }
 
 # Min KSU v0.6.6
 [ -z $KSU ] && KSU=false
