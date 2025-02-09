@@ -33,29 +33,6 @@ abort() {
   exit 1
 }
 
-device_check() {
-  local opt=`getopt -o dm -- "$@"` type=device
-  eval set -- "$opt"
-  while true; do
-    case "$1" in
-      -d) local type=device; shift;;
-      -m) local type=manufacturer; shift;;
-      --) shift; break;;
-      *) abort "Invalid device_check argument $1! Aborting!";;
-    esac
-  done
-  local prop=$(echo "$1" | tr '[:upper:]' '[:lower:]')
-  for i in /system /vendor /odm /product; do
-    if [ -f $i/build.prop ]; then
-      for j in "ro.product.$type" "ro.build.$type" "ro.product.vendor.$type" "ro.vendor.product.$type"; do
-        [ "$(sed -n "s/^$j=//p" $i/build.prop 2>/dev/null | head -n 1 | tr '[:upper:]' '[:lower:]')" == "$prop" ] && return 0
-      done
-      [ "$type" == "device" ] && [ "$(sed -n "s/^"ro.build.product"=//p" $i/build.prop 2>/dev/null | head -n 1 | tr '[:upper:]' '[:lower:]')" == "$prop" ] && return 0
-    fi
-  done
-  return 1
-}
-
 cp_ch() {
   local opt=`getopt -o nr -- "$@"` BAK=true UBAK=true FOL=false
   eval set -- "$opt"
@@ -121,14 +98,6 @@ install_script() {
   esac
 }
 
-prop_process() {
-  sed -i -e "/^#/d" -e "/^ *$/d" $1
-  [ -f $MODPATH/system.prop ] || mktouch $MODPATH/system.prop
-  while read LINE; do
-    echo "$LINE" >> $MODPATH/system.prop
-  done < $1
-}
-
 mount_mirrors() {
   $KSU && mount -o rw,remount $MAGISKTMP
   mkdir -p $ORIGDIR/system
@@ -150,7 +119,7 @@ mount_mirrors() {
 ui_print " "
 ui_print "***************************************************"
 ui_print "*                                                 *"
-ui_print "*                NLSound v4.1 BETA                *"
+ui_print "*                NLSound v4.2 BETA                *"
 ui_print "*                                                 *"
 ui_print "*               special version for               *"
 ui_print "*                                                 *"
@@ -168,15 +137,7 @@ ui_print "*                        or                       *"
 ui_print "*                                                 *"
 ui_print "*          @nlsound_support in Telegram           *"
 ui_print "*                                                 *"
-ui_print "***************************************************"
-ui_print "*         MMT Extended by Zackptg5 @ XDA          *"
-ui_print "***************************************************"
 ui_print " "
-
-# delete bcs useless
-# Check for min/max api version
-# [ -z $MINAPI ] || { [ $API -lt $MINAPI ] && abort "! Your system API of $API is less than the minimum api of $MINAPI! Aborting!"; }
-# [ -z $MAXAPI ] || { [ $API -gt $MAXAPI ] && abort "! Your system API of $API is greater than the maximum api of $MAXAPI! Aborting!"; }
 
 # Min KSU v0.6.6
 [ -z $KSU ] && KSU=false
@@ -245,16 +206,6 @@ fi
 # Extract files
 ui_print "- Extracting module files"
 unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
-[ -f "$MODPATH/common/addon.tar.xz" ] && tar -xf $MODPATH/common/addon.tar.xz -C $MODPATH/common 2>/dev/null
-
-# Run addons
-if [ "$(ls -A $MODPATH/common/addon/*/install.sh 2>/dev/null)" ]; then
-  ui_print " "; ui_print "- Running Addons -"
-  for i in $MODPATH/common/addon/*/install.sh; do
-    ui_print "  Running $(echo $i | sed -r "s|$MODPATH/common/addon/(.*)/install.sh|\1|")..."
-    . $i
-  done
-fi
 
 # Remove files outside of module directory
 ui_print "- Removing old files"
