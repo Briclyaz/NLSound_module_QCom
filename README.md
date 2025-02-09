@@ -23,6 +23,8 @@ It has a positive effect on all audio playback options (wired headphones, TWS an
  - Despite the fact that the module has the functionality to disable the interventions of XiaomiParts, Dolby, Viper4Android and other equalizers, the module is one of the few that can additionally adjust the Dolby parameters in your system;
  - Does not require you to have professional audio knowledge for its installation;
  - This is a non-commercial project, existing on the pure initiative of a small team: you won't see paid subscriptions for full functionality or other paid distribution anywhere;
+ - Working with ACDB (audio calibration database) files at the system level: editing (removing various companders and other audio limiters), partial and complete deletion from the system;
+ - System patching of Dolby files to remove artificial limitations and remove audio codec limits imposed by device manufacturers to artificially limit more budget devices in audio quality.
  - And many other things that can be listed for a long time, just try it!
 
 ## 📲 Requirements:
