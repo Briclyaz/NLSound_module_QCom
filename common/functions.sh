@@ -117,26 +117,29 @@ mount_mirrors() {
 
 # Credits
 ui_print " "
-ui_print "***************************************************"
-ui_print "*                                                 *"
-ui_print "*                NLSound v4.2 BETA                *"
-ui_print "*                                                 *"
-ui_print "*               special version for               *"
-ui_print "*                                                 *"
-ui_print "*            devices based on Qualcomm            *"
-ui_print "*                                                 *"
-ui_print "*      Support - https://t.me/nlsound_support     *"
-ui_print "*                                                 *"
-ui_print "*                        or                       *"
-ui_print "*                                                 *"
-ui_print "*          @nlsound_support in Telegram           *"
-ui_print "*                                                 *"
-ui_print "*      Updates - https://t.me/nlsound_updates     *"
-ui_print "*                                                 *"
-ui_print "*                        or                       *"
-ui_print "*                                                 *"
-ui_print "*          @nlsound_support in Telegram           *"
-ui_print "*                                                 *"
+ui_print " "
+ui_print "———————————————————————————————————————————"
+ui_print " "
+ui_print "              NLSound v4.3 "
+ui_print " "
+ui_print "           special version for"
+ui_print " "
+ui_print "        devices based on Qualcomm"
+ui_print " "
+ui_print "  Support - https://t.me/nlsound_support"
+ui_print " "
+ui_print "                  or"
+ui_print " "
+ui_print "     @nlsound_support in Telegram"
+ui_print " "
+ui_print "  Updates - https://t.me/nlsound_updates"
+ui_print " "
+ui_print "                  or"
+ui_print " "
+ui_print "      @nlsound_updates in Telegram"
+ui_print " "
+ui_print "———————————————————————————————————————————"
+ui_print " "
 ui_print " "
 
 # Min KSU v0.6.6
@@ -207,9 +210,6 @@ fi
 ui_print "- Extracting module files"
 unzip -o "$ZIPFILE" -x 'META-INF/*' 'common/functions.sh' -d $MODPATH >&2
 
-# Remove files outside of module directory
-ui_print "- Removing old files"
-
 if [ -f $INFO ]; then
   while read LINE; do
     if [ "$(echo -n $LINE | tail -c 1)" == "~" ]; then
@@ -232,7 +232,6 @@ ui_print "- Installing"
 
 [ -f "$MODPATH/common/install.sh" ] && . $MODPATH/common/install.sh
 
-ui_print "   Installing for $ARCH SDK $API device..."
 # Remove comments from files and place them, add blank line to end if not already present
 for i in $(find $MODPATH -type f -name "*.sh" -o -name "*.prop" -o -name "*.rule"); do
   [ -f $i ] && { sed -i -e "/^#/d" -e "/^ *$/d" $i; [ "$(tail -1 $i)" ] && echo "" >> $i; } || continue
@@ -271,8 +270,6 @@ if $DYNLIB; then
 fi
 
 # Set permissions
-ui_print " "
-ui_print "- Setting Permissions"
 set_perm_recursive $MODPATH 0 0 0755 0644
 for i in /system/vendor /vendor /system/vendor/app /vendor/app /system/vendor/etc /vendor/etc /system/odm/etc /odm/etc /system/vendor/odm/etc /vendor/odm/etc /system/vendor/overlay /vendor/overlay; do
   if [ -d "$MODPATH$i" ] && [ ! -L "$MODPATH$i" ]; then

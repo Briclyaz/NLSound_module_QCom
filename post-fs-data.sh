@@ -31,7 +31,7 @@ if [[ "$KSU" == "true" ]] || [[ $(which ksud) != "" ]]; then
   for module in $modules/$target_module
   do
     # 遍历需要处理的特殊目录
-    for dir in 'my_product' 'odm'
+    for dir in 'sys' 'my_product' 'odm'
     do
       if [[ -d $module/$dir ]]; then
         echo ">> $module/$dir"
@@ -43,7 +43,7 @@ else
   for module in $modules/$target_module
   do
     # 遍历需要处理的特殊目录
-    for dir in 'my_product' 'odm'
+    for dir in 'sys' 'my_product' 'odm'
     do
       if [[ -d $module/$dir ]]; then
         echo ">> $module/$dir"
