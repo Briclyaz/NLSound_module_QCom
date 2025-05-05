@@ -120,7 +120,7 @@ ui_print " "
 ui_print " "
 ui_print "———————————————————————————————————————————"
 ui_print " "
-ui_print "              NLSound v4.3 "
+ui_print "              NLSound v4.4 "
 ui_print " "
 ui_print "           special version for"
 ui_print " "
@@ -149,8 +149,6 @@ $KSU && { [ $KSU_VER_CODE -lt 11184 ] && require_new_ksu; }
 [ -z $APATCH ] && APATCH=false
 [ "$APATCH" == "true" ] && KSU=true
 
-# Start debug
-set -x
 
 # Set variables
 [ -z $ARCH32 ] && ARCH32="$(echo $ABI32 | cut -c-3)"
