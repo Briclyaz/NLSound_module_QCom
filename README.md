@@ -33,9 +33,7 @@ It has a positive effect on all audio playback options (wired headphones, TWS an
  - Availability of root manager (Magisk, KernelSU, APatch).
 
 ## 🎵 Download:
-Stable versions can be downloaded under the [Releases](https://github.com/Briclyaz/NLSound_module_QCom/releases) tab.
-
-If you want to familiarize yourself with the BETA-version of the module, welcome to [the corresponding topic in our support chat in Telegram](https://t.me/nlsound_support/116804)
+All versions can be downloaded under the [Releases](https://github.com/Briclyaz/NLSound_module_QCom/releases) tab or in official [Telegram Channel](https://t.me/nlsound_updates)
 
 ## 💬 Any other questions? 
 [Welcome to our support chat in Telegram](https://t.me/nlsound_support/116804)
