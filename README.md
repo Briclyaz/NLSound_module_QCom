@@ -14,12 +14,7 @@
 [![License](https://img.shields.io/github/license/Briclyaz/NLSound_module_QCom?style=for-the-badge&color=gray)](LICENSE)
 [![Telegram Updates](https://img.shields.io/badge/Channel-@nlsound__updates-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_updates)
 [![Telegram Support](https://img.shields.io/badge/Support-@nlsound__support-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_support)
-<br>
-<img src="https://img.shields.io/badge/Linux_Kernel-ALSA-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Linux Kernel"/>
-<img src="https://img.shields.io/badge/Android-AudioFlinger%20%7C%20AAudio-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android Audio"/>
-<img src="https://img.shields.io/badge/Qualcomm-Snapdragon%20DSP-3253DC?style=flat-square" alt="Qualcomm"/>
-<img src="https://img.shields.io/badge/Audio-Direct_PCM_384kHz-E63946?style=flat-square" alt="Audio"/>
-<br><br>
+
 <a href="https://github.com/Briclyaz/NLSound_module_QCom/releases/latest">
   <img src="https://img.shields.io/badge/⚡_DOWNLOAD_LATEST_RELEASE-0969DA?style=for-the-badge&logo=github&logoColor=white" height="42" alt="Download Latest Release"/>
 </a>
