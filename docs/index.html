@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NLSound — Studio Grade Android Audio Engine</title>
+  <meta name="description" content="Системный модуль калибровки звукового железа для Magisk, KernelSU и APatch. Снятие DSP-лимитеров, саб-бас от 4 Гц и Direct PCM." />
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎛️</text></svg>">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            chassis: '#090a0f',
+            rack: '#11131a',
+            subtle: '#181b26',
+            wire: '#232838',
+            amber: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#d97706',
+              glow: 'rgba(245, 158, 11, 0.15)'
+            }
+          },
+          fontFamily: {
+            mono: ['JetBrains Mono', 'Menlo', 'monospace'],
+            sans: ['Space Grotesk', 'Inter', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Google Fonts: Space Grotesk & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --grid-line: rgba(255, 255, 255, 0.035);
+    }
+    body {
+      background-color: #090a0f;
+      color: #e2e8f0;
+      font-family: 'Space Grotesk', sans-serif;
+      background-image: 
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    
+    /* Scroll Reveal Engine Styles */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      filter: blur(6px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+                  filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+      will-change: opacity, transform, filter;
+    }
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+      filter: blur(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* Industrial Chassis Card */
+    .studio-panel {
+      background: linear-gradient(180deg, #13151f 0%, #0d0e14 100%);
+      border: 1px solid #232838;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .studio-panel:hover {
+      border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    /* Crosshair decor */
+    .crosshair {
+      position: relative;
+    }
+    .crosshair::before {
+      content: '+';
+      position: absolute;
+      font-family: monospace;
+      font-size: 11px;
+      color: #475569;
+    }
+  </style>
+</head>
+<body class="selection:bg-amber-500 selection:text-black">
+
+  <!-- ================= TOP TECHNICAL STRIP ================= -->
+  <header class="fixed top-0 left-0 w-full z-50 bg-[#090a0f]/90 backdrop-blur-md border-b border-wire">
+    <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      
+      <!-- Brand & Status -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 rounded bg-amber-500/10 border border-amber-500/30 flex items-center justify-center font-mono font-bold text-amber-400 text-sm group-hover:border-amber-400 transition">
+          NL
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="font-bold tracking-tight text-white font-mono text-base">NLSOUND</span>
+          <span class="text-[10px] font-mono text-amber-500/80 uppercase tracking-widest hidden sm:inline">[DSP_ENGINE_v4.0]</span>
+        </div>
+      </a>
+
+      <!-- Menu links -->
+      <nav class="hidden md:flex items-center gap-8 font-mono text-xs text-slate-400 uppercase tracking-wider">
+        <a href="#benchmark" class="hover:text-amber-400 transition" data-i18n="nav_spec">/ АЧХ & Лимитеры</a>
+        <a href="#pipeline" class="hover:text-amber-400 transition" data-i18n="nav_pipeline">/ Тракт ALSA</a>
+        <a href="#interactive" class="hover:text-amber-400 transition" data-i18n="nav_installer">/ Пульт калибровки</a>
+        <a href="#models" class="hover:text-amber-400 transition" data-i18n="nav_models">/ База чипов</a>
+      </nav>
+
+      <!-- Action buttons -->
+      <div class="flex items-center gap-3">
+        <!-- Language Switcher -->
+        <button id="langToggle" class="px-2.5 py-1 rounded bg-rack border border-wire text-slate-300 hover:text-white font-mono text-xs flex items-center gap-1.5 transition">
+          <i data-lucide="globe" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span id="langText">RU</span>
+        </button>
+
+        <a href="https://github.com/Briclyaz/NLSound_module_QCom" target="_blank" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded bg-rack hover:bg-subtle border border-wire text-xs font-mono text-slate-300 transition">
+          <i data-lucide="git-branch" class="w-3.5 h-3.5 text-slate-400"></i>
+          <span>GitHub</span>
+        </a>
+
+        <a href="https://github.com/Briclyaz/NLSound_module_QCom/releases/latest" target="_blank" class="px-4 py-1.5 rounded bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs flex items-center gap-1.5 transition shadow-sm shadow-amber-500/30">
+          <i data-lucide="arrow-down-to-line" class="w-3.5 h-3.5"></i>
+          <span data-i18n="nav_get">СКАЧАТЬ</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= HERO WITH OSCILLOSCOPE ================= -->
+  <section class="relative pt-32 pb-20 overflow-hidden border-b border-wire">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      
+      <!-- Left info column -->
+      <div class="lg:col-span-7">
+        <div class="inline-flex items-center gap-2.5 px-3 py-1 rounded bg-amber-500/10 border border-amber-500/25 mb-6 text-amber-400 font-mono text-xs tracking-wider uppercase">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+          <span data-i18n="hero_status">Аппаратное переопределение DSP &bull; Android 9—15</span>
+        </div>
+
+        <h1 class="text-4xl sm:text-6xl font-bold tracking-tight text-white mb-6 uppercase leading-tight font-sans">
+          <span data-i18n="hero_h1">Бескомпромиссная</span><br/>
+          <span class="text-amber-400" data-i18n="hero_h2">чистота звука</span>
+        </h1>
+
+        <p class="text-slate-400 text-base sm:text-lg mb-8 max-w-xl font-normal leading-relaxed" data-i18n="hero_desc">
+          Прямое управление регистрами SmartPA-усилителей, аппаратный спуск фильтра HPF до 4 Гц, прямое вещание Direct PCM и ликвидация динамического сжатия (DRC).
+        </p>
+
+        <!-- Stats Bar -->
+        <div class="grid grid-cols-3 gap-3 p-3 rounded-lg bg-rack border border-wire max-w-lg mb-8 font-mono">
+          <div>
+            <div class="text-[10px] uppercase text-slate-500">HPF CUTOFF</div>
+            <div class="text-lg font-bold text-amber-400">4.0 Hz</div>
+          </div>
+          <div class="border-l border-wire pl-3">
+            <div class="text-[10px] uppercase text-slate-500">ROUTING</div>
+            <div class="text-lg font-bold text-white">Direct PCM</div>
+          </div>
+          <div class="border-l border-wire pl-3">
+            <div class="text-[10px] uppercase text-slate-500">SAMPLING</div>
+            <div class="text-lg font-bold text-white">384 kHz</div>
+          </div>
+        </div>
+
+        <!-- Download & Links -->
+        <div class="flex flex-wrap items-center gap-4">
+          <a href="https://github.com/Briclyaz/NLSound_module_QCom/releases/latest" target="_blank" class="px-6 py-3.5 rounded bg-amber-500 hover:bg-amber-400 text-black font-mono font-bold text-xs uppercase flex items-center gap-2 transition tracking-wider">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span data-i18n="btn_hero_download">Скачать архив ZIP</span>
+          </a>
+          <a href="https://t.me/nlsound_support" target="_blank" class="px-5 py-3.5 rounded bg-rack hover:bg-subtle border border-wire text-slate-300 font-mono text-xs uppercase flex items-center gap-2 transition tracking-wider">
+            <i data-lucide="message-square" class="w-4 h-4 text-amber-500"></i>
+            <span data-i18n="btn_hero_tg">Чат сообщества</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Studio Oscilloscope & Spectrum Display -->
+      <div class="lg:col-span-5">
+        <div class="studio-panel rounded-xl p-4 border border-wire relative">
+          <!-- Scope header -->
+          <div class="flex items-center justify-between pb-3 border-b border-wire mb-3 font-mono text-[11px] text-slate-400">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-slate-300 uppercase">CH-1: ALSA_DAC_OUT</span>
+            </div>
+            <span class="text-amber-500 font-bold">BIT-PERFECT</span>
+          </div>
+
+          <!-- Canvas Scope -->
+          <div class="relative h-60 w-full bg-[#050608] rounded border border-wire/60 overflow-hidden">
+            <canvas id="scopeCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-2 left-3 font-mono text-[10px] text-slate-500 pointer-events-none">
+              4Hz ─── 20Hz ────── 1kHz ──────────── 20kHz
+            </div>
+            <div class="absolute top-2 right-3 font-mono text-[10px] text-amber-500/80 pointer-events-none">
+              DRC: BYPASSED [0 dB]
+            </div>
+          </div>
+
+          <!-- Scope parameters footer -->
+          <div class="grid grid-cols-4 gap-2 pt-3 mt-3 border-t border-wire font-mono text-[10px] text-center text-slate-400">
+            <div>GAIN: <span class="text-white">+0dB</span></div>
+            <div>THD: <span class="text-emerald-400">0.0002%</span></div>
+            <div>MOD: <span class="text-amber-400">CLASS-H</span></div>
+            <div>STATUS: <span class="text-white">ACTIVE</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= BENCHMARK / COMPARISON (REVEAL) ================= -->
+  <section id="benchmark" class="py-24 border-b border-wire bg-[#07080c]">
+    <div class="max-w-6xl mx-auto px-6">
+      
+      <div class="reveal mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-1" data-i18n="bench_tag">// ТЕХНИЧЕСКИЙ АУДИТ</div>
+          <h2 class="text-3xl font-bold uppercase text-white font-sans" data-i18n="bench_title">Сравнение звукового тракта</h2>
+        </div>
+        <p class="text-slate-400 text-sm max-w-md font-normal" data-i18n="bench_desc">
+          Разница между принудительными ограничениями заводского Android и чистым аппаратным выводом NLSound.
+        </p>
+      </div>
+
+      <!-- Comparison Grid (Animated Cards) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Stock Android (Negative) -->
+        <div class="reveal reveal-delay-1 p-6 rounded-xl bg-rack/60 border border-red-950/40 relative">
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-wire">
+            <span class="font-mono text-xs text-red-400 uppercase tracking-wider font-bold" data-i18n="stock_header">[ СТОКОВЫЙ ANDROID ]</span>
+            <span class="font-mono text-[11px] text-slate-500">OEM_CONSTRAINED</span>
+          </div>
+
+          <ul class="space-y-4 font-mono text-xs text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 font-bold">&times;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="s1_t">Глухой саб-бас (срез от 25 Гц)</strong>
+                <span class="text-slate-500" data-i18n="s1_d">Заводской HPF-фильтр в микшере режет инфразвук, лишая наушники физического плотного удара.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 font-bold">&times;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="s2_t">Динамическое сжатие (DRC & Softclip)</strong>
+                <span class="text-slate-500" data-i18n="s2_d">Пики треков программно сплющиваются, превращая насыщенную инструментальную музыку в кашу.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 font-bold">&times;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="s3_t">Грубая 15-ступенчатая шкала громкости</strong>
+                <span class="text-slate-500" data-i18n="s3_d">Каждый шаг меняет громкость слишком резко: либо слишком тихо, либо уже оглушающе.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-red-400 font-bold">&times;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="s4_t">Принудительный ресемплинг AudioFlinger</strong>
+                <span class="text-slate-500" data-i18n="s4_d">Все треки принудительно пересжимаются системным микшером с потерей исходной точности.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- NLSound Engine (Positive) -->
+        <div class="reveal reveal-delay-2 p-6 rounded-xl studio-panel border-amber-500/40 relative glow-amber">
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-wire">
+            <span class="font-mono text-xs text-amber-400 uppercase tracking-wider font-bold" data-i18n="nl_header">[ NLSOUND ENGINE ]</span>
+            <span class="font-mono text-[11px] text-emerald-400">STUDIO_UNLOCKED</span>
+          </div>
+
+          <ul class="space-y-4 font-mono text-xs text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 font-bold">&check;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="n1_t">Честный суб-бас с 4 Гц</strong>
+                <span class="text-slate-400" data-i18n="n1_d">Регистры HPF смещаются до 4 Гц, открывая глубочайший осязаемый суб-басовый фундамент.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 font-bold">&check;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="n2_t">Нулевая компрессия (Чистая динамика)</strong>
+                <span class="text-slate-400" data-i18n="n2_d">Отключение лимитеров и компрессоров (MBDRC, Softclip) даёт натуральную взрывную атаку.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 font-bold">&check;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="n3_t">Плавные 30, 50 или 100 делений громкости</strong>
+                <span class="text-slate-400" data-i18n="n3_d">Точнейший контроль уровня звучания под любую чувствительность наушников.</span>
+              </div>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-amber-400 font-bold">&check;</span>
+              <div>
+                <strong class="text-white block font-sans" data-i18n="n4_t">Прямой вывод Direct PCM</strong>
+                <span class="text-slate-400" data-i18n="n4_d">Аудиоплееры говорят с аппаратным ЦАП напрямую, минуя любые искажения микшера ОС.</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PIPELINE & KEY SPECS (REVEAL) ================= -->
+  <section id="pipeline" class="py-24 border-b border-wire">
+    <div class="max-w-6xl mx-auto px-6">
+      
+      <div class="reveal text-center max-w-2xl mx-auto mb-16">
+        <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-2" data-i18n="pipe_tag">// АРХИТЕКТУРА МОДУЛЯ</div>
+        <h2 class="text-3xl font-bold uppercase text-white font-sans" data-i18n="pipe_title">Модификация на уровне ядра</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Card 1 -->
+        <div class="reveal reveal-delay-1 studio-panel p-6 rounded-xl">
+          <div class="font-mono text-xs text-amber-400 mb-3 flex items-center justify-between">
+            <span>01 / HARDWARE_AMP</span>
+            <i data-lucide="cpu" class="w-4 h-4 text-slate-500"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 font-sans" data-i18n="c1_h">Калибровка SmartPA & ЦАП</h3>
+          <p class="text-slate-400 text-xs leading-relaxed font-normal" data-i18n="c1_p">
+            Прямое переопределение регистров через кастомный бинарник `tinymix_ext` для чипов Cirrus Logic (CS35L41), TI TAS25xx, NXP TFA и Qualcomm WCD.
+          </p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="reveal reveal-delay-2 studio-panel p-6 rounded-xl">
+          <div class="font-mono text-xs text-amber-400 mb-3 flex items-center justify-between">
+            <span>02 / BLUETOOTH_CORE</span>
+            <i data-lucide="bluetooth" class="w-4 h-4 text-slate-500"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 font-sans" data-i18n="c2_h">SBC HD & Фикс Absolute Volume</h3>
+          <p class="text-slate-400 text-xs leading-relaxed font-normal" data-i18n="c2_p">
+            Разблокировка Dual Channel режима высокого битрейта для SBC, анлок aptX Adaptive 2.2 и ликвидация бага тихого звука в беспроводных наушниках.
+          </p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="reveal reveal-delay-3 studio-panel p-6 rounded-xl">
+          <div class="font-mono text-xs text-amber-400 mb-3 flex items-center justify-between">
+            <span>03 / DOLBY_TUNING</span>
+            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-slate-500"></i>
+          </div>
+          <h3 class="text-lg font-bold text-white mb-2 font-sans" data-i18n="c3_h">Линеаризация Dolby Atmos</h3>
+          <p class="text-slate-400 text-xs leading-relaxed font-normal" data-i18n="c3_p">
+            Отключение агрессивного авто-левелера (volume leveler) и синтетического 3D-эхо. Звук остаётся естественным, сбалансированным и не проседает на басу.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= INTERACTIVE RACK TERMINAL ================= -->
+  <section id="interactive" class="py-24 border-b border-wire bg-[#07080c] relative">
+    <div class="max-w-4xl mx-auto px-6">
+      
+      <div class="reveal text-center mb-12">
+        <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-2" data-i18n="rack_tag">// ТАКТИЛЬНЫЙ СИМУЛЯТОР</div>
+        <h2 class="text-3xl font-bold uppercase text-white font-sans" data-i18n="rack_title">Интерактивный пульт установщика</h2>
+        <p class="text-slate-400 text-xs mt-2 font-mono" data-i18n="rack_hint">В рекавери управление идёт клавишами громкости. Нажимайте кнопки ниже:</p>
+      </div>
+
+      <!-- Studio Rack Console Unit -->
+      <div class="reveal reveal-delay-1 studio-panel rounded-xl overflow-hidden border border-wire shadow-2xl">
+        
+        <!-- Hardware Faceplate Header -->
+        <div class="bg-[#151822] px-6 py-3 border-b border-wire flex items-center justify-between font-mono text-xs">
+          <div class="flex items-center gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse"></span>
+            <span class="text-white font-bold tracking-wider">NLSOUND_INSTALL_CONSOLE</span>
+          </div>
+          <div class="text-slate-400 text-[11px]" id="stepNum">[01/05] ACTIVE</div>
+        </div>
+
+        <!-- Terminal Screen Output -->
+        <div class="p-6 bg-[#06070a] font-mono text-xs sm:text-sm text-slate-200 min-h-[280px] leading-relaxed whitespace-pre-line border-b border-wire" id="terminalText">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Hardware Push Buttons (Tactile Control Panel) -->
+        <div class="bg-[#12141c] p-6 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+            <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
+            <span data-i18n="ctrl_label">Управление установкой:</span>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <button id="volUp" class="px-5 py-3 rounded bg-[#1a1d28] hover:bg-[#222736] active:scale-95 border border-wire text-amber-400 font-mono text-xs font-bold flex items-center gap-2 transition shadow-lg">
+              <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              <span>[VOL+] <span data-i18n="btn_next">СЛЕДУЮЩИЙ</span></span>
+            </button>
+            <button id="volDown" class="px-6 py-3 rounded bg-amber-500 hover:bg-amber-400 active:scale-95 text-black font-mono text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-amber-500/20">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>[VOL-] <span data-i18n="btn_select">ВЫБРАТЬ</span></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= DEVICE & CHIP DATABASE (REVEAL) ================= -->
+  <section id="models" class="py-24 border-b border-wire">
+    <div class="max-w-5xl mx-auto px-6">
+      
+      <div class="reveal flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-1" data-i18n="db_tag">// СОВМЕСТИМОСТЬ СМАРТФОНОВ</div>
+          <h2 class="text-3xl font-bold uppercase text-white font-sans" data-i18n="db_title">База аппаратных пресетов</h2>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="relative w-full md:w-80">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input type="text" id="modelFilter" placeholder="Поиск (ishtar, Pixel, OP13, TFA...)" class="w-full bg-rack border border-wire rounded px-3 py-2 pl-9 font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition" />
+        </div>
+      </div>
+
+      <!-- Models List Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="modelsGrid">
+        
+        <div class="model-row reveal reveal-delay-1 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="xiaomi poco redmi ishtar aurora star cmi marble alioth vayu surya citrus sweet joyeuse 14 13 11 ultra poco f5 poco f3 note 10 pro">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">Xiaomi / POCO / Redmi</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">14/13/11 Ultra, POCO F5/F3, X3 Pro, Note 10 Pro...</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
+        </div>
+
+        <div class="model-row reveal reveal-delay-2 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="oneplus 13 12 12r ace 3 9 pro 9r 7 7t op5d55l1 op595dl1 op5d3bl1 op5929l1">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">OnePlus Series</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">OnePlus 13, 12, 12R, Ace 3, 9 Pro, 9R, 7/7T/Pro...</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
+        </div>
+
+        <div class="model-row reveal reveal-delay-1 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="google pixel 8 8 pro 7 7 pro 6 6 pro 6a shiba husky cheetah bluejay oriole raven panther">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">Google Pixel</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">Pixel 8/8 Pro, 7 Pro (DSP bypass), 6/6 Pro/6a/7...</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
+        </div>
+
+        <div class="model-row reveal reveal-delay-2 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="realme 12 pro+ gt neo 5 gt neo gt 2 re5c82l1 re5c4fl1 re5473">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">Realme Series</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">Realme 12 Pro+, GT Neo 5, GT Neo, GT 2...</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
+        </div>
+
+        <div class="model-row reveal reveal-delay-3 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="samsung sony galaxy s22 ultra b0q xperia 1 ii xperia 5 iv xq-at52 xq-cq62">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">Samsung & Sony</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">Galaxy S22 Ultra, Xperia 1 II, Xperia 5 IV...</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
+        </div>
+
+        <div class="model-row reveal reveal-delay-4 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="qualcomm mediatek dimensity helio universal cirrus tas tfa awinic max98 wsa wcd">
+          <div>
+            <div class="font-bold text-white text-sm font-sans">Остальные устройства (Snapdragon / MTK)</div>
+            <div class="font-mono text-xs text-slate-400 mt-1">Автодетект шин I2C/SoundWire и адаптивная калибровка</div>
+          </div>
+          <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ADAPTIVE_TUNING</span>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= STAR HISTORY (REVEAL) ================= -->
+  <section class="py-20 border-b border-wire bg-[#07080c] text-center">
+    <div class="max-w-4xl mx-auto px-6 reveal">
+      <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-1">// РЕПУТАЦИЯ & СООБЩЕСТВО</div>
+      <h2 class="text-2xl font-bold uppercase text-white mb-2 font-sans" data-i18n="star_h">Динамика звёзд на GitHub</h2>
+      <p class="text-xs text-slate-400 font-mono mb-8" data-i18n="star_p">Живая статистика доверия аудитории к проекту NLSound.</p>
+
+      <div class="p-4 rounded-xl studio-panel inline-block max-w-full overflow-hidden border border-wire">
+        <a href="https://star-history.com/#Briclyaz/NLSound_module_QCom&Date" target="_blank">
+          <picture>
+            <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date&theme=dark" />
+            <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" />
+            <img alt="NLSound Star History Chart" src="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" class="max-w-full h-auto" width="700" />
+          </picture>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="py-12 bg-[#050608] text-slate-500 font-mono text-xs">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+        <span class="text-white font-bold">NLSOUND</span>
+        <span>&bull; Pure Engineering Audio Core</span>
+      </div>
+      <div class="flex items-center gap-6">
+        <a href="https://t.me/nlsound_updates" target="_blank" class="hover:text-amber-400 transition">TELEGRAM_CHANNEL</a>
+        <a href="https://t.me/nlsound_support" target="_blank" class="hover:text-amber-400 transition">SUPPORT_CHAT</a>
+        <a href="https://github.com/Briclyaz/NLSound_module_QCom" target="_blank" class="hover:text-amber-400 transition">GITHUB_REPO</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script>
+    // 1. Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 2. Real-Time Hardware Audio Scope Simulation (Canvas)
+    const canvas = document.getElementById('scopeCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, tick = 0;
+
+    function resizeScope() {
+      width = canvas.width = canvas.parentElement.offsetWidth;
+      height = canvas.height = canvas.parentElement.offsetHeight;
+    }
+    window.addEventListener('resize', resizeScope);
+    resizeScope();
+
+    function drawScope() {
+      ctx.fillStyle = '#050608';
+      ctx.fillRect(0, 0, width, height);
+
+      // Draw Grid Lines (Frequency & Gain Grid)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 1;
+      for (let x = 0; x < width; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < height; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Draw Frequency Spectrum Bars (Sub-bass emphasis at 4Hz)
+      const numBars = 32;
+      const barWidth = width / numBars;
+      for (let i = 0; i < numBars; i++) {
+        const freqAmp = Math.sin(tick * 0.04 + i * 0.25) * 0.5 + 0.5;
+        const subBoost = i < 4 ? 1.4 : (1 - i / numBars); // 4Hz Sub-bass boost
+        const barHeight = freqAmp * 60 * subBoost + 10;
+        
+        ctx.fillStyle = i < 4 ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.08)';
+        ctx.fillRect(i * barWidth + 2, height - barHeight - 20, barWidth - 4, barHeight);
+      }
+
+      // Draw Pure Oscilloscope Beam
+      ctx.beginPath();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = '#f59e0b';
+      ctx.shadowColor = '#f59e0b';
+      ctx.shadowBlur = 8;
+
+      for (let x = 0; x < width; x += 2) {
+        const rawWave = Math.sin(x * 0.02 + tick * 0.08) * 25 * Math.sin(tick * 0.02)
+                      + Math.sin(x * 0.005 - tick * 0.04) * 35;
+        const y = height * 0.45 + rawWave;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0; // reset blur
+
+      tick++;
+      requestAnimationFrame(drawScope);
+    }
+    drawScope();
+
+    // 3. Scroll Reveal Engine (IntersectionObserver)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -40px 0px"
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // 4. Interactive Terminal Console Simulator
+    const steps = [
+      {
+        tag: "[01/15] ШАГИ ГРОМКОСТИ МУЗЫКИ",
+        body: "Изменяет количество делений на шкале громкости мультимедиа (по умолчанию всего 15).\n\n[*] Рекомендуется 30 или 50: плавная регулировка без лишних нажатий.",
+        opts: ["1. Пропустить • Сток (15 шагов)", "2. 30 шагов   • [Рекомендуется] Баланс", "3. 50 шагов   • Очень плавная шкала", "4. 100 шагов  • Ультра-плавно"]
+      },
+      {
+        tag: "[02/15] АППАРАТНАЯ ГРОМКОСТЬ (MIXER)",
+        body: "Повышает цифровой уровень усиления в микшере для динамиков и проводных наушников.\n\n[i] Стандарт — 84. Выше 96 возможен клиппинг на пиках громкости.",
+        opts: ["1. Пропустить • Оставить как есть", "2. 78         • Тише стока", "3. 84         • Сток [Безопасно]", "4. 90         • Умеренное усиление", "5. 96         • Ощутимо громче [Оптимум]"]
+      },
+      {
+        tag: "[06/15] ОТКЛЮЧЕНИЕ DRC И ЛИМИТЕРОВ",
+        body: "Отключает в микшере и XML динамическую компрессию (DRC), софтклиппинг и глушение при низком заряде АКБ.\n\n• Звук становится открытым и хлёстким.",
+        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+      },
+      {
+        tag: "[08/15] СРЕЗ ФИЛЬТРА НАУШНИКОВ (4 ГЦ)",
+        body: "Снижает частоту среза High-Pass фильтра (HPF) в mixer_paths с ~25 Гц до 4 Гц.\n\n• Возвращает осязаемый глубокий саб-бас.",
+        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+      },
+      {
+        tag: "[11/15] ПРЯМОЙ ВЫВОД DIRECT_PCM",
+        body: "Добавляет флаги DIRECT_PCM в политики audio policy.\n\nПлееры отдают звук в ЦАП напрямую, минуя системный микшер Android.",
+        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+      }
+    ];
+
+    let currentStep = 0;
+    let selectedOption = 1;
+
+    function updateConsole() {
+      const s = steps[currentStep];
+      document.getElementById('stepNum').innerText = `[0${currentStep + 1}/05] ACTIVE`;
+
+      let out = `<span class="text-amber-400 font-bold tracking-wider">${s.tag}</span>\n`;
+      out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+      out += `${s.body}\n\n`;
+      out += `<span class="text-slate-500">[VOL+] Следующий пункт   ┃   [VOL-] Выбрать</span>\n\n`;
+
+      s.opts.forEach((o, i) => {
+        if (i === selectedOption) {
+          out += `<span class="text-black bg-amber-400 px-1.5 py-0.5 rounded font-bold">➔ ${o}</span>\n`;
+        } else {
+          out += `   ${o}\n`;
+        }
+      });
+
+      document.getElementById('terminalText').innerHTML = out;
+    }
+
+    document.getElementById('volUp').addEventListener('click', () => {
+      selectedOption = (selectedOption + 1) % steps[currentStep].opts.length;
+      updateConsole();
+    });
+
+    document.getElementById('volDown').addEventListener('click', () => {
+      currentStep = (currentStep + 1) % steps.length;
+      selectedOption = 0;
+      updateConsole();
+    });
+
+    updateConsole();
+
+    // 5. Device Search & Real-Time Filter
+    document.getElementById('modelFilter').addEventListener('input', (e) => {
+      const q = e.target.value.toLowerCase().trim();
+      document.querySelectorAll('.model-row').forEach(row => {
+        const text = row.getAttribute('data-search') + ' ' + row.innerText.toLowerCase();
+        row.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    });
+
+    // 6. Language Switcher (RU / EN)
+    const dict = {
+      ru: {
+        nav_spec: "/ АЧХ & Лимитеры",
+        nav_pipeline: "/ Тракт ALSA",
+        nav_installer: "/ Пульт калибровки",
+        nav_models: "/ База чипов",
+        nav_get: "СКАЧАТЬ",
+        hero_status: "Аппаратное переопределение DSP • Android 9—15",
+        hero_h1: "Бескомпромиссная",
+        hero_h2: "чистота звука",
+        hero_desc: "Прямое управление регистрами SmartPA-усилителей, аппаратный спуск фильтра HPF до 4 Гц, прямое вещание Direct PCM и ликвидация динамического сжатия (DRC).",
+        btn_hero_download: "Скачать архив ZIP",
+        btn_hero_tg: "Чат сообщества",
+        bench_tag: "// ТЕХНИЧЕСКИЙ АУДИТ",
+        bench_title: "Сравнение звукового тракта",
+        bench_desc: "Разница между принудительными ограничениями заводского Android и чистым аппаратным выводом NLSound.",
+        stock_header: "[ СТОКОВЫЙ ANDROID ]",
+        nl_header: "[ NLSOUND ENGINE ]",
+        pipe_tag: "// АРХИТЕКТУРА МОДУЛЯ",
+        pipe_title: "Модификация на уровне ядра",
+        rack_tag: "// ТАКТИЛЬНЫЙ СИМУЛЯТОР",
+        rack_title: "Интерактивный пульт установщика",
+        rack_hint: "В рекавери управление идёт клавишами громкости. Нажимайте кнопки ниже:",
+        ctrl_label: "Управление установкой:",
+        btn_next: "СЛЕДУЮЩИЙ",
+        btn_select: "ВЫБРАТЬ",
+        db_tag: "// СОВМЕСТИМОСТЬ СМАРТФОНОВ",
+        db_title: "База аппаратных пресетов",
+        star_h: "Динамика звёзд на GitHub",
+        star_p: "Живая статистика доверия аудитории к проекту NLSound."
+      },
+      en: {
+        nav_spec: "/ DSP & Limiters",
+        nav_pipeline: "/ ALSA Pipeline",
+        nav_installer: "/ Hardware Console",
+        nav_models: "/ Chipset DB",
+        nav_get: "GET ZIP",
+        hero_status: "Hardware DSP Override • Android 9—15",
+        hero_h1: "Uncompromised",
+        hero_h2: "Acoustic Purity",
+        hero_desc: "Direct SmartPA register calibration, hardware 4Hz sub-bass HPF extension, native Direct PCM routing, and complete Dynamic Range Compression (DRC) bypass.",
+        btn_hero_download: "Download Release ZIP",
+        btn_hero_tg: "Community Chat",
+        bench_tag: "// TECHNICAL BENCHMARK",
+        bench_title: "Audio Pipeline Comparison",
+        bench_desc: "Direct architectural contrast between stock Android DSP throttles and uncompressed NLSound output.",
+        stock_header: "[ STOCK ANDROID ]",
+        nl_header: "[ NLSOUND ENGINE ]",
+        pipe_tag: "// CORE ARCHITECTURE",
+        pipe_title: "Kernel-Level Sound Pipeline",
+        rack_tag: "// TACTILE SIMULATOR",
+        rack_title: "Interactive Installation Console",
+        rack_hint: "Flashing uses physical volume keys. Test the installer flow below:",
+        ctrl_label: "Remote Controls:",
+        btn_next: "NEXT ITEM",
+        btn_select: "SELECT",
+        db_tag: "// HARDWARE DATABASE",
+        db_title: "Model-Specific Register Presets",
+        star_h: "GitHub Stargazers Momentum",
+        star_p: "Live community growth and development tracking."
+      }
+    };
+
+    let activeLang = 'ru';
+    document.getElementById('langToggle').addEventListener('click', () => {
+      activeLang = activeLang === 'ru' ? 'en' : 'ru';
+      document.getElementById('langText').innerText = activeLang.toUpperCase();
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (dict[activeLang][k]) el.innerText = dict[activeLang][k];
+      });
+    });
+  </script>
+</body>
+</html>
