@@ -167,19 +167,30 @@
           Прямое управление регистрами SmartPA-усилителей, аппаратный спуск фильтра HPF до 4 Гц, прямое вещание Direct PCM и ликвидация динамического сжатия (DRC).
         </p>
 
-        <!-- Stats Bar -->
-        <div class="grid grid-cols-3 gap-3 p-3 rounded-lg bg-rack border border-wire max-w-lg mb-8 font-mono">
-          <div>
-            <div class="text-[10px] uppercase text-slate-500">HPF CUTOFF</div>
-            <div class="text-lg font-bold text-amber-400">4.0 Hz</div>
+        <!-- Project Status & Ethics Bar -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3 p-3 rounded-lg bg-rack border border-wire max-w-lg mb-8 font-mono">
+          <div class="flex flex-col justify-center">
+            <div class="text-[9px] sm:text-[10px] uppercase text-slate-500 tracking-wider flex items-center gap-1">
+              <i data-lucide="gift" class="w-3 h-3 text-amber-400"></i>
+              <span data-i18n="badge_cost_lbl">СТОИМОСТЬ</span>
+            </div>
+            <div class="text-xs sm:text-sm md:text-base font-bold text-amber-400 mt-1 truncate" data-i18n="badge_cost_val">Бесплатно</div>
           </div>
-          <div class="border-l border-wire pl-3">
-            <div class="text-[10px] uppercase text-slate-500">ROUTING</div>
-            <div class="text-lg font-bold text-white">Direct PCM</div>
+        
+          <div class="border-l border-wire pl-2 sm:pl-3 flex flex-col justify-center">
+            <div class="text-[9px] sm:text-[10px] uppercase text-slate-500 tracking-wider flex items-center gap-1">
+              <i data-lucide="code-2" class="w-3 h-3 text-emerald-400"></i>
+              <span data-i18n="badge_os_lbl">ЛИЦЕНЗИЯ</span>
+            </div>
+            <div class="text-xs sm:text-sm md:text-base font-bold text-white mt-1 truncate" data-i18n="badge_os_val">Open Source</div>
           </div>
-          <div class="border-l border-wire pl-3">
-            <div class="text-[10px] uppercase text-slate-500">SAMPLING</div>
-            <div class="text-lg font-bold text-white">384 kHz</div>
+        
+          <div class="border-l border-wire pl-2 sm:pl-3 flex flex-col justify-center">
+            <div class="text-[9px] sm:text-[10px] uppercase text-slate-500 tracking-wider flex items-center gap-1">
+              <i data-lucide="shield-check" class="w-3 h-3 text-cyan-400"></i>
+              <span data-i18n="badge_com_lbl">СТАТУС</span>
+            </div>
+            <div class="text-xs sm:text-sm md:text-base font-bold text-white mt-1 truncate" data-i18n="badge_com_val">Некоммерческий</div>
           </div>
         </div>
 
@@ -704,6 +715,12 @@
     // 6. Language Switcher (RU / EN)
     const dict = {
       ru: {
+        badge_cost_lbl: "СТОИМОСТЬ",
+        badge_cost_val: "Бесплатно",
+        badge_os_lbl: "ЛИЦЕНЗИЯ",
+        badge_os_val: "Open Source",
+        badge_com_lbl: "СТАТУС",
+        badge_com_val: "Некоммерческий",
         nav_spec: "/ АЧХ & Лимитеры",
         nav_pipeline: "/ Тракт ALSA",
         nav_installer: "/ Пульт калибровки",
@@ -734,6 +751,12 @@
         star_p: "Живая статистика доверия аудитории к проекту NLSound."
       },
       en: {
+        badge_cost_lbl: "PRICING",
+        badge_cost_val: "100% Free",
+        badge_os_lbl: "LICENSE",
+        badge_os_val: "Open Source",
+        badge_com_lbl: "STATUS",
+        badge_com_val: "Non-Profit",
         nav_spec: "/ DSP & Limiters",
         nav_pipeline: "/ ALSA Pipeline",
         nav_installer: "/ Hardware Console",
