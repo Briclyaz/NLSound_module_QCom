@@ -1,12 +1,17 @@
 <div align="center">
 
+[ **English** ] • [ [Русский](README_RU.md) ] • [ [繁體中文](README_ZH.md) ]
+
 # 🎵 NLSound
 
 ### An open-source, system-level audio enhancement module for Android.
 
+[![GitHub Release](https://img.shields.io/github/v/release/Briclyaz/NLSound_module_QCom?style=for-the-badge&color=blue&logo=github)](https://github.com/Briclyaz/NLSound_module_QCom/releases)
 [![Downloads](https://img.shields.io/github/downloads/Briclyaz/NLSound_module_QCom/total?style=for-the-badge&logo=github&color=34D399)](https://github.com/Briclyaz/NLSound_module_QCom/releases)
-[![Magisk](https://img.shields.io/badge/Root-Magisk%20%7C%20KernelSU%20%7C%20APatch-orange?style=for-the-badge&logo=android)](https://github.com/Briclyaz/NLSound_module_QCom)
+[![GitHub Stars](https://img.shields.io/github/stars/Briclyaz/NLSound_module_QCom?style=for-the-badge&color=gold&logo=github)](https://github.com/Briclyaz/NLSound_module_QCom/stargazers)
+[![Root](https://img.shields.io/badge/Root-Magisk%20%7C%20KernelSU%20%7C%20APatch-orange?style=for-the-badge&logo=android)](https://github.com/Briclyaz/NLSound_module_QCom)
 [![Platform](https://img.shields.io/badge/Platform-Qualcomm%20%7C%20MediaTek-blue?style=for-the-badge)](https://github.com/Briclyaz/NLSound_module_QCom)
+[![License](https://img.shields.io/github/license/Briclyaz/NLSound_module_QCom?style=for-the-badge&color=gray)](LICENSE)
 [![Telegram Updates](https://img.shields.io/badge/Channel-@nlsound__updates-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_updates)
 [![Telegram Support](https://img.shields.io/badge/Support-@nlsound__support-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_support)
 
@@ -21,6 +26,48 @@ By default, stock Android treats your audio hardware very conservatively. To pre
 **NLSound** is an all-in-one system audio module for rooted Android devices. It safely removes software limiters, tunes low-level hardware registers, and unlocks the true capabilities of your phone's DAC, speaker amplifiers, and microphones.
 
 > 💡 **No background apps or battery drain:** NLSound modifies system configurations and driver registers directly. Once installed, it works completely in the background without needing companion apps or background services.
+
+---
+
+## ⚡ Why NLSound? (Comparison)
+
+| Feature | Stock Android 📱 | With NLSound 🎵 |
+| :--- | :--- | :--- |
+| **Volume Slider** | Coarse 15 steps (abrupt jumps) | **30, 50, or 100 smooth steps** |
+| **Sub-Bass Extension** | Cut off below 25–40 Hz | **Full extension down to 4 Hz** |
+| **Audio Dynamics (DRC)**| Compressed & volume ducking | **Uncompressed, punchy dynamics** |
+| **Low Battery Audio** | Throttled volume below 20% | **Zero throttling or degradation** |
+| **Bluetooth SBC** | Limited to standard bitrate | **SBC HD Dual Channel unlocked** |
+| **Bluetooth Volume** | Buggy / quiet on some buds | **Absolute Volume disabled (Full gain)** |
+| **Direct Playback** | Forced AudioFlinger mix | **Bit-perfect Direct PCM mode** |
+| **Dolby Atmos** | Volume pumping & hollow sound | **Clean, linear acoustic profile** |
+
+---
+
+## 🏗️ Audio Signal Architecture
+
+```text
+[ Audio Players (Poweramp / UAPP / Apple Music / Spotify) ]
+                           │
+                           ▼
+             ┌───────────────────────────┐
+             │   Android AudioFlinger    │ ──► [BYPASSED via DIRECT_PCM]
+             │  (Forced Resampling/Mix)  │
+             └───────────────────────────┘
+                           │
+                           ▼
+             ┌───────────────────────────┐
+             │   DSP & Sound Limiters    │ ──► [DRC / HPF 25Hz Limiters REMOVED]
+             └───────────────────────────┘
+                           │
+                           ▼
+             ┌───────────────────────────┐
+             │   Hardware DAC & SmartPA  │ ──► [4Hz Sub-bass & Hi-Fi Power Mode]
+             └───────────────────────────┘
+                           │
+                           ▼
+              🎧 Wired / 🔊 Speakers / 📶 BT HD
+```
 
 ---
 
@@ -51,7 +98,45 @@ By default, stock Android treats your audio hardware very conservatively. To pre
 
 ### 📱 6. Model-Specific Hardware Register Presets
 * Automatically identifies onboard hardware (Cirrus Logic, Texas Instruments TAS, NXP TFA, Awinic, Qualcomm WSA/WCD).
-* Pre-configured, device-tailored ALSA mixer parameters (`tinymix`) for dozens of popular Xiaomi, OnePlus, Realme, Samsung, Sony, and Google Pixel smartphones.
+* Pre-configured, device-tailored ALSA mixer parameters (`tinymix`) for popular Xiaomi, OnePlus, Realme, Samsung, Sony, and Google Pixel smartphones.
+
+---
+
+## 📱 Hardware & Device Support
+
+<details>
+<summary><b>Click to view supported devices with dedicated hardware presets</b></summary>
+<br>
+
+* **Xiaomi / POCO / Redmi:** 
+  * Xiaomi 14 Ultra (`aurora`), Xiaomi 13 Ultra (`ishtar`), Xiaomi 11 Ultra (`star`), Xiaomi 10 Pro (`cmi`), Mi 10 (`umi`);
+  * POCO F5 / Redmi Note 12 Turbo (`marble`), POCO F3 / Redmi K40 (`alioth`), POCO X3 Pro (`vayu`), POCO X3 NFC (`surya`), POCO M3 / Redmi 9T (`citrus`, `juice`, `chime`, `lime`);
+  * Redmi Note 10 Pro (`sweet`, `mojito`), Redmi Note 9 Pro (`joyeuse`, `curtana`, `gram`, `excalibur`).
+* **OnePlus:** 
+  * OnePlus 13 (`OP5D55L1`), OnePlus 12 (`OP595DL1`), OnePlus 12R / Ace 2 Pro (`OP5D3BL1`, `OP5D2BL1`), OnePlus Ace 3 (`OP5929L1`);
+  * OnePlus 9R, OnePlus 9 Pro (`ingres`), OnePlus 7 / 7T / 7 Pro series (`guacamole`, `hotdog`).
+* **Realme:** 
+  * Realme 12 Pro+ (`RE5C82L1`, `RE5C3B`), Realme GT Neo 5 (`RE5C4FL1`), Realme GT Neo / GT 2 (`RE5473`, `RE879AL1`, `kona`).
+* **Google Pixel:** 
+  * Pixel 8 and Pixel 8 Pro (`shiba`, `husky`);
+  * Pixel 7 Pro with hardware DSP bypass (`cheetah`);
+  * Pixel 6, Pixel 6 Pro, Pixel 6a, Pixel 7 (`bluejay`, `oriole`, `raven`, `panther`).
+* **Samsung & Sony:** 
+  * Samsung Galaxy S22 Ultra (`b0q`);
+  * Sony Xperia 1 II (`XQ-AT52`), Sony Xperia 5 IV (`XQ-CQ62`).
+* *Devices not listed receive universal adaptive tuning based on detected audio amplifier chips.*
+
+</details>
+
+<details>
+<summary><b>Detected Audio Amplifiers & DAC Hardware</b></summary>
+<br>
+
+NLSound scans hardware bus interfaces (`I2C`, `SoundWire`, `Slimbus`, `Platform`) to automatically tune:
+* **Speaker Amplifiers:** Cirrus Logic (CS35L41), Texas Instruments (TAS25xx), NXP / Goodix (TFA98xx), Awinic (AW88xx), Maxim Integrated (MAX98373), Qualcomm WSA (WSA88xx).
+* **Primary Audio Codecs / DACs:** Qualcomm WCD (Aqstic / Bolero Hi-Fi), ESS Sabre, Asahi Kasei (AKM).
+
+</details>
 
 ---
 
@@ -102,6 +187,18 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
 4. Select the downloaded `.zip` file.
 5. Follow the on-screen prompts using your **Volume Keys**.
 6. Reboot your device after the installation finishes.
+
+---
+
+## ⭐ Star History
+
+<div align="center">
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date)](https://star-history.com/#Briclyaz/NLSound_module_QCom&Date)
+
+*If you enjoy the project and appreciate our work, please consider giving it a star! ⭐*
+
+</div>
 
 ---
 
