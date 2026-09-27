@@ -210,18 +210,6 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
 
 ---
 
-## 👥 Contributors
-
-<div align="center">
-
-<a href="https://github.com/Briclyaz/NLSound_module_QCom/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Briclyaz/NLSound_module_QCom" alt="Contributors" />
-</a>
-
-</div>
-
----
-
 ## ⭐ Star History
 
 <div align="center">
