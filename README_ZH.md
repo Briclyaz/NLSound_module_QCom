@@ -195,9 +195,19 @@ NLSound 會掃描硬體匯流排介面 (`I2C`、`SoundWire`、`Slimbus`、`Platf
 
 <div align="center">
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date)](https://star-history.com/#Briclyaz/NLSound_module_QCom&Date)
+<a href="https://star-history.com/#Briclyaz/NLSound_module_QCom&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" />
+    <img alt="NLSound Star History Chart" src="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" width="750" />
+  </picture>
+</a>
 
-*如果您喜歡這個專案，歡迎給我們一顆 Star 支援開發！⭐*
+<br><br>
+
+[![Star on GitHub](https://img.shields.io/badge/Leave%20a%20Star-⭐-gold?style=for-the-badge&logo=github)](https://github.com/Briclyaz/NLSound_module_QCom/stargazers)
+
+*If you appreciate the sound improvements, please support the project with a star!*
 
 </div>
 
