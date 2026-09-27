@@ -87,18 +87,6 @@
     .studio-panel:hover {
       border-color: rgba(245, 158, 11, 0.35);
     }
-
-    /* Crosshair decor */
-    .crosshair {
-      position: relative;
-    }
-    .crosshair::before {
-      content: '+';
-      position: absolute;
-      font-family: monospace;
-      font-size: 11px;
-      color: #475569;
-    }
   </style>
 </head>
 <body class="selection:bg-amber-500 selection:text-black">
@@ -243,7 +231,7 @@
     </div>
   </section>
 
-  <!-- ================= BENCHMARK / COMPARISON (REVEAL) ================= -->
+  <!-- ================= BENCHMARK / COMPARISON ================= -->
   <section id="benchmark" class="py-24 border-b border-wire bg-[#07080c]">
     <div class="max-w-6xl mx-auto px-6">
       
@@ -257,7 +245,7 @@
         </p>
       </div>
 
-      <!-- Comparison Grid (Animated Cards) -->
+      <!-- Comparison Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- Stock Android (Negative) -->
@@ -300,7 +288,7 @@
         </div>
 
         <!-- NLSound Engine (Positive) -->
-        <div class="reveal reveal-delay-2 p-6 rounded-xl studio-panel border-amber-500/40 relative glow-amber">
+        <div class="reveal reveal-delay-2 p-6 rounded-xl studio-panel border-amber-500/40 relative">
           <div class="flex items-center justify-between pb-4 mb-4 border-b border-wire">
             <span class="font-mono text-xs text-amber-400 uppercase tracking-wider font-bold" data-i18n="nl_header">[ NLSOUND ENGINE ]</span>
             <span class="font-mono text-[11px] text-emerald-400">STUDIO_UNLOCKED</span>
@@ -342,7 +330,7 @@
     </div>
   </section>
 
-  <!-- ================= PIPELINE & KEY SPECS (REVEAL) ================= -->
+  <!-- ================= PIPELINE & KEY SPECS ================= -->
   <section id="pipeline" class="py-24 border-b border-wire">
     <div class="max-w-6xl mx-auto px-6">
       
@@ -361,7 +349,7 @@
           </div>
           <h3 class="text-lg font-bold text-white mb-2 font-sans" data-i18n="c1_h">Калибровка SmartPA & ЦАП</h3>
           <p class="text-slate-400 text-xs leading-relaxed font-normal" data-i18n="c1_p">
-            Прямое переопределение регистров через кастомный бинарник `tinymix_ext` для чипов Cirrus Logic (CS35L41), TI TAS25xx, NXP TFA и Qualcomm WCD.
+            Прямое переопределение регистров через кастомный бинарник tinymix_ext для чипов Cirrus Logic (CS35L41), TI TAS25xx, NXP TFA и Qualcomm WCD.
           </p>
         </div>
 
@@ -413,7 +401,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_#f59e0b] animate-pulse"></span>
             <span class="text-white font-bold tracking-wider">NLSOUND_INSTALL_CONSOLE</span>
           </div>
-          <div class="text-slate-400 text-[11px]" id="stepNum">[01/05] ACTIVE</div>
+          <div class="text-slate-400 text-[11px]" id="stepNum">[01/05] АКТИВЕН</div>
         </div>
 
         <!-- Terminal Screen Output -->
@@ -421,7 +409,7 @@
           <!-- Populated by JS -->
         </div>
 
-        <!-- Hardware Push Buttons (Tactile Control Panel) -->
+        <!-- Hardware Push Buttons -->
         <div class="bg-[#12141c] p-6 flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-2 font-mono text-[11px] text-slate-400">
             <i data-lucide="radio" class="w-4 h-4 text-amber-400"></i>
@@ -445,7 +433,7 @@
     </div>
   </section>
 
-  <!-- ================= DEVICE & CHIP DATABASE (REVEAL) ================= -->
+  <!-- ================= DEVICE & CHIP DATABASE ================= -->
   <section id="models" class="py-24 border-b border-wire">
     <div class="max-w-5xl mx-auto px-6">
       
@@ -458,7 +446,7 @@
         <!-- Search Bar -->
         <div class="relative w-full md:w-80">
           <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-          <input type="text" id="modelFilter" placeholder="Поиск (ishtar, Pixel, OP13, TFA...)" class="w-full bg-rack border border-wire rounded px-3 py-2 pl-9 font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition" />
+          <input type="text" id="modelFilter" placeholder="Поиск (ishtar, Pixel, OP13, TFA...)" data-i18n-placeholder="search_placeholder" class="w-full bg-rack border border-wire rounded px-3 py-2 pl-9 font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition" />
         </div>
       </div>
 
@@ -505,10 +493,10 @@
           <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">PRESET_ACTIVE</span>
         </div>
 
-        <div class="model-row reveal reveal-delay-4 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="qualcomm mediatek dimensity helio universal cirrus tas tfa awinic max98 wsa wcd">
+        <div class="model-row reveal reveal-delay-4 p-4 rounded-lg bg-rack border border-wire flex items-center justify-between" data-search="qualcomm mediatek dimensity helio universal cirrus tas tfa awinic max98 wsa wcd other">
           <div>
-            <div class="font-bold text-white text-sm font-sans">Остальные устройства (Snapdragon / MTK)</div>
-            <div class="font-mono text-xs text-slate-400 mt-1">Автодетект шин I2C/SoundWire и адаптивная калибровка</div>
+            <div class="font-bold text-white text-sm font-sans" data-i18n="model_other_title">Остальные устройства (Snapdragon / MTK)</div>
+            <div class="font-mono text-xs text-slate-400 mt-1" data-i18n="model_other_desc">Автодетект шин I2C/SoundWire и адаптивная калибровка</div>
           </div>
           <span class="font-mono text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">ADAPTIVE_TUNING</span>
         </div>
@@ -518,10 +506,10 @@
     </div>
   </section>
 
-  <!-- ================= STAR HISTORY (REVEAL) ================= -->
+  <!-- ================= STAR HISTORY ================= -->
   <section class="py-20 border-b border-wire bg-[#07080c] text-center">
     <div class="max-w-4xl mx-auto px-6 reveal">
-      <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-1">// РЕПУТАЦИЯ & СООБЩЕСТВО</div>
+      <div class="font-mono text-xs text-amber-500 uppercase tracking-widest mb-1" data-i18n="star_tag">// РЕПУТАЦИЯ & СООБЩЕСТВО</div>
       <h2 class="text-2xl font-bold uppercase text-white mb-2 font-sans" data-i18n="star_h">Динамика звёзд на GitHub</h2>
       <p class="text-xs text-slate-400 font-mono mb-8" data-i18n="star_p">Живая статистика доверия аудитории к проекту NLSound.</p>
 
@@ -574,7 +562,7 @@
       ctx.fillStyle = '#050608';
       ctx.fillRect(0, 0, width, height);
 
-      // Draw Grid Lines (Frequency & Gain Grid)
+      // Grid Lines
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 1;
       for (let x = 0; x < width; x += 40) {
@@ -590,19 +578,19 @@
         ctx.stroke();
       }
 
-      // Draw Frequency Spectrum Bars (Sub-bass emphasis at 4Hz)
+      // Frequency Spectrum Bars
       const numBars = 32;
       const barWidth = width / numBars;
       for (let i = 0; i < numBars; i++) {
         const freqAmp = Math.sin(tick * 0.04 + i * 0.25) * 0.5 + 0.5;
-        const subBoost = i < 4 ? 1.4 : (1 - i / numBars); // 4Hz Sub-bass boost
+        const subBoost = i < 4 ? 1.4 : (1 - i / numBars);
         const barHeight = freqAmp * 60 * subBoost + 10;
         
         ctx.fillStyle = i < 4 ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.08)';
         ctx.fillRect(i * barWidth + 2, height - barHeight - 20, barWidth - 4, barHeight);
       }
 
-      // Draw Pure Oscilloscope Beam
+      // Oscilloscope Beam
       ctx.beginPath();
       ctx.lineWidth = 2;
       ctx.strokeStyle = '#f59e0b';
@@ -617,14 +605,14 @@
         else ctx.lineTo(x, y);
       }
       ctx.stroke();
-      ctx.shadowBlur = 0; // reset blur
+      ctx.shadowBlur = 0;
 
       tick++;
       requestAnimationFrame(drawScope);
     }
     drawScope();
 
-    // 3. Scroll Reveal Engine (IntersectionObserver)
+    // 3. Scroll Reveal Engine
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -638,46 +626,82 @@
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // 4. Interactive Terminal Console Simulator
-    const steps = [
-      {
-        tag: "[01/15] ШАГИ ГРОМКОСТИ МУЗЫКИ",
-        body: "Изменяет количество делений на шкале громкости мультимедиа (по умолчанию всего 15).\n\n[*] Рекомендуется 30 или 50: плавная регулировка без лишних нажатий.",
-        opts: ["1. Пропустить • Сток (15 шагов)", "2. 30 шагов   • [Рекомендуется] Баланс", "3. 50 шагов   • Очень плавная шкала", "4. 100 шагов  • Ультра-плавно"]
-      },
-      {
-        tag: "[02/15] АППАРАТНАЯ ГРОМКОСТЬ (MIXER)",
-        body: "Повышает цифровой уровень усиления в микшере для динамиков и проводных наушников.\n\n[i] Стандарт — 84. Выше 96 возможен клиппинг на пиках громкости.",
-        opts: ["1. Пропустить • Оставить как есть", "2. 78         • Тише стока", "3. 84         • Сток [Безопасно]", "4. 90         • Умеренное усиление", "5. 96         • Ощутимо громче [Оптимум]"]
-      },
-      {
-        tag: "[06/15] ОТКЛЮЧЕНИЕ DRC И ЛИМИТЕРОВ",
-        body: "Отключает в микшере и XML динамическую компрессию (DRC), софтклиппинг и глушение при низком заряде АКБ.\n\n• Звук становится открытым и хлёстким.",
-        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
-      },
-      {
-        tag: "[08/15] СРЕЗ ФИЛЬТРА НАУШНИКОВ (4 ГЦ)",
-        body: "Снижает частоту среза High-Pass фильтра (HPF) в mixer_paths с ~25 Гц до 4 Гц.\n\n• Возвращает осязаемый глубокий саб-бас.",
-        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
-      },
-      {
-        tag: "[11/15] ПРЯМОЙ ВЫВОД DIRECT_PCM",
-        body: "Добавляет флаги DIRECT_PCM в политики audio policy.\n\nПлееры отдают звук в ЦАП напрямую, минуя системный микшер Android.",
-        opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
-      }
-    ];
+    // 4. Bilingual Terminal Simulator Steps
+    const terminalSteps = {
+      ru: [
+        {
+          tag: "[01/15] ШАГИ ГРОМКОСТИ МУЗЫКИ",
+          body: "Изменяет количество делений на шкале громкости мультимедиа (по умолчанию всего 15).\n\n[*] Рекомендуется 30 или 50: плавная регулировка без лишних нажатий.",
+          opts: ["1. Пропустить • Сток (15 шагов)", "2. 30 шагов   • [Рекомендуется] Баланс", "3. 50 шагов   • Очень плавная шкала", "4. 100 шагов  • Ультра-плавно"]
+        },
+        {
+          tag: "[02/15] АППАРАТНАЯ ГРОМКОСТЬ (MIXER)",
+          body: "Повышает цифровой уровень усиления в микшере для динамиков и проводных наушников.\n\n[i] Стандарт — 84. Выше 96 возможен клиппинг на пиках громкости.",
+          opts: ["1. Пропустить • Оставить как есть", "2. 78         • Тише стока", "3. 84         • Сток [Безопасно]", "4. 90         • Умеренное усиление", "5. 96         • Ощутимо громче [Оптимум]"]
+        },
+        {
+          tag: "[06/15] ОТКЛЮЧЕНИЕ DRC И ЛИМИТЕРОВ",
+          body: "Отключает в микшере и XML динамическую компрессию (DRC), софтклиппинг и глушение при низком заряде АКБ.\n\n• Звук становится открытым и хлёстким.",
+          opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+        },
+        {
+          tag: "[08/15] СРЕЗ ФИЛЬТРА НАУШНИКОВ (4 ГЦ)",
+          body: "Снижает частоту среза High-Pass фильтра (HPF) в mixer_paths с ~25 Гц до 4 Гц.\n\n• Возвращает осязаемый глубокий саб-бас.",
+          opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+        },
+        {
+          tag: "[11/15] ПРЯМОЙ ВЫВОД DIRECT_PCM",
+          body: "Добавляет флаги DIRECT_PCM в политики audio policy.\n\nПлееры отдают звук в ЦАП напрямую, минуя системный микшер Android.",
+          opts: ["1. Установить [VOL+]", "2. Пропустить [VOL-]"]
+        }
+      ],
+      en: [
+        {
+          tag: "[01/15] MEDIA VOLUME STEPS",
+          body: "Changes the number of steps on the media volume slider (stock Android has only 15).\n\n[*] 30 or 50 is recommended for smoother control without too many button clicks.",
+          opts: ["1. Skip      • Stock default (15 steps)", "2. 30 steps  • [Recommended] Balanced", "3. 50 steps  • Smooth control", "4. 100 steps • Ultra-fine control"]
+        },
+        {
+          tag: "[02/15] MAXIMUM HARDWARE VOLUME (MIXER)",
+          body: "Adjusts digital preamp gain in mixer_paths for built-in speakers and wired headphones.\n\n[i] Stock value is 84. Values above 96 may cause clipping on peaks.",
+          opts: ["1. Skip • Keep stock level", "2. 78   • Lower than stock", "3. 84   • Stock level [Safe]", "4. 90   • Moderate boost", "5. 96   • Noticeable boost [Optimal]"]
+        },
+        {
+          tag: "[06/15] DISABLE DRC & LIMITERS",
+          body: "Disables Dynamic Range Compression (DRC), soft-clipping, and low-battery volume throttling in mixer and XML.\n\n• Audio becomes open and punchy.",
+          opts: ["1. Install [VOL+]", "2. Skip [VOL-]"]
+        },
+        {
+          tag: "[08/15] HEADPHONE HIGH-PASS FILTER (4 HZ)",
+          body: "Lowers High-Pass Filter (HPF) cutoff in mixer_paths from ~25 Hz down to 4 Hz.\n\n• Restores deep physical sub-bass reproduction.",
+          opts: ["1. Install [VOL+]", "2. Skip [VOL-]"]
+        },
+        {
+          tag: "[11/15] DIRECT PCM AUDIO ROUTING",
+          body: "Adds DIRECT_PCM flags to audio output policies.\n\nPlayers send untouched audio straight to the DAC, bypassing the Android OS mixer.",
+          opts: ["1. Install [VOL+]", "2. Skip [VOL-]"]
+        }
+      ]
+    };
 
+    let activeLang = 'ru';
     let currentStep = 0;
     let selectedOption = 1;
 
     function updateConsole() {
-      const s = steps[currentStep];
-      document.getElementById('stepNum').innerText = `[0${currentStep + 1}/05] ACTIVE`;
+      const langSteps = terminalSteps[activeLang] || terminalSteps.ru;
+      const s = langSteps[currentStep];
+      const statusLabel = activeLang === 'ru' ? 'АКТИВЕН' : 'ACTIVE';
+      document.getElementById('stepNum').innerText = `[0${currentStep + 1}/05] ${statusLabel}`;
 
       let out = `<span class="text-amber-400 font-bold tracking-wider">${s.tag}</span>\n`;
       out += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
       out += `${s.body}\n\n`;
-      out += `<span class="text-slate-500">[VOL+] Следующий пункт   ┃   [VOL-] Выбрать</span>\n\n`;
+      
+      const controlsHint = activeLang === 'ru'
+        ? `<span class="text-slate-500">[VOL+] Следующий пункт   ┃   [VOL-] Выбрать</span>\n\n`
+        : `<span class="text-slate-500">[VOL+] Next item         ┃   [VOL-] Select</span>\n\n`;
+      out += controlsHint;
 
       s.opts.forEach((o, i) => {
         if (i === selectedOption) {
@@ -691,12 +715,14 @@
     }
 
     document.getElementById('volUp').addEventListener('click', () => {
-      selectedOption = (selectedOption + 1) % steps[currentStep].opts.length;
+      const langSteps = terminalSteps[activeLang] || terminalSteps.ru;
+      selectedOption = (selectedOption + 1) % langSteps[currentStep].opts.length;
       updateConsole();
     });
 
     document.getElementById('volDown').addEventListener('click', () => {
-      currentStep = (currentStep + 1) % steps.length;
+      const langSteps = terminalSteps[activeLang] || terminalSteps.ru;
+      currentStep = (currentStep + 1) % langSteps.length;
       selectedOption = 0;
       updateConsole();
     });
@@ -712,7 +738,7 @@
       });
     });
 
-    // 6. Language Switcher (RU / EN)
+    // 6. Complete Dictionary for Full Bilingual Coverage
     const dict = {
       ru: {
         badge_cost_lbl: "СТОИМОСТЬ",
@@ -737,8 +763,30 @@
         bench_desc: "Разница между принудительными ограничениями заводского Android и чистым аппаратным выводом NLSound.",
         stock_header: "[ СТОКОВЫЙ ANDROID ]",
         nl_header: "[ NLSOUND ENGINE ]",
+        s1_t: "Глухой саб-бас (срез от 25 Гц)",
+        s1_d: "Заводской HPF-фильтр в микшере режет инфразвук, лишая наушники физического плотного удара.",
+        s2_t: "Динамическое сжатие (DRC & Softclip)",
+        s2_d: "Пики треков программно сплющиваются, превращая насыщенную инструментальную музыку в кашу.",
+        s3_t: "Грубая 15-ступенчатая шкала громкости",
+        s3_d: "Каждый шаг меняет громкость слишком резко: либо слишком тихо, либо уже оглушающе.",
+        s4_t: "Принудительный ресемплинг AudioFlinger",
+        s4_d: "Все треки принудительно пересжимаются системным микшером с потерей исходной точности.",
+        n1_t: "Честный суб-бас с 4 Гц",
+        n1_d: "Регистры HPF смещаются до 4 Гц, открывая глубочайший осязаемый суб-басовый фундамент.",
+        n2_t: "Нулевая компрессия (Чистая динамика)",
+        n2_d: "Отключение лимитеров и компрессоров (MBDRC, Softclip) даёт натуральную взрывную атаку.",
+        n3_t: "Плавные 30, 50 или 100 делений громкости",
+        n3_d: "Точнейший контроль уровня звучания под любую чувствительность наушников.",
+        n4_t: "Прямой вывод Direct PCM",
+        n4_d: "Аудиоплееры говорят с аппаратным ЦАП напрямую, минуя любые искажения микшера ОС.",
         pipe_tag: "// АРХИТЕКТУРА МОДУЛЯ",
         pipe_title: "Модификация на уровне ядра",
+        c1_h: "Калибровка SmartPA & ЦАП",
+        c1_p: "Прямое переопределение регистров через кастомный бинарник tinymix_ext для чипов Cirrus Logic (CS35L41), TI TAS25xx, NXP TFA и Qualcomm WCD.",
+        c2_h: "SBC HD & Фикс Absolute Volume",
+        c2_p: "Разблокировка Dual Channel режима высокого битрейта для SBC, анлок aptX Adaptive 2.2 и ликвидация бага тихого звука в беспроводных наушниках.",
+        c3_h: "Линеаризация Dolby Atmos",
+        c3_p: "Отключение агрессивного авто-левелера (volume leveler) и синтетического 3D-эхо. Звук остаётся естественным, сбалансированным и не проседает на басу.",
         rack_tag: "// ТАКТИЛЬНЫЙ СИМУЛЯТОР",
         rack_title: "Интерактивный пульт установщика",
         rack_hint: "В рекавери управление идёт клавишами громкости. Нажимайте кнопки ниже:",
@@ -747,6 +795,10 @@
         btn_select: "ВЫБРАТЬ",
         db_tag: "// СОВМЕСТИМОСТЬ СМАРТФОНОВ",
         db_title: "База аппаратных пресетов",
+        search_placeholder: "Поиск (ishtar, Pixel, OP13, TFA...)",
+        model_other_title: "Остальные устройства (Snapdragon / MTK)",
+        model_other_desc: "Автодетект шин I2C/SoundWire и адаптивная калибровка",
+        star_tag: "// РЕПУТАЦИЯ & СООБЩЕСТВО",
         star_h: "Динамика звёзд на GitHub",
         star_p: "Живая статистика доверия аудитории к проекту NLSound."
       },
@@ -773,8 +825,30 @@
         bench_desc: "Direct architectural contrast between stock Android DSP throttles and uncompressed NLSound output.",
         stock_header: "[ STOCK ANDROID ]",
         nl_header: "[ NLSOUND ENGINE ]",
+        s1_t: "Muffled Sub-Bass (Cut below 25 Hz)",
+        s1_d: "Stock HPF filter in mixer cuts deep infrasound, depriving headphones of physical punch and sub-bass rumble.",
+        s2_t: "Dynamic Compression (DRC & Softclip)",
+        s2_d: "Signal peaks are compressed and flattened by software, turning complex acoustic passages into a muddy mess.",
+        s3_t: "Coarse 15-Step Volume Curve",
+        s3_d: "Volume steps change too abruptly: either too quiet or immediately deafening for sensitive headphones.",
+        s4_t: "Forced AudioFlinger Resampling",
+        s4_d: "All audio streams are forcibly resampled and mixed by the OS mixer, degrading audio resolution and dynamics.",
+        n1_t: "True Sub-Bass Down to 4 Hz",
+        n1_d: "HPF registers are pushed down to 4 Hz, restoring a deep, physical sub-bass foundation for wired audio.",
+        n2_t: "Zero Compression (Pure Dynamics)",
+        n2_d: "Disabled limiters, companders, and soft-clip algorithms preserve natural dynamic contrast and transients.",
+        n3_t: "Smooth 30, 50, or 100 Volume Steps",
+        n3_d: "Ultra-fine volume curve tailored to sensitive in-ear monitors or demanding full-size headphones.",
+        n4_t: "Native Direct PCM Output",
+        n4_d: "Music players communicate directly with the hardware DAC, bypassing Android OS mixer artifacts.",
         pipe_tag: "// CORE ARCHITECTURE",
         pipe_title: "Kernel-Level Sound Pipeline",
+        c1_h: "SmartPA & DAC Calibration",
+        c1_p: "Direct low-level register overrides via tinymix_ext for Cirrus Logic (CS35L41), TI TAS25xx, NXP TFA, and Qualcomm WCD.",
+        c2_h: "SBC HD & Absolute Volume Fix",
+        c2_p: "Unlocks SBC Dual Channel high bitrate, enables aptX Adaptive 2.2 enhancements, and eliminates low volume bugs on Bluetooth.",
+        c3_h: "Dolby Atmos Linearization",
+        c3_p: "Disables aggressive volume pumping and hollow artificial 3D delays, preserving natural frequency balance and punchy bass.",
         rack_tag: "// TACTILE SIMULATOR",
         rack_title: "Interactive Installation Console",
         rack_hint: "Flashing uses physical volume keys. Test the installer flow below:",
@@ -783,19 +857,35 @@
         btn_select: "SELECT",
         db_tag: "// HARDWARE DATABASE",
         db_title: "Model-Specific Register Presets",
+        search_placeholder: "Search (ishtar, Pixel, OP13, TFA...)",
+        model_other_title: "Other Devices (Snapdragon / MTK)",
+        model_other_desc: "Auto-detecting I2C/SoundWire buses & adaptive tuning",
+        star_tag: "// COMMUNITY & MOMENTUM",
         star_h: "GitHub Stargazers Momentum",
         star_p: "Live community growth and development tracking."
       }
     };
 
-    let activeLang = 'ru';
+    // 7. Toggle Handler
     document.getElementById('langToggle').addEventListener('click', () => {
       activeLang = activeLang === 'ru' ? 'en' : 'ru';
+      document.documentElement.lang = activeLang;
       document.getElementById('langText').innerText = activeLang.toUpperCase();
+      
+      // Update text nodes
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const k = el.getAttribute('data-i18n');
         if (dict[activeLang][k]) el.innerText = dict[activeLang][k];
       });
+
+      // Update input placeholders
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const k = el.getAttribute('data-i18n-placeholder');
+        if (dict[activeLang][k]) el.setAttribute('placeholder', dict[activeLang][k]);
+      });
+
+      // Update Interactive Console
+      updateConsole();
     });
   </script>
 </body>
