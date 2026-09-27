@@ -15,6 +15,12 @@
 [![Telegram Updates](https://img.shields.io/badge/Channel-@nlsound__updates-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_updates)
 [![Telegram Support](https://img.shields.io/badge/Support-@nlsound__support-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_support)
 
+<br>
+
+<a href="https://github.com/Briclyaz/NLSound_module_QCom/releases/latest">
+  <img src="https://img.shields.io/badge/⚡_下載最新版本-0969DA?style=for-the-badge&logo=github&logoColor=white" height="42" alt="下載最新版本"/>
+</a>
+
 </div>
 
 ---
@@ -25,7 +31,8 @@
 
 **NLSound** 是一款專為已 Root 的 Android 裝置打造的全方位底層音訊模組。它能安全解除軟體限制器、調校硬體暫存器，完整釋放手機 DAC 解碼晶片、外放功放與麥克風的真正硬體潛能。
 
-> 💡 **無背景應用程式、不額外耗電：** NLSound 直接修改系統音訊設定檔與驅動暫存器。安裝後在系統底層靜默運作，完全不需要常駐 App 或背景服務。
+> [!NOTE]
+> **無背景應用程式、不額外耗電：** NLSound 直接修改系統音訊設定檔與驅動暫存器。安裝後在系統底層靜默運作，完全不需要常駐 App 或常駐背景服務。
 
 ---
 
@@ -47,7 +54,7 @@
 ## 🏗️ 音訊訊號路徑架構圖
 
 ```text
-[ 音樂播放器 (Poweramp / UAPP / Apple Music / KKBOX) ]
+[ 音樂播放器 (Poweramp / UAPP / Apple Music / Spotify / KKBOX) ]
                            │
                            ▼
              ┌───────────────────────────┐
@@ -144,7 +151,13 @@ NLSound 會掃描硬體匯流排介面 (`I2C`、`SoundWire`、`Slimbus`、`Platf
 
 在 Root 管理器中刷入模組時，將啟動由**音量鍵**控制的互動式選單：
 
-```text
+<div align="center">
+<table>
+<tr>
+<td>
+<b>&nbsp;&nbsp;🔴&nbsp;&nbsp;🟡&nbsp;&nbsp;🟢&nbsp;&nbsp;&nbsp;&nbsp;terminal — nlsound-installer</b>
+<hr>
+<pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  [01/15] 音量調整級數 (細緻音量)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -160,15 +173,24 @@ NLSound 會掃描硬體匯流排介面 (`I2C`、`SoundWire`、`Slimbus`、`Platf
  2. 30 級     • [建議] 均衡適中
  3. 50 級     • 平滑微調
  4. 100 級    • 極度細微 (需按多次)
-```
+</pre>
+</td>
+</tr>
+</table>
+</div>
 
 * **[VOL+]** — 移動至下一個選項 / 確認安裝。
 * **[VOL-]** — 選擇目前項目 / 跳過設定。
-* **一鍵還原設定檔：** 日後更新模組時，只需在首個畫面按下 **[VOL+]**，即可直接還原先前的全部設定！
+
+> [!TIP]
+> **一鍵還原設定檔：** 日後更新模組時，只需在首個畫面按下 **[VOL+]**，即可直接還原先前的全部設定！
 
 ---
 
 ## 📋 相容性與系統需求
+
+> [!IMPORTANT]
+> 裝置必須取得 Root 權限（透過 Magisk v24+、KernelSU 或 APatch），以修改底層音訊 HAL 政策與驅動暫存器。
 
 * **Root 方案：** [Magisk](https://github.com/topjohnwu/Magisk) (v24+)、[KernelSU](https://github.com/tiann/KernelSU) 或 [APatch](https://github.com/bmax121/APatch)。
 * **掛載架構：** 完整相容 Magic Mount、**KernelSU OverlayFS** 與 **Mountify** (乾淨卸載無鎖定殘留)。
@@ -207,7 +229,7 @@ NLSound 會掃描硬體匯流排介面 (`I2C`、`SoundWire`、`Slimbus`、`Platf
 
 [![Star on GitHub](https://img.shields.io/badge/Leave%20a%20Star-⭐-gold?style=for-the-badge&logo=github)](https://github.com/Briclyaz/NLSound_module_QCom/stargazers)
 
-*If you appreciate the sound improvements, please support the project with a star!*
+*如果您喜歡這個專案，歡迎給我們一顆 Star 支援開發！⭐*
 
 </div>
 
