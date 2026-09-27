@@ -1,5 +1,6 @@
 # MMT Extended Config Script
 PARTITIONS="/system_ext /mi_ext /product /odm /my_product"
+PARTOVER=true
 
 # Construct your own list here
 REPLACE="
