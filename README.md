@@ -190,22 +190,9 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
 
 ---
 
-## ⭐ Star Growth
+## Star History
 
-> ### 📈 Real-Time Stargazers
-> Tracking the journey of **NLSound** community growth.
-
-<div align="center">
-
-<a href="https://star-history.com/#Briclyaz/NLSound_module_QCom&Date">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" />
-    <img alt="NLSound Star History Chart" src="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" style="border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);" width="800" />
-  </picture>
-</a>
-
-</div>
+[![Star History Chart](https://api.star-history.com/chart?repos=Briclyaz/NLSound_module_QCom&type=timeline&logscale&legend=top-left)](https://www.star-history.com/?repos=Briclyaz%2FNLSound_module_QCom&type=timeline&logscale&legend=top-right)
 
 ---
 
