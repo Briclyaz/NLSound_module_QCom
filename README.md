@@ -15,6 +15,19 @@
 [![Telegram Updates](https://img.shields.io/badge/Channel-@nlsound__updates-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_updates)
 [![Telegram Support](https://img.shields.io/badge/Support-@nlsound__support-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_support)
 
+<br>
+
+<img src="https://img.shields.io/badge/Linux_Kernel-ALSA-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Linux Kernel"/>
+<img src="https://img.shields.io/badge/Android-AudioFlinger%20%7C%20AAudio-3DDC84?style=flat-square&logo=android&logoColor=white" alt="Android Audio"/>
+<img src="https://img.shields.io/badge/Qualcomm-Snapdragon%20DSP-3253DC?style=flat-square" alt="Qualcomm"/>
+<img src="https://img.shields.io/badge/Audio-Direct_PCM_384kHz-E63946?style=flat-square" alt="Audio"/>
+
+<br><br>
+
+<a href="https://github.com/Briclyaz/NLSound_module_QCom/releases/latest">
+  <img src="https://img.shields.io/badge/⚡_DOWNLOAD_LATEST_RELEASE-0969DA?style=for-the-badge&logo=github&logoColor=white" height="42" alt="Download Latest Release"/>
+</a>
+
 </div>
 
 ---
@@ -25,7 +38,8 @@ By default, stock Android treats your audio hardware very conservatively. To pre
 
 **NLSound** is an all-in-one system audio module for rooted Android devices. It safely removes software limiters, tunes low-level hardware registers, and unlocks the true capabilities of your phone's DAC, speaker amplifiers, and microphones.
 
-> 💡 **No background apps or battery drain:** NLSound modifies system configurations and driver registers directly. Once installed, it works completely in the background without needing companion apps or background services.
+> [!NOTE]
+> **No background apps or battery drain:** NLSound modifies system configurations and driver registers directly. Once installed, it works completely in the background without needing companion apps or persistent background services.
 
 ---
 
@@ -144,7 +158,13 @@ NLSound scans hardware bus interfaces (`I2C`, `SoundWire`, `Slimbus`, `Platform`
 
 When flashing NLSound in your root manager, an interactive terminal menu lets you choose exactly what you want using your **Volume Buttons**:
 
-```text
+<div align="center">
+<table>
+<tr>
+<td>
+<b>&nbsp;&nbsp;🔴&nbsp;&nbsp;🟡&nbsp;&nbsp;🟢&nbsp;&nbsp;&nbsp;&nbsp;terminal — nlsound-installer</b>
+<hr>
+<pre>
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  [01/15] VOLUME CONTROL STEPS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -159,15 +179,24 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
  2. 30 steps  • [Recommended] Balanced
  3. 50 steps  • Smooth control
  4. 100 steps • Fine-grained control
-```
+</pre>
+</td>
+</tr>
+</table>
+</div>
 
 * **[VOL+]** — Move down the list / Confirm installation.
 * **[VOL-]** — Select highlighted option / Skip step.
-* **1-Click Profile Restore:** When updating the module, press **[VOL+]** at the first prompt to automatically restore your previous configuration!
+
+> [!TIP]
+> **1-Click Profile Restore:** When updating the module, press **[VOL+]** at the first prompt to automatically restore your previous configuration in seconds!
 
 ---
 
 ## 📋 Compatibility & Requirements
+
+> [!IMPORTANT]
+> Root access (via Magisk v24+, KernelSU, or APatch) is strictly required to modify low-level audio HAL policies and driver registers.
 
 * **Root Solution:** [Magisk](https://github.com/topjohnwu/Magisk) (v24+), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch).
 * **Overlay Architecture:** Fully compatible with Magic Mount, **KernelSU OverlayFS**, and **Mountify**.
@@ -187,6 +216,18 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
 4. Select the downloaded `.zip` file.
 5. Follow the on-screen prompts using your **Volume Keys**.
 6. Reboot your device after the installation finishes.
+
+---
+
+## 👥 Contributors
+
+<div align="center">
+
+<a href="https://github.com/Briclyaz/NLSound_module_QCom/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=Briclyaz/NLSound_module_QCom" alt="Contributors" />
+</a>
+
+</div>
 
 ---
 
