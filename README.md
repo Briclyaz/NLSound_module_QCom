@@ -1,40 +1,121 @@
-<h1 align="center">Hi there, I'm <a href="https://github.com/Briclyaz/NLSound_module_QCom" target="_blank">NLSound</a> 
-<img src="https://github.com/blackcater/blackcater/raw/main/images/Hi.gif" height="32"/>,</h1>
-<h2 align="center">your best solution for improving audio quality in Android OS📱</h2>
+<div align="center">
 
+# 🎵 NLSound
 
-## ✍️ Description:
-It is a comprehensive solution to comprehensively customize and improve the audio quality on your Android device. 
-It has a positive effect on all audio playback options (wired headphones, TWS and Bluetooth devices, speakers), as well as on microphones during audio recording, audio calls and so on. An important feature is the ultimacy of the module for a large number of devices.
+### An open-source, system-level audio enhancement module for Android.
 
-## 🔈 Features:
- - Detailed customization: you have more than 10 items at your disposal to customize the module's operation in great detail;
- - System-level operation: once the module is installed and rebooted, you no longer need to worry about any other settings or annoying notifications;
- - Ability to automatically install the module according to a pre-prepared configuration file;
- - You can fix your desired audio sample rate and bit rate in a wide range: from standard 16-bit and 48000 Hz to 32-bit float and 384000 Hz;
- - The module is able to increase the volume of your audio and microphones separately. You choose the desired volume level yourself, the rule is the higher the numerical value, the louder the audio will be played and the louder the recording from your microphones;
- - If you wish, you can disable limiters and companders, which significantly spoil the experience of listening to heavy instrumental tracks;
- - For gamers, the module can offer reduced latency in Bluetooth headphones as well as improved positioning when using wired headphones;
- - The module is able to disable absolutely all third-party processors of your audio (MusicFX, AudioFX, XiaomiParts and so on) and does it correctly, unlike other modules of similar orientation;
- - Over 10 devices have fine and personalized customizations of their hardware DSPs, taking your device's audio quality to the next level;
- - Have you ever wanted to customize the number of steps of the volume in your OS? The module offers you such a possibility;
- - The module is the only one of its kind that can work with the tinymix system library, which opens up a wide range of possibilities for hardware customization;
- - The module is the only one of its kind to offer you proper and correct operation of the DIRECT_PCM mode: this mode allows you to additionally ignore any third-party attempts to interfere with your audio processing, as well as reduce playback latency;
- - Despite the fact that the module has the functionality to disable the interventions of XiaomiParts, Dolby, Viper4Android and other equalizers, the module is one of the few that can additionally adjust the Dolby parameters in your system;
- - Does not require you to have professional audio knowledge for its installation;
- - This is a non-commercial project, existing on the pure initiative of a small team: you won't see paid subscriptions for full functionality or other paid distribution anywhere;
- - Working with ACDB (audio calibration database) files at the system level: editing (removing various companders and other audio limiters), partial and complete deletion from the system;
- - System patching of Dolby files to remove artificial limitations and remove audio codec limits imposed by device manufacturers to artificially limit more budget devices in audio quality.
- - And many other things that can be listed for a long time, just try it!
+[![Magisk](https://img.shields.io/badge/Root-Magisk%20%7C%20KernelSU%20%7C%20APatch-orange?style=for-the-badge&logo=android)](https://github.com/Briclyaz/NLSound_module_QCom)
+[![Platform](https://img.shields.io/badge/Platform-Qualcomm%20%7C%20MediaTek-blue?style=for-the-badge)](https://github.com/Briclyaz/NLSound_module_QCom)
+[![Telegram Updates](https://img.shields.io/badge/Channel-@nlsound__updates-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_updates)
+[![Telegram Support](https://img.shields.io/badge/Support-@nlsound__support-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/nlsound_support)
 
-## 📲 Requirements:
- - A device with a Qualcomm processor at least SD625;
- - Obtained root access rights on your device;
- - Availability of root manager (Magisk, KernelSU, APatch).
+</div>
 
-## 🎵 Download:
-All versions can be downloaded under the [Releases](https://github.com/Briclyaz/NLSound_module_QCom/releases) tab or in official [Telegram Channel](https://t.me/nlsound_updates)
+---
 
-## 💬 Any other questions? 
-[Welcome to our support chat in Telegram](https://t.me/nlsound_support/116804)
+## ❓ What is NLSound and why do you need it?
 
+By default, stock Android treats your audio hardware very conservatively. To prevent cheap built-in speakers from rattling, Android heavily **compresses audio dynamics**, **cuts deep sub-bass frequencies**, enforces **coarse 15-step volume sliders**, and limits Bluetooth bitrate.
+
+**NLSound** is an all-in-one system audio module for rooted Android devices. It safely removes software limiters, tunes low-level hardware registers, and unlocks the true capabilities of your phone's DAC, speaker amplifiers, and microphones.
+
+> 💡 **No background apps or battery drain:** NLSound modifies system configurations and driver registers directly. Once installed, it works completely in the background without needing companion apps or background services.
+
+---
+
+## 🚀 Key Features at a Glance
+
+### 🎚️ 1. Smooth Volume & Hardware Gain
+* **More Volume Steps:** Increases the media volume slider from the stock 15 steps to **30, 50, or 100 steps** for precise, smooth control.
+* **Independent Preamp Boost:** Fine-tune the hardware digital output level for speakers and wired headphones without affecting Bluetooth audio.
+* **Microphone Sensitivity:** Adjust digital recording gain (DEC) to boost quiet voices or prevent clipping in noisy environments.
+
+### 🎧 2. True Hi-Fi & Sub-Bass Restoration
+* **Sub-bass Unlocked (4 Hz):** Lowers the built-in headphone High-Pass Filter (HPF) cutoff from ~25 Hz down to **4 Hz**, restoring deep, physical sub-bass in wired headphones.
+* **Direct PCM Routing:** Unlocks `DIRECT_PCM` flags, allowing supported players (Poweramp, UAPP, Neutron) to send untouched audio straight to the DAC, bypassing the Android OS mixer.
+* **Custom Bit Depth & Sample Rate:** Configure system-wide PCM targets (up to 24/32-bit and 96/192/384 kHz) without forced downsampling.
+
+### 🔇 3. Dynamic Limiters & DRC Removal
+* **Disable Audio Throttling:** Removes Dynamic Range Compression (DRC) and artificial low-battery volume throttling.
+* **Softclip & Compander Off:** Disables aggressive volume compression that flattens dynamic range during intense music passages.
+
+### 📶 4. Enhanced Wireless (Bluetooth) Audio
+* **SBC HD Dual Channel:** Unlocks high-bitrate playback for the universal SBC codec.
+* **aptX Adaptive Enhancements:** Enables advanced aptX Adaptive 2.1/2.2 and Lossless LE profiles.
+* **Fix Quiet Headphones:** Disables Android's buggy Absolute Volume feature, fixing low-volume issues on wireless headphones.
+
+### 🎛️ 5. Clean Effects & Dolby Atmos Tuning
+* **Effects Cleanup:** Disables fake spatializers, phase delays, and synthetic reverbs while preserving your favorite graphic equalizers and call audio clarity.
+* **Dolby Atmos DAX Tuning:** Removes the hollow "audio in a bucket" effect, turns off annoying volume pumping, and flattens dialogue compression.
+
+### 📱 6. Model-Specific Hardware Register Presets
+* Automatically identifies onboard hardware (Cirrus Logic, Texas Instruments TAS, NXP TFA, Awinic, Qualcomm WSA/WCD).
+* Pre-configured, device-tailored ALSA mixer parameters (`tinymix`) for dozens of popular Xiaomi, OnePlus, Realme, Samsung, Sony, and Google Pixel smartphones.
+
+---
+
+## 🛠️ Step-by-Step Interactive Installer
+
+When flashing NLSound in your root manager, an interactive terminal menu lets you choose exactly what you want using your **Volume Buttons**:
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ [01/15] VOLUME CONTROL STEPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ Changes the number of steps on the media
+ volume slider (stock Android has only 15).
+
+ [*] 30 or 50 is recommended for balanced control.
+
+  [VOL+] Next item   ┃   [VOL-] Select
+
+ 1. Skip      • Default (15 steps)
+ 2. 30 steps  • [Recommended] Balanced
+ 3. 50 steps  • Smooth control
+ 4. 100 steps • Fine-grained control
+```
+
+* **[VOL+]** — Move down the list / Confirm installation.
+* **[VOL-]** — Select highlighted option / Skip step.
+* **1-Click Profile Restore:** When updating the module, press **[VOL+]** at the first prompt to automatically restore your previous configuration!
+
+---
+
+## 📋 Compatibility & Requirements
+
+* **Root Solution:** [Magisk](https://github.com/topjohnwu/Magisk) (v24+), [KernelSU](https://github.com/tiann/KernelSU), or [APatch](https://github.com/bmax121/APatch).
+* **Overlay Architecture:** Fully compatible with Magic Mount, **KernelSU OverlayFS**, and **Mountify**.
+* **Audio Mods:** 100% compatible with Audio Modification Library (AML), ViPER4Android, and JamesDSP.
+* **Processors:**
+  * **Qualcomm Snapdragon:** Comprehensive support (Snapdragon 625 up to 8 Elite).
+  * **MediaTek:** Preliminary support for Dimensity and Helio platforms.
+* **Android Versions:** Android 9.0 up to Android 15+.
+
+---
+
+## 📥 Installation
+
+1. Download the latest release `.zip` from [Releases](https://github.com/Briclyaz/NLSound_module_QCom/releases) or our [Telegram Channel](https://t.me/nlsound_updates).
+2. Open **Magisk**, **KernelSU**, or **APatch** app.
+3. Go to the **Modules** section and select **Install from storage**.
+4. Select the downloaded `.zip` file.
+5. Follow the on-screen prompts using your **Volume Keys**.
+6. Reboot your device after the installation finishes.
+
+---
+
+## 💬 Support & Community
+
+Have questions, suggestions, or want to report a bug?
+* 📢 **Announcements & Updates:** [@nlsound_updates](https://t.me/nlsound_updates)
+* 💬 **Community Support Chat:** [@nlsound_support](https://t.me/nlsound_support)
+
+---
+
+<div align="center">
+
+**Made with ❤️ by the NLSound Team**
+
+*Non-commercial, open-source project. No ads, no tracking, no paid paywalls.*
+
+</div>
