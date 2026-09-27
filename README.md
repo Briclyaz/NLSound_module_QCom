@@ -190,9 +190,25 @@ When flashing NLSound in your root manager, an interactive terminal menu lets yo
 
 ---
 
-## Star History
+## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/chart?repos=Briclyaz/NLSound_module_QCom&type=timeline&logscale&legend=top-left)](https://www.star-history.com/?repos=Briclyaz%2FNLSound_module_QCom&type=timeline&logscale&legend=top-right)
+<div align="center">
+
+<a href="https://star-history.com/#Briclyaz/NLSound_module_QCom&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" />
+    <img alt="NLSound Star History Chart" src="https://api.star-history.com/svg?repos=Briclyaz/NLSound_module_QCom&type=Date" width="750" />
+  </picture>
+</a>
+
+<br><br>
+
+[![Star on GitHub](https://img.shields.io/badge/Leave%20a%20Star-⭐-gold?style=for-the-badge&logo=github)](https://github.com/Briclyaz/NLSound_module_QCom/stargazers)
+
+*If you appreciate the sound improvements, please support the project with a star!*
+
+</div>
 
 ---
 
